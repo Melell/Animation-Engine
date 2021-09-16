@@ -3,16 +3,32 @@
 #include <GLFW/glfw3.h>
 
 
+void error_callback(int error, const char* description)
+{
+    std::cout << "GLFW error with code " << error << ": " << description << std::endl;
+}
+
+
 int main(void)
 {
     GLFWwindow* window;
+
+    glfwSetErrorCallback(error_callback);
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
+
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1280, 720, "Hello World", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -29,6 +45,9 @@ int main(void)
         std::cout << "GLEW initialization failed\n";
         return 0;
     }
+
+    // Enable v-sync
+    glfwSwapInterval(1);
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 

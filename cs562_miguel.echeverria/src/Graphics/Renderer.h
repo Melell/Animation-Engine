@@ -1,0 +1,42 @@
+/**
+* @file Renderer.h
+* @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
+* @date 2020/25/09
+* @brief Singleton in charge of rendering the scene.
+*
+* @copyright Copyright (C) 2020 DigiPen Institute of Technology .
+*/
+
+#pragma once
+
+#include "Window.h"
+
+
+namespace cs460
+{
+	class Renderer
+	{
+	public:
+	
+		~Renderer();
+
+		static Renderer& get_instance();
+
+		bool initialize();
+		void render();
+		void close();
+
+		Window& get_window();
+
+	private:
+
+		Window m_window;
+
+		void set_gl_properties();
+
+		// For singleton pattern
+		Renderer();
+		Renderer(const Renderer&) = delete;
+		Renderer& operator=(const Renderer&) = delete;
+	};
+}

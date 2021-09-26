@@ -14,8 +14,9 @@ namespace cs460
 {
 	struct TransformData
 	{
-		glm::vec3 m_position;
-		glm::vec3 m_scale;
-		glm::quat m_orientation;
+		glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_orientation{ 0.0f, 0.0f, 0.0f };
+		//glm::quat m_orientation{0.0f, 0.0f, 0.0f, 1.0f};
 	};
 }

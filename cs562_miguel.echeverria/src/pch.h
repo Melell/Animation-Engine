@@ -7,6 +7,9 @@
 #include <list>
 #include <unordered_map>
 #include <map>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 // GLM header files
 #include <glm/glm.hpp>

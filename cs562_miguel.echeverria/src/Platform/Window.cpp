@@ -9,7 +9,6 @@
 
 #include "pch.h"
 #include "Window.h"
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 
@@ -63,12 +62,12 @@ namespace cs460
 	void Window::update()
 	{
 		glfwSwapBuffers(m_handle);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glfwPollEvents();
 	}
 
 	void Window::close()
 	{
+		glfwDestroyWindow(m_handle);
 		glfwTerminate();
 	}
 
@@ -82,6 +81,12 @@ namespace cs460
 	bool Window::get_window_should_close() const
 	{
 		return glfwWindowShouldClose(m_handle);
+	}
+
+	// Set the glfw flag that indicates that the window is requested to be closed
+	void Window::set_window_should_close(int value)
+	{
+		glfwSetWindowShouldClose(m_handle, value);
 	}
 
 	GLFWwindow* Window::get_handle() const

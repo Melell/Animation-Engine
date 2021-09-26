@@ -9,12 +9,15 @@
 
 #include "pch.h"
 #include "Scene.h"
+#include "SceneNode.h"
 
 
 namespace cs460
 {
 	Scene::Scene()
+		:	m_root(new SceneNode("ROOT"))
 	{
+
 	}
 	
 	Scene::~Scene()
@@ -26,5 +29,9 @@ namespace cs460
 	{
 		static Scene instance;
 		return instance;
+	}
+	SceneNode* Scene::get_root() const
+	{
+		return m_root;
 	}
 }

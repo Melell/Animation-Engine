@@ -12,15 +12,21 @@
 
 namespace cs460
 {
+	class SceneNode;
+
+
 	class Scene
 	{
 	public:
 	
 		~Scene();
 		static Scene& get_instance();
+
+		SceneNode* get_root() const;
 	
 	private:
 	
+		SceneNode* m_root;
 		
 		// For singleton pattern
 		Scene();

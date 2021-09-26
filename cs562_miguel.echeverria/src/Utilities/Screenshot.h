@@ -1,3 +1,7 @@
 #pragma once
 
-void SaveScreenShot(const char* filename);
+
+namespace cs460
+{
+	void SaveScreenShot(const char* filename);
+}

@@ -10,6 +10,7 @@
 #include "pch.h"
 #include "Engine.h"
 #include "Graphics/Renderer.h"
+#include "GUI/Editor.h"
 
 
 namespace cs460
@@ -17,8 +18,12 @@ namespace cs460
 	// Initialization of the engine and all its systems
 	bool Engine::initialize()
 	{
-		// Initialize the renderer
+		// IMPORTANT!! Initialize the renderer first, as it initializes glfw, which might be needed for other systems like input
 		if (!Renderer::get_instance().initialize())
+			return false;
+
+		// Initialize imgui and set up the context for gui drawing
+		if (!Editor::get_instance().initialize())
 			return false;
 
 		return true;
@@ -29,15 +34,25 @@ namespace cs460
 	void Engine::update()
 	{
 		Renderer& renderer = Renderer::get_instance();
+		Editor& editor = Editor::get_instance();
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())
 		{
+			// Do all the gui logic
+			editor.update();
+
 			// Render the scene
 			renderer.render();
 
+			// Render the gui
+			editor.render();
+
 			// Swap buffers, clear the back buffer and poll for events
 			renderer.get_window().update();
+
+			// Clear the frame buffer for the next frame
+			renderer.clear_fb();
 		}
 	}
 
@@ -45,7 +60,8 @@ namespace cs460
 	// Close the engine by releasing any resources in use
 	void Engine::close()
 	{
-		Renderer::get_instance().close();
+		Editor::get_instance().close();					// Terminate imgui
+		Renderer::get_instance().close();				// Buffer cleanup
 		Renderer::get_instance().get_window().close();	// Terminate glfw
 	}
 }

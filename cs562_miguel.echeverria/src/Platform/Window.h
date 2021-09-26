@@ -29,8 +29,10 @@ namespace cs460
 		// 1/0 -> Use/not use v-sync
 		void set_swap_interval(int interval);
 
-		bool get_window_should_close() const;	// Returns true if the window has been requested to be closed (for example the red x has been pressed)
-		GLFWwindow* get_handle() const;			// Get the glfw handle of the window
+		bool get_window_should_close() const;		// Returns true if the window has been requested to be closed (for example the red x has been pressed)
+		void set_window_should_close(int value);	// Set the glfw flag that indicates that the window is requested to be closed
+
+		GLFWwindow* get_handle() const;				// Get the glfw handle of the window
 		int get_width() const;
 		int get_height() const;
 

@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Window.h"
+#include "Platform/Window.h"
 
 
 namespace cs460
@@ -25,6 +25,8 @@ namespace cs460
 		bool initialize();
 		void render();
 		void close();
+
+		void clear_fb();		// Clear the frame buffer color and depth
 
 		Window& get_window();
 

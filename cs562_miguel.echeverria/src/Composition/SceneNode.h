@@ -18,9 +18,22 @@ namespace cs460
 	class SceneNode
 	{
 	public:
-	
+		
+		SceneNode(const std::string& name = "Unnamed");
+		~SceneNode();
+
+		std::string m_name;			// "Gameobject" name
+		TransformData m_localTr;	// Local transform (with respect to parent)
+		TransformData m_worldTr;	// World transform (with respect world origin)
+
+		void create_child(const std::string& name);		// Create a new node and add it as this node's child
+
+		// Getters for the parent and children nodes
+		SceneNode* get_parent() const;
+		const std::vector<SceneNode*>& get_children() const;
+
 	private:
-		TransformData m_localTr;
-		TransformData m_worldTr;
+		SceneNode* m_parent;
+		std::vector<SceneNode*> m_children;
 	};
 }

@@ -61,6 +61,12 @@ namespace cs460
 		
 	}
 
+	// Clear the frame buffer color and depths
+	void Renderer::clear_fb()
+	{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
 	Window& Renderer::get_window()
 	{
 		return m_window;

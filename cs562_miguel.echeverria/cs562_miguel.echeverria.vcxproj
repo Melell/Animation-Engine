@@ -123,7 +123,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\Application\Engine.cpp" />
+    <ClCompile Include="src\Components\IComponent.cpp" />
+    <ClCompile Include="src\Components\Model.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
+    <ClCompile Include="src\GUI\ComponentsGUI.cpp" />
     <ClCompile Include="src\GUI\EditorState.cpp" />
     <ClCompile Include="src\GUI\MainMenuBarGUI.cpp" />
     <ClCompile Include="src\GUI\SceneGraphGUI.cpp" />
@@ -140,6 +143,7 @@
     <ClCompile Include="src\Application\LibrariesDefinition.cpp" />
     <ClCompile Include="src\Utilities\DebugCallbacks.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Utilities\Rtti.cpp" />
     <ClCompile Include="src\Utilities\Screenshot.cpp" />
     <ClCompile Include="src\Composition\TransformData.cpp" />
   </ItemGroup>
@@ -154,7 +158,10 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Application\Engine.h" />
+    <ClInclude Include="src\Components\IComponent.h" />
+    <ClInclude Include="src\Components\Model.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
+    <ClInclude Include="src\GUI\ComponentsGUI.h" />
     <ClInclude Include="src\GUI\EditorState.h" />
     <ClInclude Include="src\GUI\MainMenuBarGUI.h" />
     <ClInclude Include="src\GUI\SceneGraphGUI.h" />
@@ -164,6 +171,7 @@
     <ClInclude Include="src\Composition\SceneNode.h" />
     <ClInclude Include="src\Composition\Scene.h" />
     <ClInclude Include="src\Utilities\DebugCallbacks.h" />
+    <ClInclude Include="src\Utilities\Rtti.h" />
     <ClInclude Include="src\Utilities\Screenshot.h" />
     <ClInclude Include="src\Composition\TransformData.h" />
   </ItemGroup>

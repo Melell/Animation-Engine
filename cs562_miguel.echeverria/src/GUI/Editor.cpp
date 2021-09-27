@@ -65,6 +65,7 @@ namespace cs460
 
         m_mainMenuBar.update();
         m_sceneGraphGui.update();
+        m_componentEditor.update();
 
         // Show the demo window for reference
         ImGui::ShowDemoWindow();

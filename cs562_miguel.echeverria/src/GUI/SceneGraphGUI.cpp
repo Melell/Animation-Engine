@@ -33,7 +33,7 @@ namespace cs460
 		SceneNode* tree = Scene::get_instance().get_root();
 		display_node_info(tree);
 
-		if (m_name_popup_active)
+		if (m_newnode_popup_active || m_newname_popup_active)
 			ImGui::OpenPopup("Set Name Popup");
 
 		new_node_name_popup();
@@ -104,7 +104,10 @@ namespace cs460
 		if (ImGui::BeginPopup("Right Click Popup"))
 		{
 			if (ImGui::Selectable("Add New Node"))
-				m_name_popup_active = true;
+				m_newnode_popup_active = true;
+
+			if (ImGui::Selectable("Change Name"))
+				m_newname_popup_active = true;
 
 			ImGui::EndPopup();
 		}
@@ -122,16 +125,24 @@ namespace cs460
 
 		if (ImGui::BeginPopupModal("Set Name Popup", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::Text("Please enter the new node's name.\n");
+			ImGui::Text("Please enter the node's name.\n");
 			ImGui::Separator();
 
 			ImGui::InputText("Name", state.m_textBuffer, IM_ARRAYSIZE(state.m_textBuffer));
 
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				state.m_selectedNode->create_child(state.m_textBuffer);
-				state.m_selectedNode = state.m_selectedNode->get_children().back();
-				m_name_popup_active = false;
+				if (m_newnode_popup_active)
+				{
+					state.m_selectedNode = state.m_selectedNode->create_child(state.m_textBuffer);
+					m_newnode_popup_active = false;
+				}
+				if (m_newname_popup_active)
+				{
+					state.m_selectedNode->m_name = state.m_textBuffer;
+					m_newname_popup_active = false;
+				}
+
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -140,7 +151,8 @@ namespace cs460
 
 			if (ImGui::Button("Cancel", ImVec2(120, 0)))
 			{
-				m_name_popup_active = false;
+				m_newnode_popup_active = false;
+				m_newname_popup_active = false;
 				ImGui::CloseCurrentPopup();
 			}
 

@@ -29,7 +29,8 @@ namespace cs460
 		void node_popup();							// Displays a popup with special options like creating a new node (called when a node is right clicked)
 		void new_node_name_popup();					// Displays a popup modal for setting the name of the new node
 
-		bool m_name_popup_active = false;
+		bool m_newnode_popup_active = false;
+		bool m_newname_popup_active = false;
 
 		SceneGraphGUI();
 	};

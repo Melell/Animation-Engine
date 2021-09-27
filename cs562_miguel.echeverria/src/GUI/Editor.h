@@ -13,6 +13,7 @@
 #include "EditorState.h"
 #include "MainMenuBarGUI.h"
 #include "SceneGraphGUI.h"
+#include "ComponentsGUI.h"
 
 
 namespace cs460
@@ -40,6 +41,7 @@ namespace cs460
 		EditorState m_state;
 		MainMenuBarGUI m_mainMenuBar;
 		SceneGraphGUI m_sceneGraphGui;
+		ComponentsGUI m_componentEditor;
 
 		Editor();
 		Editor(const Editor&) = delete;

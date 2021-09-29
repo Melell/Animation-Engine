@@ -9,6 +9,7 @@
 
 #include "pch.h"
 #include "Renderer.h"
+#include "Components/MeshRenderable.h"
 #include <GL/glew.h>
 
 
@@ -52,6 +53,8 @@ namespace cs460
 
 	void Renderer::render()
 	{
+		for (int i = 0; i < m_renderables.size(); ++i)
+			m_renderables[i]->render_primitives();
 	}
 
 	void Renderer::close()

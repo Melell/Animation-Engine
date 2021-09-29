@@ -8,16 +8,20 @@
 */
 
 #include "pch.h"
-#include "Model.h"
+#include "ModelInstance.h"
 #include "IComponent.h"
+#include "Graphics/Model.h"
+#include "Resources/ResourceManager.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
 
 namespace cs460
 {
-	void Model::load_gltf()
+	// Load all the nodes from the gltf filePath onto the scene graph, each referencing their corresponding mesh
+	void ModelInstance::load_gltf_nodes(const std::string& filePath)
 	{
+		// Use tinygltf to parse the file and get the data
 		tinygltf::Model model;
 		tinygltf::TinyGLTF loader;
 		std::string errorStr;
@@ -38,22 +42,19 @@ namespace cs460
 			return;
 		}
 
-		process_model_data(model);
+		process_nodes_data(model);
 	}
 
-	void Model::process_model_data(const tinygltf::Model& model)
+	// Process the model structure to create the necessary nodes in the scene graph
+	void ModelInstance::process_nodes_data(const tinygltf::Model& model)
 	{
-		model.scenes[0].name;	// Name of the root?
 
-		for (int nodeIdx : model.scenes[0].nodes)
-		{
-			model.nodes[nodeIdx];
-		}
 	}
 
-	void Model::on_gui()
+
+	void ModelInstance::on_gui()
 	{
-		if (ImGui::BeginCombo("GLTF File", m_fileName.c_str()))
+		if (ImGui::BeginCombo("GLTF File", m_previewName.c_str()))
 		{
 			try
 			{
@@ -73,9 +74,9 @@ namespace cs460
 						const std::string& filename = dir_it.path().filename().generic_string();
 						if (ImGui::Selectable(filename.c_str()))
 						{
-							m_fileName = filename;
-							m_filePath = dir_it.path().generic_string();
-							load_gltf();
+							m_previewName = filename;
+							m_model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
+							load_gltf_nodes(dir_it.path().generic_string());
 						}
 					}
 				}

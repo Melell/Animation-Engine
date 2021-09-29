@@ -11,7 +11,7 @@
 #include "pch.h"
 #include "SceneNode.h"
 #include "Components/IComponent.h"
-#include "Components/Model.h"
+#include "Components/ModelInstance.h"
 #include <imgui/imgui.h>
 
 
@@ -58,9 +58,9 @@ namespace cs460
 		if (ImGui::BeginPopup("New Comp Popup"))
 		{
 			// Horrible hardcode, this will change
-			if (ImGui::Selectable("Model"))
+			if (ImGui::Selectable("ModelInstance"))
 			{
-				add_component<Model>();
+				add_component<ModelInstance>();
 			}
 
 			ImGui::EndPopup();

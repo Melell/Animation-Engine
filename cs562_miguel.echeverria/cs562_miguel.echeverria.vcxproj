@@ -94,6 +94,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="include\gltf\examples\examples\basic\main.cpp" />
+    <ClCompile Include="include\gltf\examples\examples\basic\shaders.cpp" />
+    <ClCompile Include="include\gltf\examples\examples\basic\window.cpp" />
     <ClCompile Include="include\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -124,7 +127,11 @@
     </ClCompile>
     <ClCompile Include="src\Application\Engine.cpp" />
     <ClCompile Include="src\Components\IComponent.cpp" />
-    <ClCompile Include="src\Components\Model.cpp" />
+    <ClCompile Include="src\Components\ModelInstance.cpp" />
+    <ClCompile Include="src\Components\MeshRenderable.cpp" />
+    <ClCompile Include="src\Graphics\Mesh.cpp" />
+    <ClCompile Include="src\Graphics\Model.cpp" />
+    <ClCompile Include="src\Graphics\Primitive.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\GUI\ComponentsGUI.cpp" />
     <ClCompile Include="src\GUI\EditorState.cpp" />
@@ -141,6 +148,7 @@
     <ClCompile Include="src\Composition\SceneNode.cpp" />
     <ClCompile Include="src\Composition\Scene.cpp" />
     <ClCompile Include="src\Application\LibrariesDefinition.cpp" />
+    <ClCompile Include="src\Resources\ResourceManager.cpp" />
     <ClCompile Include="src\Utilities\DebugCallbacks.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Utilities\Rtti.cpp" />
@@ -148,6 +156,8 @@
     <ClCompile Include="src\Composition\TransformData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\gltf\examples\examples\basic\shaders.h" />
+    <ClInclude Include="include\gltf\examples\examples\basic\window.h" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
     <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
@@ -159,7 +169,11 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Application\Engine.h" />
     <ClInclude Include="src\Components\IComponent.h" />
-    <ClInclude Include="src\Components\Model.h" />
+    <ClInclude Include="src\Components\ModelInstance.h" />
+    <ClInclude Include="src\Components\MeshRenderable.h" />
+    <ClInclude Include="src\Graphics\Mesh.h" />
+    <ClInclude Include="src\Graphics\Model.h" />
+    <ClInclude Include="src\Graphics\Primitive.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\GUI\ComponentsGUI.h" />
     <ClInclude Include="src\GUI\EditorState.h" />
@@ -170,6 +184,7 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Composition\SceneNode.h" />
     <ClInclude Include="src\Composition\Scene.h" />
+    <ClInclude Include="src\Resources\ResourceManager.h" />
     <ClInclude Include="src\Utilities\DebugCallbacks.h" />
     <ClInclude Include="src\Utilities\Rtti.h" />
     <ClInclude Include="src\Utilities\Screenshot.h" />

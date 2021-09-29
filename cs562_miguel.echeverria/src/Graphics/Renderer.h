@@ -14,6 +14,9 @@
 
 namespace cs460
 {
+	class MeshRenderable;
+
+
 	class Renderer
 	{
 	public:
@@ -32,6 +35,7 @@ namespace cs460
 
 	private:
 
+		std::vector<MeshRenderable*> m_renderables;		// All the components that reference a mesh in a model
 		Window m_window;
 
 		void set_gl_properties();

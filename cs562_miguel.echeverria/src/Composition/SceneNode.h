@@ -12,10 +12,17 @@
 
 #include "TransformData.h"
 
+namespace tinygltf
+{
+	class Model;
+	class Node;
+}
+
 
 namespace cs460
 {
 	class IComponent;
+	class Model;
 
 
 	class SceneNode
@@ -29,21 +36,29 @@ namespace cs460
 		TransformData m_localTr;	// Local transform (with respect to parent)
 		TransformData m_worldTr;	// World transform (with respect world origin)
 
-		SceneNode* create_child(const std::string& name);		// Create a new node and add it as this node's child
+		void delete_all_components();		// Free all the components of this node
+		void delete_all_children();			// Free all the children of this node
+		void clear();						// Free all the components and children of this node
 
-		// Component management functions ----------------
+		// Create a new node and add it as this node's child
+		SceneNode* create_child(const std::string& name);
+
+		// Generates all the data for this scenenode from a gltf node
+		void from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model const* sourceRsrc, SceneNode const* modelRootNode);
+
+		// -------------------------- Component management functions --------------------------
 		template<typename T>
 		T* add_component();
 
 		template<typename T>
-		T* get_component();
+		T* get_component() const;
 
 		template<typename T>
 		void delete_component();
 
 		template<typename T>
 		void delete_component(T* compToDelete);
-		// -----------------------------------------------
+		// ------------------------------------------------------------------------------------
 
 		void on_gui();	// Show the components gui
 
@@ -57,6 +72,7 @@ namespace cs460
 		std::vector<SceneNode*> m_children;
 		std::vector<IComponent*> m_components;
 
+		void set_localtr_from_gltf_node(const tinygltf::Node& node);
 		void show_transforms_gui();
 	};
 
@@ -78,7 +94,7 @@ namespace cs460
 	}
 
 	template<typename T>
-	T* SceneNode::get_component()
+	T* SceneNode::get_component() const
 	{
 		for (int i = 0; i < m_components.size(); ++i)
 			if (T* comp = dynamic_cast<T*>(m_components[i]))

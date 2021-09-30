@@ -37,7 +37,7 @@ namespace cs460
 		}
 	}
 
-	Primitive* Mesh::get_primitve(int index)
+	Primitive const* Mesh::get_primitve(int index) const
 	{
 		if (index < 0 || index >= m_primitives.size())
 			return nullptr;
@@ -45,7 +45,7 @@ namespace cs460
 		return &m_primitives[index];
 	}
 
-	std::vector<Primitive>& Mesh::get_all_primitives()
+	const std::vector<Primitive>& Mesh::get_all_primitives() const
 	{
 		return m_primitives;
 	}
@@ -55,6 +55,8 @@ namespace cs460
 	{
 		for (int i = 0; i < m_primitives.size(); ++i)
 			m_primitives[i].delete_gl_buffers();
+
+		m_primitives.clear();
 	}
 
 

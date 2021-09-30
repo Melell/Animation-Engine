@@ -11,6 +11,11 @@
 
 #include "Components/IComponent.h"
 
+namespace tinygltf
+{
+	class Model;
+}
+
 
 namespace cs460
 {

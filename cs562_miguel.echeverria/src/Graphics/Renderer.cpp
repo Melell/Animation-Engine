@@ -10,6 +10,9 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Components/MeshRenderable.h"
+#include "Graphics/Model.h"
+#include "Composition/SceneNode.h"
+#include "Components/ModelInstance.h"
 #include <GL/glew.h>
 
 
@@ -54,7 +57,18 @@ namespace cs460
 	void Renderer::render()
 	{
 		for (int i = 0; i < m_renderables.size(); ++i)
+		{
+			// Skip drawing the mesh if it is not active
+			if (!m_renderables[i]->get_active())
+				continue;
+
+			// Skip drawing the mesh if its entire model is not active
+			ModelInstance* modelInst = m_renderables[i]->get_model_root_node()->get_component<ModelInstance>();
+			if (!modelInst->get_active())
+				continue;
+
 			m_renderables[i]->render_primitives();
+		}
 	}
 
 	void Renderer::close()
@@ -70,11 +84,36 @@ namespace cs460
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+
+	// Adds a mesh renderable components to the internal vector, so that it can be rendered
+	void Renderer::add_mesh_renderable(MeshRenderable* renderable)
+	{
+		//auto foundIt = std::find(m_renderables.begin(), m_renderables.end(), renderable);
+
+		// Probably won't happen, but just in case, check if the renderable is already in the vector to not add it twice
+		//if (foundIt != m_renderables.end())
+		//	return;
+
+		m_renderables.push_back(renderable);
+	}
+
+	// Removes a mesh renderable component from the internal vector that is being rendered
+	void Renderer::remove_mesh_renderable(MeshRenderable* renderable)
+	{
+		auto foundIt = std::find(m_renderables.begin(), m_renderables.end(), renderable);
+
+		// Nothing to remove if not in the vector
+		if (foundIt == m_renderables.end())
+			return;
+
+		m_renderables.erase(foundIt);
+	}
+
+
 	Window& Renderer::get_window()
 	{
 		return m_window;
 	}
-
 
 	void Renderer::set_gl_properties()
 	{

@@ -19,6 +19,9 @@ namespace cs460
 	// Calls a private virtual ongui so that the ongui of the actual component gets called
 	void IComponent::show_gui()
 	{
+		//ImGui::Checkbox("Active", &m_active);
+		//ImGui::SameLine();
+
 		if (ImGui::CollapsingHeader(getTypeName(*this).erase(0, 7).c_str()))
 		{
 			bool deleteComp = false;

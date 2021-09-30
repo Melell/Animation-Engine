@@ -29,7 +29,7 @@ namespace cs460
 		// Loads a gltf file (only meshes, primitives and material, but not the nodes)
 		void load_gltf(const std::string& filePath);
 
-		Mesh* get_mesh(int index);
+		Mesh const* get_mesh(int index) const;
 
 		// Releases all the resources used by the meshes
 		void clear();

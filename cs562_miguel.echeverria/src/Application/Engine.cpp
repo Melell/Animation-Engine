@@ -11,6 +11,7 @@
 #include "Engine.h"
 #include "Graphics/Renderer.h"
 #include "GUI/Editor.h"
+#include "Composition/Scene.h"
 
 
 namespace cs460
@@ -24,6 +25,10 @@ namespace cs460
 
 		// Initialize imgui and set up the context for gui drawing
 		if (!Editor::get_instance().initialize())
+			return false;
+
+		// Initialize the scene graph (create the root node)
+		if (!Scene::get_instance().initialize())
 			return false;
 
 		return true;
@@ -60,6 +65,7 @@ namespace cs460
 	// Close the engine by releasing any resources in use
 	void Engine::close()
 	{
+		Scene::get_instance().close();					// Release the memory of all the scene nodes
 		Editor::get_instance().close();					// Terminate imgui
 		Renderer::get_instance().close();				// Buffer cleanup
 		Renderer::get_instance().get_window().close();	// Terminate glfw

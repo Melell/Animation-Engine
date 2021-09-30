@@ -30,8 +30,8 @@ namespace cs460
 		// Processes the data from a tinygltf model's mesh into this mesh
 		void process_mesh_data(const tinygltf::Model& model, const tinygltf::Mesh& mesh);
 
-		Primitive* get_primitve(int index);
-		std::vector<Primitive>& get_all_primitives();
+		Primitive const* get_primitve(int index) const;
+		const std::vector<Primitive>& get_all_primitives() const;
 
 		// Release all resources allocated by the mesh.
 		void clear();

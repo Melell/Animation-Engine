@@ -22,12 +22,22 @@ namespace cs460
 		~Scene();
 		static Scene& get_instance();
 
+		// System management functions
+		bool initialize();
+		void update();
+		void close();
+
+		// Delete all the nodes in the scene graph
+		void clear();
+
 		SceneNode* get_root() const;
 	
 	private:
 	
 		SceneNode* m_root;
 		
+		void delete_tree(SceneNode* node);		// Recursive function to free the memory of all the nodes
+
 		// For singleton pattern
 		Scene();
 		Scene(const Scene&) = delete;

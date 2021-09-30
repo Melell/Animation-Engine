@@ -29,14 +29,18 @@ namespace cs460
 		void render();
 		void close();
 
-		void clear_fb();		// Clear the frame buffer color and depth
+		// Clear the frame buffer color and depth
+		void clear_fb();
+		
+		void add_mesh_renderable(MeshRenderable* renderable);		// Adds a mesh renderable component to the internal vector, so that it can be rendered
+		void remove_mesh_renderable(MeshRenderable* renderable);	// Removes a mesh renderable component from the internal vector that is being rendered
 
 		Window& get_window();
 
 	private:
 
-		std::vector<MeshRenderable*> m_renderables;		// All the components that reference a mesh in a model
 		Window m_window;
+		std::vector<MeshRenderable*> m_renderables;		// All the components that reference a mesh in a model
 
 		void set_gl_properties();
 

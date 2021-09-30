@@ -30,7 +30,7 @@ namespace cs460
 		void process_primitive_data(const tinygltf::Model& model, const tinygltf::Primitive& primitive);
 
 		// Draw the primitive
-		void render();
+		void render() const;
 
 		// Free all the opengl buffers used by this primitive
 		void delete_gl_buffers();

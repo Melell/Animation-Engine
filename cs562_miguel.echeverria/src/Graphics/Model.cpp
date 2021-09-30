@@ -57,7 +57,7 @@ namespace cs460
 		process_model_data(model);
 	}
 
-	Mesh* Model::get_mesh(int index)
+	Mesh const* Model::get_mesh(int index) const
 	{
 		if (index < 0 || index >= m_meshes.size())
 			return nullptr;
@@ -70,6 +70,8 @@ namespace cs460
 	{
 		for (int i = 0; i < m_meshes.size(); ++i)
 			m_meshes[i].clear();
+
+		m_meshes.clear();
 	}
 
 	// Compare two models based on their filename

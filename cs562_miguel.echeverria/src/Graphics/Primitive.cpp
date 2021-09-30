@@ -113,7 +113,7 @@ namespace cs460
 
 
 	// Draw the primitive
-	void Primitive::render()
+	void Primitive::render() const
 	{
 		glBindVertexArray(m_vao);
 

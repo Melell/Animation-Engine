@@ -12,6 +12,7 @@
 #include "IComponent.h"
 #include "Graphics/Model.h"
 #include "Resources/ResourceManager.h"
+#include "Composition/SceneNode.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
@@ -27,7 +28,7 @@ namespace cs460
 		std::string errorStr;
 		std::string warningStr;
 
-		bool ret = loader.LoadASCIIFromFile(&model, &errorStr, &warningStr, m_filePath);
+		bool ret = loader.LoadASCIIFromFile(&model, &errorStr, &warningStr, filePath);
 		//bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, argv[1]); // for binary glTF(.glb)
 
 		if (!warningStr.empty())
@@ -48,7 +49,16 @@ namespace cs460
 	// Process the model structure to create the necessary nodes in the scene graph
 	void ModelInstance::process_nodes_data(const tinygltf::Model& model)
 	{
+		int sceneIdx = model.defaultScene > 0 ? model.defaultScene : 0;
+		const std::vector<int>& nodesIndices = model.scenes[sceneIdx].nodes;
 
+		// Create the immeadiate children, and generate their children and other data
+		for (int i = 0; i < nodesIndices.size(); ++i)
+		{
+			const tinygltf::Node& node = model.nodes[nodesIndices[i]];
+			SceneNode* child = get_owner()->create_child(node.name);
+			child->from_gltf_node(model, node, m_model, get_owner());
+		}
 	}
 
 

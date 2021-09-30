@@ -43,6 +43,8 @@ namespace cs460
 				it.second = nullptr;
 			}
 		}
+
+		m_models.clear();
 	}
 
 

@@ -133,6 +133,7 @@
     <ClCompile Include="src\Graphics\Model.cpp" />
     <ClCompile Include="src\Graphics\Primitive.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
+    <ClCompile Include="src\Graphics\Shader.cpp" />
     <ClCompile Include="src\GUI\ComponentsGUI.cpp" />
     <ClCompile Include="src\GUI\EditorState.cpp" />
     <ClCompile Include="src\GUI\MainMenuBarGUI.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="src\Graphics\Model.h" />
     <ClInclude Include="src\Graphics\Primitive.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
+    <ClInclude Include="src\Graphics\Shader.h" />
     <ClInclude Include="src\GUI\ComponentsGUI.h" />
     <ClInclude Include="src\GUI\EditorState.h" />
     <ClInclude Include="src\GUI\MainMenuBarGUI.h" />

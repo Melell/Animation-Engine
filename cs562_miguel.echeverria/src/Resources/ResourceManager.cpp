@@ -37,7 +37,7 @@ namespace cs460
 	// Loads all the necessary resources for the demos. Meant to be called in Engine::Initialize.
 	void ResourceManager::load_resources()
 	{
-		load_shader("simple", "data/Shaders/simple.vert", "data/Shaders/simple.frag");
+		load_shader("simple", "src/Shaders/simple.vert", "src/Shaders/simple.frag");
 	}
 
 

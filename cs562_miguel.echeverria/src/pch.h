@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <map>
 #include <filesystem>
+#include <fstream>
 
 namespace fs = std::filesystem;
 
@@ -16,6 +17,8 @@ namespace fs = std::filesystem;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 // Project files
 #include "Utilities/DebugCallbacks.h"

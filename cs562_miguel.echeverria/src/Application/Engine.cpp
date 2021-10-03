@@ -12,6 +12,8 @@
 #include "Graphics/Renderer.h"
 #include "GUI/Editor.h"
 #include "Composition/Scene.h"
+#include "Resources/ResourceManager.h"
+#include "Platform/FrameRateController.h"
 
 
 namespace cs460
@@ -31,6 +33,9 @@ namespace cs460
 		if (!Scene::get_instance().initialize())
 			return false;
 
+		// Load all the necessary resources beforehand (mainly shaders)
+		ResourceManager::get_instance().load_resources();
+
 		return true;
 	}
 
@@ -40,12 +45,20 @@ namespace cs460
 	{
 		Renderer& renderer = Renderer::get_instance();
 		Editor& editor = Editor::get_instance();
+		Scene& scene = Scene::get_instance();
+		FrameRateController& frc = FrameRateController::get_instance();
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())
 		{
+			// Update the editor camera (the way the camera is organized will change)
+			scene.get_camera().update();
+
 			// Do all the gui logic
 			editor.update();
+
+			// Update all the model to local and model to world matrices
+			scene.update();
 
 			// Render the scene
 			renderer.render();
@@ -58,6 +71,9 @@ namespace cs460
 
 			// Clear the frame buffer for the next frame
 			renderer.clear_fb();
+
+			// End the measurement and store a new dt
+			frc.end_frame();
 		}
 	}
 

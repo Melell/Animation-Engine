@@ -14,6 +14,11 @@ namespace cs460
 {
 	struct TransformData
 	{
+		glm::mat4 get_model_mtx() const;
+		glm::mat4 get_translation_mtx() const;
+		glm::mat4 get_scale_mtx() const;
+		glm::mat4 get_rotation_mtx() const;
+
 		glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
 		glm::quat m_orientation{ 1.0f, 0.0f, 0.0f, 0.0f };

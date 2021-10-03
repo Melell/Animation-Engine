@@ -9,6 +9,8 @@
 
 #include "pch.h"
 #include "ResourceManager.h"
+#include "Graphics/Model.h"
+#include "Graphics/Shader.h"
 
 
 namespace cs460
@@ -32,9 +34,23 @@ namespace cs460
 	}
 
 
+	// Loads all the necessary resources for the demos. Meant to be called in Engine::Initialize.
+	void ResourceManager::load_resources()
+	{
+		load_shader("simple", "data/Shaders/simple.vert", "data/Shaders/simple.frag");
+	}
+
+
 	// Release all the resources allocated.
 	void ResourceManager::clear_resources()
 	{
+		clear_models();
+		clear_shaders();
+	}
+
+	void ResourceManager::clear_models()
+	{
+		// Free the memory of the models
 		for (auto it : m_models)
 		{
 			if (it.second != nullptr)
@@ -45,6 +61,21 @@ namespace cs460
 		}
 
 		m_models.clear();
+	}
+
+	void ResourceManager::clear_shaders()
+	{
+		// Free the memory of the shaders
+		for (auto it : m_shaders)
+		{
+			if (it.second != nullptr)
+			{
+				delete it.second;
+				it.second = nullptr;
+			}
+		}
+
+		m_shaders.clear();
 	}
 
 
@@ -64,5 +95,37 @@ namespace cs460
 		}
 
 		return m_models[filePath];
+	}
+
+
+	// Get the shader associated to the name provided.
+	// Returns nullptr if the shader hasn't been loaded already.
+	Shader* ResourceManager::get_shader(const std::string& shaderIdName)
+	{
+		auto foundIt = m_shaders.find(shaderIdName);
+
+		// If not found it, return null
+		if (foundIt == m_shaders.end())
+			return nullptr;
+
+		return foundIt->second;
+	}
+
+	// Loads, compiles and links the vertex and fragment shaders provided, and stores the resulting program in the
+	// resource manager, with shaderIdName as key. Any calls to get_shader should have this key as parameter to
+	// retreive again the shader resource.
+	void ResourceManager::load_shader(const std::string& shaderIdName, const std::string& vertexPath, const std::string& fragmentPath)
+	{
+		auto foundIt = m_shaders.find(shaderIdName);
+
+		if (foundIt != m_shaders.end())
+		{
+			std::cout << "ERROR: Shader with key \"" << shaderIdName << "\" already exists\n";
+			return;
+		}
+
+		Shader* newShader = new Shader;
+		newShader->create_shader_program(vertexPath, fragmentPath);
+		m_shaders[shaderIdName] = newShader;
 	}
 }

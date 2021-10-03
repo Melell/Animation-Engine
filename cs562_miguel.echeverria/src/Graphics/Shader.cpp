@@ -14,6 +14,7 @@
 
 namespace cs460
 {
+
 #define DEBUG 1
 
 #if DEBUG
@@ -22,49 +23,47 @@ namespace cs460
     static std::ostringstream debug;
 #endif // DEBUG
 
-    shader* shader::CreateShaderProgram(const std::string& vertShader, const std::string& fragShader)
+
+    // Uploads the source, compiles and links the provided vertex and fragment shaders into an opengl shader program
+    void Shader::create_shader_program(const std::string& vertShader, const std::string& fragShader)
     {
-        shader* shaderProgram = new shader();
         // First pass shader program
-        if (!shaderProgram->CompileShaderFromFile(vertShader.c_str(), GLSLShader::VERTEX))
-        {
-            std::cout << vertShader << std::endl << shaderProgram->Log() << std::endl;
-        }
-        if (!shaderProgram->CompileShaderFromFile(fragShader.c_str(), GLSLShader::FRAGMENT))
-        {
-            std::cout << fragShader << std::endl << shaderProgram->Log() << std::endl;
-        }
+        if (!compile_shader_from_file(vertShader.c_str(), Type::VERTEX))
+            std::cout << vertShader << std::endl << log() << std::endl;
 
-        if (!shaderProgram->Link())
-        {
-            std::cout << shaderProgram->Log() << std::endl;
-        }
+        if (!compile_shader_from_file(fragShader.c_str(), Type::FRAGMENT))
+            std::cout << fragShader << std::endl << log() << std::endl;
 
-        return shaderProgram;
+        if (!link())
+            std::cout << log() << std::endl;
     }
 
-    shader::shader() : handle_(0), linked_(false) {}
-
-    shader::~shader()
+    Shader::Shader()
+        :   m_handle(0),
+            m_linked(false)
     {
-        if (handle_ > 0)
-            glDeleteProgram(handle_);
     }
 
-    bool shader::CompileShaderFromFile(const char* fileName, GLSLShader::GLSLShaderType type)
+    Shader::~Shader()
     {
-        if (!FileExists(fileName))
+        if (m_handle > 0)
+            glDeleteProgram(m_handle);
+    }
+
+    bool Shader::compile_shader_from_file(const char* fileName, Shader::Type type)
+    {
+        if (!file_exists(fileName))
         {
-            log_string_ = "File not found.";
+            m_log = "File not found.";
             return false;
         }
 
-        if (handle_ <= 0)
+        if (m_handle <= 0)
         {
-            handle_ = glCreateProgram();
-            if (handle_ == 0)
+            m_handle = glCreateProgram();
+            if (m_handle == 0)
             {
-                log_string_ = "Unable to create shader program.";
+                m_log = "Unable to create shader program.";
                 return false;
             }
         }
@@ -84,17 +83,17 @@ namespace cs460
         }
         inFile.close();
 
-        return CompileShaderFromString(code.str(), type);
+        return compile_shader_from_string(code.str(), type);
     }
 
-    bool shader::CompileShaderFromString(const std::string& source, GLSLShader::GLSLShaderType type)
+    bool Shader::compile_shader_from_string(const std::string& source, Shader::Type type)
     {
-        if (handle_ <= 0)
+        if (m_handle <= 0)
         {
-            handle_ = glCreateProgram();
-            if (handle_ == 0)
+            m_handle = glCreateProgram();
+            if (m_handle == 0)
             {
-                log_string_ = "Unable to create shader program.";
+                m_log = "Unable to create shader program.";
                 return false;
             }
         }
@@ -103,22 +102,22 @@ namespace cs460
 
         switch (type)
         {
-        case GLSLShader::VERTEX:
+        case Type::VERTEX:
             shaderhandle_ = glCreateShader(GL_VERTEX_SHADER);
             break;
-        case GLSLShader::FRAGMENT:
+        case Type::FRAGMENT:
             shaderhandle_ = glCreateShader(GL_FRAGMENT_SHADER);
             break;
-        case GLSLShader::GEOMETRY:
+        case Type::GEOMETRY:
             shaderhandle_ = glCreateShader(GL_GEOMETRY_SHADER);
             break;
-        case GLSLShader::TESS_CONTROL:
+        case Type::TESSELATION_CONTROL:
             shaderhandle_ = glCreateShader(GL_TESS_CONTROL_SHADER);
             break;
-        case GLSLShader::TESS_EVALUATION:
+        case Type::TESSELATION_EVALUATION:
             shaderhandle_ = glCreateShader(GL_TESS_EVALUATION_SHADER);
             break;
-        case GLSLShader::COMPUTE:
+        case Type::COMPUTE:
             shaderhandle_ = glCreateShader(GL_COMPUTE_SHADER);
             break;
         default:
@@ -138,14 +137,14 @@ namespace cs460
         {
             // Compile failed, store log and return false
             int length = 0;
-            log_string_ = "";
+            m_log = "";
             glGetShaderiv(shaderhandle_, GL_INFO_LOG_LENGTH, &length);
             if (length > 0)
             {
                 char* c_log = new char[length];
                 int    written = 0;
                 glGetShaderInfoLog(shaderhandle_, length, &written, c_log);
-                log_string_ = c_log;
+                m_log = c_log;
                 delete[] c_log;
             }
 
@@ -154,38 +153,38 @@ namespace cs460
         else
         {
             // Compile succeeded, attach shader and return true
-            glAttachShader(handle_, shaderhandle_);
+            glAttachShader(m_handle, shaderhandle_);
 
             glDeleteShader(shaderhandle_);
             return true;
         }
     }
 
-    bool shader::Link()
+    bool Shader::link()
     {
-        if (linked_)
+        if (m_linked)
             return true;
-        if (handle_ <= 0)
+        if (m_handle <= 0)
             return false;
 
-        glLinkProgram(handle_);
+        glLinkProgram(m_handle);
 
         int status = 0;
-        glGetProgramiv(handle_, GL_LINK_STATUS, &status);
+        glGetProgramiv(m_handle, GL_LINK_STATUS, &status);
         if (GL_FALSE == status)
         {
             // Store log and return false
             int length = 0;
-            log_string_ = "";
+            m_log = "";
 
-            glGetProgramiv(handle_, GL_INFO_LOG_LENGTH, &length);
+            glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &length);
 
             if (length > 0)
             {
                 char* c_log = new char[length];
                 int    written = 0;
-                glGetProgramInfoLog(handle_, length, &written, c_log);
-                log_string_ = c_log;
+                glGetProgramInfoLog(m_handle, length, &written, c_log);
+                m_log = c_log;
                 delete[] c_log;
             }
 
@@ -193,176 +192,148 @@ namespace cs460
         }
         else
         {
-            linked_ = true;
-            return linked_;
+            m_linked = true;
+            return m_linked;
         }
     }
 
-    void shader::Use() const
+    void Shader::use() const
     {
-        if (handle_ <= 0 || (!linked_))
+        if (m_handle <= 0 || (!m_linked))
             return;
 
-        glUseProgram(handle_);
+        glUseProgram(m_handle);
     }
 
-    std::string shader::Log() const { return log_string_; }
-
-    int shader::GetHandle() const { return handle_; }
-
-    bool shader::IsLinked() const { return linked_; }
-
-    void shader::BindAttribLocation(GLuint location, const char* name)
+    std::string Shader::log() const
     {
-        glBindAttribLocation(handle_, location, name);
+        return m_log;
     }
 
-    void shader::BindFragDataLocation(GLuint location, const char* name)
+    int Shader::get_handle() const
     {
-        glBindFragDataLocation(handle_, location, name);
+        return m_handle;
     }
 
-    void shader::SetUniform(const std::string& name, float x, float y, float z) const
+    bool Shader::is_linked() const
     {
-        int loc = GetUniformLocation(name);
+        return m_linked;
+    }
+
+    void Shader::bind_attrib_location(unsigned int location, const char* name)
+    {
+        glBindAttribLocation(m_handle, location, name);
+    }
+
+    void Shader::bind_frag_data_location(unsigned int location, const char* name)
+    {
+        glBindFragDataLocation(m_handle, location, name);
+    }
+
+    void Shader::set_uniform(const std::string& name, float x, float y, float z) const
+    {
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform3f(loc, x, y, z);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, const glm::vec2& v) const
+    void Shader::set_uniform(const std::string& name, const glm::vec2& v) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform2f(loc, v.x, v.y);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, const glm::vec3& v) const
+    void Shader::set_uniform(const std::string& name, const glm::vec3& v) const
     {
-        this->SetUniform(name, v.x, v.y, v.z);
+        set_uniform(name, v.x, v.y, v.z);
     }
 
-    void shader::SetUniform(const std::string& name, const glm::vec4& v) const
+    void Shader::set_uniform(const std::string& name, const glm::vec4& v) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform4f(loc, v.x, v.y, v.z, v.w);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, const glm::mat4& m) const
+    void Shader::set_uniform(const std::string& name, const glm::mat4& m) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
         if (loc >= 0)
-        {
             glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, const glm::mat3& m) const
+    void Shader::set_uniform(const std::string& name, const glm::mat3& m) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniformMatrix3fv(loc, 1, GL_FALSE, &m[0][0]);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, float val) const
+    void Shader::set_uniform(const std::string& name, float val) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform1f(loc, val);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, int val) const
+    void Shader::set_uniform(const std::string& name, int val) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform1i(loc, val);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetUniform(const std::string& name, bool val) const
+    void Shader::set_uniform(const std::string& name, bool val) const
     {
-        int loc = GetUniformLocation(name);
+        int loc = get_uniform_location(name);
 
         if (loc >= 0)
-        {
             glUniform1i(loc, val);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::SetSubroutineUniform(const std::string& name, const std::string& funcName) const
+    void Shader::set_subroutine_uniform(const std::string& name, const std::string& funcName) const
     {
-        GLuint funcLoc = glGetSubroutineIndex(handle_, GL_FRAGMENT_SHADER, funcName.c_str());
-        GLuint loc = glGetSubroutineUniformLocation(handle_, GL_FRAGMENT_SHADER, name.c_str());
+        GLuint funcLoc = glGetSubroutineIndex(m_handle, GL_FRAGMENT_SHADER, funcName.c_str());
+        GLuint loc = glGetSubroutineUniformLocation(m_handle, GL_FRAGMENT_SHADER, name.c_str());
 
         if (loc >= 0)
-        {
-
             glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &funcLoc);
-        }
         else
-        {
             debug << "Uniform: " << name << " not found." << std::endl;
-        }
     }
 
-    void shader::PrintActiveUniforms() const
+    void Shader::print_active_uniforms() const
     {
         GLint    nUniforms, size, location, maxLen;
         GLchar* name;
         GLsizei  written;
         GLenum   type;
 
-        glGetProgramiv(handle_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-        glGetProgramiv(handle_, GL_ACTIVE_UNIFORMS, &nUniforms);
+        glGetProgramiv(m_handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+        glGetProgramiv(m_handle, GL_ACTIVE_UNIFORMS, &nUniforms);
 
         name = (GLchar*)malloc(maxLen);
 
@@ -370,23 +341,23 @@ namespace cs460
         printf("------------------------------------------------\n");
         for (int i = 0; i < nUniforms; ++i)
         {
-            glGetActiveUniform(handle_, i, maxLen, &written, &size, &type, name);
-            location = glGetUniformLocation(handle_, name);
+            glGetActiveUniform(m_handle, i, maxLen, &written, &size, &type, name);
+            location = glGetUniformLocation(m_handle, name);
             printf(" %-8d | %s\n", location, name);
         }
 
         free(name);
     }
 
-    void shader::PrintActiveAttribs() const
+    void Shader::print_active_attribs() const
     {
 
         GLint    written, size, location, maxLength, nAttribs;
         GLenum   type;
         GLchar* name;
 
-        glGetProgramiv(handle_, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-        glGetProgramiv(handle_, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+        glGetProgramiv(m_handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+        glGetProgramiv(m_handle, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 
         name = (GLchar*)malloc(maxLength);
 
@@ -394,17 +365,17 @@ namespace cs460
         printf("------------------------------------------------\n");
         for (int i = 0; i < nAttribs; i++)
         {
-            glGetActiveAttrib(handle_, i, maxLength, &written, &size, &type, name);
-            location = glGetAttribLocation(handle_, name);
+            glGetActiveAttrib(m_handle, i, maxLength, &written, &size, &type, name);
+            location = glGetAttribLocation(m_handle, name);
             printf(" %-5d | %s\n", location, name);
         }
 
         free(name);
     }
 
-    bool Shader::Validate()
+    bool Shader::validate()
     {
-        if (!IsLinked())
+        if (!is_linked())
             return false;
 
         GLint status;

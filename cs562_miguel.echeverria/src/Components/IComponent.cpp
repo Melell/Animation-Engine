@@ -16,6 +16,10 @@
 
 namespace cs460
 {
+	IComponent::~IComponent()
+	{
+	}
+
 	// Calls a private virtual ongui so that the ongui of the actual component gets called
 	void IComponent::show_gui()
 	{

@@ -28,7 +28,7 @@ namespace cs460
 	}
 	SceneNode::~SceneNode()
 	{
-		// Clear in case there are still components/children
+		// Clear in case there are still components
 		clear();
 	}
 
@@ -43,20 +43,10 @@ namespace cs460
 		m_components.clear();
 	}
 
-	// Free all the children of this node
-	void SceneNode::delete_all_children()
-	{
-		for (int i = 0; i < m_children.size(); ++i)
-			m_children[i]->clear();
-
-		m_children.clear();
-	}
-
 	// Free all the components and children of this node
 	void SceneNode::clear()
 	{
 		delete_all_components();
-		delete_all_children();
 	}
 
 	// Create a new node and add it as this node's child (from name)
@@ -147,40 +137,55 @@ namespace cs460
 		// Set the local position, scale and orientation from the gltf node data if it was provided
 		if (node.translation.size())
 		{
-			m_localTr.m_position.x = node.translation[0];
-			m_localTr.m_position.y = node.translation[1];
-			m_localTr.m_position.z = node.translation[2];
+			m_localTr.m_position.x = (float)node.translation[0];
+			m_localTr.m_position.y = (float)node.translation[1];
+			m_localTr.m_position.z = (float)node.translation[2];
 			locationSet = true;
 		}
 		if (node.scale.size())
 		{
-			m_localTr.m_scale.x = node.scale[0];
-			m_localTr.m_scale.y = node.scale[1];
-			m_localTr.m_scale.z = node.scale[2];
+			m_localTr.m_scale.x = (float)node.scale[0];
+			m_localTr.m_scale.y = (float)node.scale[1];
+			m_localTr.m_scale.z = (float)node.scale[2];
 			scaleSet = true;
 		}
 		if (node.rotation.size())
 		{
-			m_localTr.m_orientation.w = node.rotation[0];
-			m_localTr.m_orientation.x = node.rotation[1];
-			m_localTr.m_orientation.y = node.rotation[2];
-			m_localTr.m_orientation.z = node.rotation[3];
+			m_localTr.m_orientation.w = (float)node.rotation[0];
+			m_localTr.m_orientation.x = (float)node.rotation[1];
+			m_localTr.m_orientation.y = (float)node.rotation[2];
+			m_localTr.m_orientation.z = (float)node.rotation[3];
 			orientationSet = true;
 		}
 
+
 		if (node.matrix.size())
 		{
-			// TODO: Decompose to get position
+			// Store the matrix
+			for (int i = 0; i < node.matrix.size(); i += 4)
+					m_modelToLocalMtx[i / 4] = glm::vec4(node.matrix[i], node.matrix[i + 1], node.matrix[i + 2], node.matrix[i + 3]);
+			
+			glm::vec3 position;
+			glm::quat orientation;
+			glm::vec3 scale;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(m_modelToLocalMtx, scale, orientation, position, skew, perspective);
+
+			// Store the position extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!locationSet)
 			{
+				m_localTr.m_position = position;
 			}
-			// TODO: Decompose to get scale
+			// Store the scale extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!scaleSet)
 			{
+				m_localTr.m_scale = scale;
 			}
-			// TODO: Decompose to get orientation
+			// Store the orientation extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!orientationSet)
 			{
+				m_localTr.m_orientation = orientation;
 			}
 		}
 	}

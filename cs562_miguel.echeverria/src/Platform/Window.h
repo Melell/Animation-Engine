@@ -48,4 +48,7 @@ namespace cs460
 		Window(const Window&) = delete;
 		Window& operator=(const Window&) = delete;
 	};
+
+
+	void on_framebuffer_resize(GLFWwindow* window, int newWidth, int newHeight);
 }

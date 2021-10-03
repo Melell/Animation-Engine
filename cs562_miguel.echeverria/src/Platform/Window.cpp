@@ -9,6 +9,7 @@
 
 #include "pch.h"
 #include "Window.h"
+#include "Graphics/Renderer.h"
 #include <GLFW/glfw3.h>
 
 
@@ -54,6 +55,9 @@ namespace cs460
 
 		// Make the window's context current
 		glfwMakeContextCurrent(m_handle);
+
+		glfwSetWindowAspectRatio(m_handle, 16, 9);
+		glfwSetFramebufferSizeCallback(m_handle, &on_framebuffer_resize);
 
 		return true;
 	}
@@ -111,6 +115,13 @@ namespace cs460
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	}
+
+
+	// Callback for when the framebuffer is resized
+	void on_framebuffer_resize(GLFWwindow* window, int newWidth, int newHeight)
+	{
+		Renderer::get_instance().set_viewport(0, 0, newWidth, newHeight);
 	}
 }

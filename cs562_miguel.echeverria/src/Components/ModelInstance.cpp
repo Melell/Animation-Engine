@@ -68,7 +68,7 @@ namespace cs460
 		{
 			try
 			{
-				fs::path startingPath("data");
+				fs::path startingPath("data/Models");
 
 				if (!fs::exists(startingPath) || !fs::is_directory(startingPath))
 				{

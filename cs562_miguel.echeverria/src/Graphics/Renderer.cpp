@@ -67,15 +67,18 @@ namespace cs460
 			if (!modelInst->get_active())
 				continue;
 
+			// Render all the primitives in the current mesh
 			m_renderables[i]->render_primitives();
 		}
 	}
 
 	void Renderer::close()
 	{
-		// Release all buffers???
+	}
 
-		
+	void Renderer::set_viewport(int x, int y, int width, int height)
+	{
+		glViewport(x, y, width, height);
 	}
 
 	// Clear the frame buffer color and depths
@@ -119,9 +122,10 @@ namespace cs460
 	{
 		m_window.set_swap_interval(1);				// Enable v-sync
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glEnable(GL_DEPTH_TEST);
-
+		//glDisable(GL_CULL_FACE);
+		
 		//std::cout << glGetString(GL_VERSION) << std::endl;
 	}
 }

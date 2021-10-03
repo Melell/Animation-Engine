@@ -29,6 +29,8 @@ namespace cs460
 		void render();
 		void close();
 
+		void set_viewport(int x, int y, int width, int height);
+
 		// Clear the frame buffer color and depth
 		void clear_fb();
 		

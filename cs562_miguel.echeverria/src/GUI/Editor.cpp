@@ -10,6 +10,7 @@
 #include "pch.h"
 #include "Editor.h"
 #include "Graphics/Renderer.h"
+#include "Composition/Scene.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -66,6 +67,24 @@ namespace cs460
         m_mainMenuBar.update();
         m_sceneGraphGui.update();
         m_componentEditor.update();
+
+        // TODO: Make own class for this in the future
+        if (ImGui::Begin("CAMERA CONTROLS"))
+        {
+            ImGui::Text("W/S: Movement along view vector");
+            ImGui::Text("A/D: Movement along side vector");
+            ImGui::Text("Q/E: Movement along world up vector");
+            ImGui::Text("Right Click + Drag: Tilt the camera");
+
+            ImGui::Separator();
+
+            Scene& scene = Scene::get_instance();
+            ImGui::SliderFloat("Camera Speed", &scene.get_camera().m_movementSpeed, 1.0f, 30.0f);
+            ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_panSpeed, 10.0f, 60.0f);
+            ImGui::SliderFloat("Camera Mouse Tilt Speed", &scene.get_camera().m_mouseTiltSpeed, 50.0f, 400.0f);
+        }
+
+        ImGui::End();
 
         // Show the demo window for reference
         ImGui::ShowDemoWindow();

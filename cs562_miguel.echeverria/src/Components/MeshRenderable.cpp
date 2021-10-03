@@ -13,6 +13,9 @@
 #include "Graphics/Model.h"
 #include "Graphics/Primitive.h"
 #include "Graphics/Renderer.h"
+#include "Graphics/Shader.h"
+#include "Composition/SceneNode.h"
+#include "Composition/Scene.h"
 
 
 namespace cs460
@@ -32,15 +35,20 @@ namespace cs460
 		if (m_model == nullptr)
 			return;
 
+		Scene& scene = Scene::get_instance();
+
 		// Get all the primitives of the mesh this component is referencing
 		Mesh const * mesh = m_model->get_mesh(m_meshIdx);
 		const std::vector<Primitive>& primitives = mesh->get_all_primitives();
 		for (int i = 0; i < primitives.size(); ++i)
 		{
-			// TODO: Shader setup
-
-			// TODO: Transformation matrices uniform setup
-
+			// Shader and uniform setup
+			Shader* shader = primitives[i].get_shader();
+			shader->use();
+			shader->set_uniform("modelToWorld", get_owner()->m_modelToWorldMtx);				// Set model to world
+			shader->set_uniform("worldToView", scene.get_camera().get_view_mtx());				// Set the view mtx
+			shader->set_uniform("perspectiveProj", scene.get_camera().get_projection_mtx());	// Set the perspective projection matrix
+			
 			// Call render on each primitive
 			primitives[i].render();
 		}

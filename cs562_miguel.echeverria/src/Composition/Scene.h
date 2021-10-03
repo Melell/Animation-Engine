@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "Cameras/EditorCamera.h"
+
 
 namespace cs460
 {
@@ -27,16 +29,20 @@ namespace cs460
 		void update();
 		void close();
 
-		// Delete all the nodes in the scene graph
-		void clear();
+		void clear();							// Delete all the nodes in the scene graph except the root
+		void delete_tree(SceneNode* node);		// Recursive function to free the memory of all the nodes in the given tree
 
 		SceneNode* get_root() const;
 	
+		// The whole camera api will change
+		EditorCamera& get_camera();
+
 	private:
 	
 		SceneNode* m_root;
+		EditorCamera m_camera;
 		
-		void delete_tree(SceneNode* node);		// Recursive function to free the memory of all the nodes
+		void update_node(SceneNode* node);		// Recursive function to update the transform of the provided node
 
 		// For singleton pattern
 		Scene();

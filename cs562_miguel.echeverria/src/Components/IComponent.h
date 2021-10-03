@@ -19,6 +19,8 @@ namespace cs460
 	{
 	public:
 
+		virtual ~IComponent();
+
 		void show_gui();	// Calls a private virtual ongui so that the ongui of the actual component gets called
 
 		// Getter and setter for the scene node that owns this component

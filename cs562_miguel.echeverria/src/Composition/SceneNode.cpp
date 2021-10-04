@@ -14,6 +14,7 @@
 #include "Components/ModelInstance.h"
 #include "Graphics/Model.h"
 #include "Components/MeshRenderable.h"
+#include "Scene.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
@@ -59,7 +60,7 @@ namespace cs460
 	}
 
 	// Generates all the data for this scenenode from a gltf node
-	void SceneNode::from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model const* sourceRsrc, SceneNode const* modelRootNode)
+	void SceneNode::from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model* sourceRsrc, SceneNode const* modelRootNode)
 	{
 		m_name = node.name;
 		set_localtr_from_gltf_node(node);
@@ -91,6 +92,10 @@ namespace cs460
 		ImGui::NewLine();
 
 		show_transforms_gui();
+
+		// Can't add components to the root
+		if (Scene::get_instance().get_root() == this)
+			return;
 
 		for (int i = 0; i < m_components.size(); ++i)
 			m_components[i]->show_gui();

@@ -29,7 +29,7 @@ namespace cs460
 		// Render the primitives of the mesh this component references, with the transform of the node it belongs to.
 		void render_primitives() const;
 
-		void set_model_src(Model const* model);				// Set the pointer to the model resource that this mesh refers to
+		void set_model_src(Model* model);					// Set the pointer to the model resource that this mesh refers to
 		void set_mesh_idx(int meshIdx);						// Set the index of the referenced mesh inside the model's vector of meshes
 		void set_model_root_node(SceneNode const* node);	// Set the root node of the model hierarchy (the one with the model instance component)
 
@@ -40,7 +40,7 @@ namespace cs460
 	private:
 
 		int m_meshIdx = -1;
-		Model const* m_model = nullptr;
+		Model* m_model = nullptr;
 		SceneNode const* m_modelRootNode = nullptr;
 
 		void on_gui() override;

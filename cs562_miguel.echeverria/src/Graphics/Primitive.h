@@ -10,10 +10,14 @@
 
 #pragma once
 
+#include "Graphics/Material.h"
+
+
 namespace tinygltf
 {
 	class Model;
 	struct Primitive;
+	struct Material;
 }
 
 
@@ -36,7 +40,12 @@ namespace cs460
 		// Draw the primitive
 		void render() const;
 
+		// Set the shader this primitive will use for drawing (from its name key) and returns it
+		Shader* set_shader(const std::string& shaderId);
+
+		// Getters for the shader and material
 		Shader* get_shader() const;
+		const Material& get_material() const;
 
 		// Free all the opengl buffers used by this primitive
 		void delete_gl_buffers();
@@ -46,11 +55,15 @@ namespace cs460
 		std::map<int, unsigned> m_vbos;			// Having a map allows us to generate the vbos on the fly without duplicates instead of having two passes
 		//MeshRenderable* m_meshOwner;			// Pointer to the mesh renderable component that owns this primitive
 		Shader* m_shader = nullptr;				// Pointer to the shader resource that will be used for drawing this primitive
+		Material m_material;
 		size_t m_offset = -1;					// Offset into the vbo/ebo
 		size_t m_elementCount = -1;				// The number of elements or vertices to draw (using ebo vs not using it)
 		int m_eboComponentType = -1;			// The type of the ebo data (unsigned char, short etc)
 		int m_mode = -1;						// GL_POINTS, GL_LINES, GL_TRIANGLES etc
 		bool m_usesEbo = false;
-		// Material reference (the material should be as a separate resource?
+
+
+		// Process the material data from the given tinygltf model to this primitive's material
+		void process_material_data(const tinygltf::Model& model, const tinygltf::Material& material);
 	};
 }

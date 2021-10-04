@@ -21,7 +21,7 @@ namespace cs460
 {
 	Primitive::Primitive()
 	{
-		m_shader = ResourceManager::get_instance().get_shader("simple");
+		m_shader = ResourceManager::get_instance().get_shader("phong_color");
 	}
 
 
@@ -44,6 +44,8 @@ namespace cs460
 		m_mode = primitive.mode == -1 ? GL_TRIANGLES : primitive.mode;
 		if (primitive.indices >= 0)
 		{
+			// Generate the ebo buffer in advance
+
 			const tinygltf::Accessor& idxAccessor = model.accessors[primitive.indices];
 			m_offset = idxAccessor.byteOffset;
 			m_elementCount = idxAccessor.count;
@@ -69,27 +71,6 @@ namespace cs460
 		}
 
 
-		// IMPORTANT: This was the previous approach. It worked, but I have changed it so that we don't
-		// create vbos for attributes we don't use. Either way, I will keep it around just in case.
-		
-		// Create a vbo for each buffer view, and upload its corresponding data
-		//m_vbos.resize(model.bufferViews.size());
-		//for (int i = 0; i < model.bufferViews.size(); ++i)
-		//{
-		//	const tinygltf::BufferView& bufView = model.bufferViews[i];
-		//
-		//	// If target is 0 (neither array or elements, ignore this buffer)
-		//	if (bufView.target == 0)
-		//		continue;
-		//
-		//	glGenBuffers(1, &m_vbos[i]);
-		//	glBindBuffer(bufView.target, m_vbos[i]);
-		//
-		//	const std::vector<unsigned char>& buffer = model.buffers[bufView.buffer].data;
-		//	glBufferData(bufView.target, bufView.byteLength, buffer.data() + bufView.byteOffset, GL_STATIC_DRAW);
-		//}
-
-
 		// For every attribute in this primitive
 		for (auto it = primitive.attributes.begin(); it != primitive.attributes.end(); ++it)
 		{
@@ -107,14 +88,16 @@ namespace cs460
 			int attArrayIdx = 0;
 			if (attName == "POSITION")
 				attArrayIdx = 0;
+			else if (attName == "NORMAL")
+				attArrayIdx = 1;
+			else if (attName == "TEXCOORD_0")
+				attArrayIdx = 2;
 			else
 				continue;
-			//else if (attName == "NORMAL")
-			//	attArrayIdx = 1;
-			//else if (attName == "TEXCOORD_0")
-			//	attArrayIdx = 2;
+			//
 			// COLOR_0?
 			// TANGENT?
+			// TEXCOORD_1?
 
 			// If we haven't created the buffer and uploaded the data yet, do it
 			if (m_vbos.find(attAccessor.bufferView) == m_vbos.end())
@@ -147,7 +130,56 @@ namespace cs460
 			glVertexAttribPointer(attArrayIdx, attComponentCount, attAccessor.componentType, normalized, stride, (void*)attAccessor.byteOffset);
 		}
 
+		// Process all the material data (color, textures etc)
+		process_material_data(model, model.materials[primitive.material]);
+
 		glBindVertexArray(0);
+	}
+
+
+	// Process the material data from the given tinygltf model to this primitive's material
+	void Primitive::process_material_data(const tinygltf::Model& model, const tinygltf::Material& material)
+	{
+		m_material.m_baseColor.x = material.pbrMetallicRoughness.baseColorFactor[0];
+		m_material.m_baseColor.y = material.pbrMetallicRoughness.baseColorFactor[1];
+		m_material.m_baseColor.z = material.pbrMetallicRoughness.baseColorFactor[2];
+		m_material.m_baseColor.w = material.pbrMetallicRoughness.baseColorFactor[3];
+		// Actually, currently not using alpha in the shaders
+		
+		// If it has a texture, save it
+		const tinygltf::TextureInfo& baseTexInfo = material.pbrMetallicRoughness.baseColorTexture;
+		if (baseTexInfo.index >= 0)
+		{
+			// Set the texture unit and bind the texture
+			m_material.m_usesTexture = true;
+			m_material.m_baseColorTex.set_texture_unit(baseTexInfo.texCoord);
+			m_material.m_baseColorTex.bind();
+
+			// Get the tinygltf Texture, Image and Sampler classes
+			const tinygltf::Texture& texture = model.textures[baseTexInfo.index];
+			const tinygltf::Image& image = model.images[texture.source];
+			const tinygltf::Sampler& sampler = model.samplers[texture.sampler];
+
+			// Set the texture appropriate texture parameters
+			TextureInformation config;
+			config.m_minFilter = sampler.minFilter;
+			config.m_magFilter = sampler.magFilter;
+			config.m_sWrap = sampler.wrapS;
+			config.m_tWrap = sampler.wrapT;
+			config.m_width = image.width;
+			config.m_height = image.height;
+			config.m_componentType = image.pixel_type;
+			config.m_format = GL_RGBA;
+			if (image.component == 1)
+				config.m_format = GL_RED;
+			else if (image.component == 2)
+				config.m_format = GL_RG;
+			else if (image.component == 3)
+				config.m_format = GL_RGB;
+
+			// Finally, setup the texture parameters and upload the data to the GPU
+			m_material.m_baseColorTex.upload_data(image.image.data(), config);
+		}
 	}
 
 
@@ -164,9 +196,26 @@ namespace cs460
 		glBindVertexArray(0);
 	}
 
+	// Set the shader this primitive will use for drawing (from its name key) and returns it
+	Shader* Primitive::set_shader(const std::string& shaderId)
+	{
+		// Don't set a new shader if it wasn't found
+		Shader* newShader = ResourceManager::get_instance().get_shader(shaderId);
+		if (newShader == nullptr)
+			return m_shader;
+
+		m_shader = newShader;
+		return m_shader;
+	}
+
 	Shader* Primitive::get_shader() const
 	{
 		return m_shader;
+	}
+
+	const Material& Primitive::get_material() const
+	{
+		return m_material;
 	}
 
 	// Free all the opengl buffers used by this primitive

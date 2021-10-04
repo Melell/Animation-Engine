@@ -57,7 +57,7 @@ namespace cs460
 		process_model_data(model);
 	}
 
-	Mesh const* Model::get_mesh(int index) const
+	Mesh* Model::get_mesh(int index)
 	{
 		if (index < 0 || index >= m_meshes.size())
 			return nullptr;

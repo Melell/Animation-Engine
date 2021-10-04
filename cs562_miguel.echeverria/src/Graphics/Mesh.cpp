@@ -45,7 +45,7 @@ namespace cs460
 		return &m_primitives[index];
 	}
 
-	const std::vector<Primitive>& Mesh::get_all_primitives() const
+	std::vector<Primitive>& Mesh::get_all_primitives()
 	{
 		return m_primitives;
 	}

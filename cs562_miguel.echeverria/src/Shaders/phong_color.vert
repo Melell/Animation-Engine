@@ -15,7 +15,6 @@ out vec3 fragViewPos;
 out vec3 viewNormal;
 
 
-
 void main()
 {
 	fragViewPos = vec3(worldToView * modelToWorld * vec4(attPosition, 1.0));

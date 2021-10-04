@@ -38,16 +38,42 @@ namespace cs460
 		Scene& scene = Scene::get_instance();
 
 		// Get all the primitives of the mesh this component is referencing
-		Mesh const * mesh = m_model->get_mesh(m_meshIdx);
-		const std::vector<Primitive>& primitives = mesh->get_all_primitives();
+		Mesh* mesh = m_model->get_mesh(m_meshIdx);
+		std::vector<Primitive>& primitives = mesh->get_all_primitives();
 		for (int i = 0; i < primitives.size(); ++i)
 		{
-			// Shader and uniform setup
+			const glm::mat4& modelToWorld = get_owner()->m_modelToWorldMtx;
+			const glm::mat4& worldToView = scene.get_camera().get_view_mtx();
+			const glm::mat4& perspectiveProjection = scene.get_camera().get_projection_mtx();
+
+			// Decide between phong and phong_texture
 			Shader* shader = primitives[i].get_shader();
+			const Material& material = primitives[i].get_material();
+			if (material.m_usesTexture)
+				shader = primitives[i].set_shader("phong_texture");
+			else
+				shader = primitives[i].set_shader("phong_color");
+
+			// Shader and uniform setup
 			shader->use();
-			shader->set_uniform("modelToWorld", get_owner()->m_modelToWorldMtx);				// Set model to world
-			shader->set_uniform("worldToView", scene.get_camera().get_view_mtx());				// Set the view mtx
-			shader->set_uniform("perspectiveProj", scene.get_camera().get_projection_mtx());	// Set the perspective projection matrix
+			shader->set_uniform("modelToWorld", modelToWorld);				// Set model to world
+			shader->set_uniform("worldToView", worldToView);				// Set the view mtx
+			shader->set_uniform("perspectiveProj", perspectiveProjection);	// Set the perspective projection matrix
+			shader->set_uniform("normalViewMtx", glm::transpose(glm::inverse(glm::mat3(worldToView * modelToWorld))));
+
+			// Set the light properties
+			shader->set_uniform("light.m_direction", scene.m_lightProperties.m_direction);
+			shader->set_uniform("light.m_ambient", scene.m_lightProperties.m_ambient);
+			shader->set_uniform("light.m_diffuse", scene.m_lightProperties.m_diffuse);
+			shader->set_uniform("light.m_specular", scene.m_lightProperties.m_specular);
+
+			// Set the material properties
+			if (material.m_usesTexture)
+				shader->set_uniform("mat.m_diffuse", material.m_baseColorTex.get_texture_unit());
+			else
+				shader->set_uniform("mat.m_diffuse", glm::vec3(material.m_baseColor));
+
+			shader->set_uniform("mat.m_shininess", 32.0f);
 			
 			// Call render on each primitive
 			primitives[i].render();
@@ -55,7 +81,7 @@ namespace cs460
 	}
 
 	// Set the pointer to the model resource that this mesh refers to
-	void MeshRenderable::set_model_src(Model const* model)
+	void MeshRenderable::set_model_src(Model* model)
 	{
 		m_model = model;
 	}

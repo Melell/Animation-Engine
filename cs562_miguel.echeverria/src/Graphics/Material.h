@@ -9,11 +9,16 @@
 
 #pragma once
 
+#include "Texture.h"
+
 
 namespace cs460
 {
 	struct Material
 	{
 		glm::vec4 m_baseColor;
+		Texture m_baseColorTex;
+		bool m_usesTexture;
+		//bool m_doubleSided;
 	};
 }

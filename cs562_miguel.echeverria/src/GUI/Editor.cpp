@@ -68,7 +68,10 @@ namespace cs460
         m_sceneGraphGui.update();
         m_componentEditor.update();
 
+        Scene& scene = Scene::get_instance();
+
         // TODO: Make own class for this in the future
+        // (CAMERA CONTROLS AND PARAMETERS)
         if (ImGui::Begin("CAMERA CONTROLS"))
         {
             ImGui::Text("W/S: Movement along view vector");
@@ -78,13 +81,28 @@ namespace cs460
 
             ImGui::Separator();
 
-            Scene& scene = Scene::get_instance();
             ImGui::SliderFloat("Camera Speed", &scene.get_camera().m_movementSpeed, 1.0f, 30.0f);
-            ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_panSpeed, 10.0f, 60.0f);
+            ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_keyboardTiltSpeed, 10.0f, 60.0f);
             ImGui::SliderFloat("Camera Mouse Tilt Speed", &scene.get_camera().m_mouseTiltSpeed, 50.0f, 400.0f);
         }
 
         ImGui::End();
+
+
+        // TODO: Make own class for this in the future
+        // (LIGHT PROPERTIES)
+        if (ImGui::Begin("LIGHT PROPERTIES"))
+        {
+            ImGui::InputFloat3("Direction", glm::value_ptr(scene.m_lightProperties.m_direction), "%.2f");
+
+            ImGuiColorEditFlags flags = ImGuiColorEditFlags_::ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_::ImGuiColorEditFlags_NoAlpha;
+            ImGui::ColorEdit3("Ambient", glm::value_ptr(scene.m_lightProperties.m_ambient), flags);
+            ImGui::ColorEdit3("Diffuse", glm::value_ptr(scene.m_lightProperties.m_diffuse), flags);
+            ImGui::ColorEdit3("Specular", glm::value_ptr(scene.m_lightProperties.m_specular), flags);
+        }
+
+        ImGui::End();
+
 
         // Show the demo window for reference
         ImGui::ShowDemoWindow();

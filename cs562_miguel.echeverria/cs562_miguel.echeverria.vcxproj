@@ -134,6 +134,7 @@
     <ClCompile Include="src\Graphics\Primitive.cpp" />
     <ClCompile Include="src\Graphics\Renderer.cpp" />
     <ClCompile Include="src\Graphics\Shader.cpp" />
+    <ClCompile Include="src\Graphics\Texture.cpp" />
     <ClCompile Include="src\GUI\ComponentsGUI.cpp" />
     <ClCompile Include="src\GUI\EditorState.cpp" />
     <ClCompile Include="src\GUI\MainMenuBarGUI.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="src\Composition\TransformData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\gltf\tiny_gltf.h" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
     <ClInclude Include="include\imgui\imgui_impl_glfw.h" />
@@ -179,6 +181,7 @@
     <ClInclude Include="src\Graphics\Primitive.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />
     <ClInclude Include="src\Graphics\Shader.h" />
+    <ClInclude Include="src\Graphics\Texture.h" />
     <ClInclude Include="src\GUI\ComponentsGUI.h" />
     <ClInclude Include="src\GUI\EditorState.h" />
     <ClInclude Include="src\GUI\MainMenuBarGUI.h" />

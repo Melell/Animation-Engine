@@ -46,7 +46,7 @@ namespace cs460
 		SceneNode* create_child(const std::string& name);
 
 		// Generates all the data for this scenenode from a gltf node
-		void from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model const* sourceRsrc, SceneNode const* modelRootNode);
+		void from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model* sourceRsrc, SceneNode const* modelRootNode);
 
 		// -------------------------- Component management functions --------------------------
 		template<typename T>

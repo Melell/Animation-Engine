@@ -135,15 +135,15 @@ namespace cs460
 			set_target(get_target() + displacement);
 		}
 
-		// Movement of the view vector itself (panning around with keyboard)
+		// Movement of the view vector itself (tilting camera around with keyboard)
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-			set_target(get_target() + get_right_vec() * m_panSpeed * frc.get_dt_float());
+			set_target(get_target() + get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-			set_target(get_target() - get_right_vec() * m_panSpeed * frc.get_dt_float());
+			set_target(get_target() - get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-			set_target(get_target() + get_up_vec() * m_panSpeed * frc.get_dt_float());
+			set_target(get_target() + get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-			set_target(get_target() - get_up_vec() * m_panSpeed * frc.get_dt_float());
+			set_target(get_target() - get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 
 
 		// Only allow mouse panning when right click is held

@@ -73,6 +73,7 @@ namespace cs460
 				if (!fs::exists(startingPath) || !fs::is_directory(startingPath))
 				{
 					std::cout << "ERROR: Starting path doesn't exist or is not a directory\n";
+					ImGui::EndCombo();
 					return;
 				}
 

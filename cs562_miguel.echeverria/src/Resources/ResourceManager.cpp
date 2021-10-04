@@ -38,6 +38,8 @@ namespace cs460
 	void ResourceManager::load_resources()
 	{
 		load_shader("simple", "src/Shaders/simple.vert", "src/Shaders/simple.frag");
+		load_shader("phong_color", "src/Shaders/phong_color.vert", "src/Shaders/phong_color.frag");
+		load_shader("phong_texture", "src/Shaders/phong_texture.vert", "src/Shaders/phong_texture.frag");
 	}
 
 
@@ -106,7 +108,10 @@ namespace cs460
 
 		// If not found it, return null
 		if (foundIt == m_shaders.end())
+		{
+			std::cout << "WARNING: The requested shader was not found in the resource manager\n";
 			return nullptr;
+		}
 
 		return foundIt->second;
 	}

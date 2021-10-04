@@ -16,6 +16,15 @@ namespace cs460
 {
 	class SceneNode;
 
+	// Should this go on a separate file and inside a different class?
+	struct LightProperties
+	{
+		glm::vec3 m_direction{-1.0f, -1.0f, -1.0f};
+		glm::vec3 m_ambient{0.2f, 0.2f, 0.2f};
+		glm::vec3 m_diffuse{0.5f, 0.5f, 0.5f};
+		glm::vec3 m_specular{1.0f, 1.0f, 1.0f};
+	};
+
 
 	class Scene
 	{
@@ -36,6 +45,8 @@ namespace cs460
 	
 		// The whole camera api will change
 		EditorCamera& get_camera();
+
+		LightProperties m_lightProperties;
 
 	private:
 	

@@ -71,6 +71,8 @@ namespace cs460
 		}
 
 
+		const tinygltf::Material& material = model.materials[primitive.material];
+
 		// For every attribute in this primitive
 		for (auto it = primitive.attributes.begin(); it != primitive.attributes.end(); ++it)
 		{
@@ -90,7 +92,7 @@ namespace cs460
 				attArrayIdx = 0;
 			else if (attName == "NORMAL")
 				attArrayIdx = 1;
-			else if (attName == "TEXCOORD_0")
+			else if (attName == "TEXCOORD_" + std::to_string(material.pbrMetallicRoughness.baseColorTexture.texCoord))
 				attArrayIdx = 2;
 			else
 				continue;
@@ -131,7 +133,7 @@ namespace cs460
 		}
 
 		// Process all the material data (color, textures etc)
-		process_material_data(model, model.materials[primitive.material]);
+		process_material_data(model, material);
 
 		glBindVertexArray(0);
 	}
@@ -140,6 +142,7 @@ namespace cs460
 	// Process the material data from the given tinygltf model to this primitive's material
 	void Primitive::process_material_data(const tinygltf::Model& model, const tinygltf::Material& material)
 	{
+		m_material.m_usesTexture = false;
 		m_material.m_baseColor.x = material.pbrMetallicRoughness.baseColorFactor[0];
 		m_material.m_baseColor.y = material.pbrMetallicRoughness.baseColorFactor[1];
 		m_material.m_baseColor.z = material.pbrMetallicRoughness.baseColorFactor[2];
@@ -158,17 +161,25 @@ namespace cs460
 			// Get the tinygltf Texture, Image and Sampler classes
 			const tinygltf::Texture& texture = model.textures[baseTexInfo.index];
 			const tinygltf::Image& image = model.images[texture.source];
-			const tinygltf::Sampler& sampler = model.samplers[texture.sampler];
+			
 
 			// Set the texture appropriate texture parameters
 			TextureInformation config;
-			config.m_minFilter = sampler.minFilter;
-			config.m_magFilter = sampler.magFilter;
-			config.m_sWrap = sampler.wrapS;
-			config.m_tWrap = sampler.wrapT;
+
+			// Sampler parameters (sampler could not exist)
+			if (texture.sampler >= 0)
+			{
+				const tinygltf::Sampler& sampler = model.samplers[texture.sampler];
+				config.m_minFilter = sampler.minFilter >= 0 ? sampler.minFilter : config.m_minFilter;
+				config.m_magFilter = sampler.magFilter >= 0 ? sampler.magFilter : config.m_magFilter;
+				config.m_sWrap = sampler.wrapS;
+				config.m_tWrap = sampler.wrapT;
+			}
+			
 			config.m_width = image.width;
 			config.m_height = image.height;
 			config.m_componentType = image.pixel_type;
+
 			config.m_format = GL_RGBA;
 			if (image.component == 1)
 				config.m_format = GL_RED;
@@ -186,6 +197,9 @@ namespace cs460
 	// Draw the primitive
 	void Primitive::render() const
 	{
+		if (m_material.m_usesTexture)
+			m_material.m_baseColorTex.bind();
+
 		glBindVertexArray(m_vao);
 
 		if (m_usesEbo)

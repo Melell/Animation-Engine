@@ -45,7 +45,7 @@ namespace cs460
 		float m_mouseTiltSpeed = 100.0f;
 
 	private:
-		glm::vec3 m_position = glm::vec3(0.0f, 0.0f, 50.0f);
+		glm::vec3 m_position = glm::vec3(0.0f, 0.0f, 25.0f);
 		glm::vec3 m_target = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::mat4 m_viewMtx;
 		PerspectiveCamera m_camera;

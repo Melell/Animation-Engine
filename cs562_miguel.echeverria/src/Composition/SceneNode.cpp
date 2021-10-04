@@ -156,10 +156,10 @@ namespace cs460
 		}
 		if (node.rotation.size())
 		{
-			m_localTr.m_orientation.w = (float)node.rotation[0];
-			m_localTr.m_orientation.x = (float)node.rotation[1];
-			m_localTr.m_orientation.y = (float)node.rotation[2];
-			m_localTr.m_orientation.z = (float)node.rotation[3];
+			m_localTr.m_orientation.x = (float)node.rotation[0];
+			m_localTr.m_orientation.y = (float)node.rotation[1];
+			m_localTr.m_orientation.z = (float)node.rotation[2];
+			m_localTr.m_orientation.w = (float)node.rotation[3];
 			orientationSet = true;
 		}
 
@@ -200,18 +200,18 @@ namespace cs460
 		if (ImGui::CollapsingHeader("Transform"))
 		{
 			ImGui::Text("Local");
-			ImGui::DragFloat3("Position", glm::value_ptr(m_localTr.m_position));
-			ImGui::DragFloat3("Rotation", glm::value_ptr(m_localTr.m_orientation));
-			ImGui::DragFloat3("Scale", glm::value_ptr(m_localTr.m_scale));
+			ImGui::DragFloat3("Position##0", glm::value_ptr(m_localTr.m_position));
+			ImGui::DragFloat3("Rotation##0", glm::value_ptr(m_localTr.m_orientation));
+			ImGui::DragFloat3("Scale##0", glm::value_ptr(m_localTr.m_scale));
 
 			//ImGui::NewLine();
-			ImGui::Separator();
+			//ImGui::Separator();
 			//ImGui::NewLine();
 
-			ImGui::Text("World");
-			ImGui::DragFloat3("Position", glm::value_ptr(m_worldTr.m_position));
-			ImGui::DragFloat3("Rotation", glm::value_ptr(m_worldTr.m_orientation));
-			ImGui::DragFloat3("Scale", glm::value_ptr(m_worldTr.m_scale));
+			//ImGui::Text("World");
+			//ImGui::DragFloat3("Position##1", glm::value_ptr(m_worldTr.m_position));
+			//ImGui::DragFloat3("Rotation##1", glm::value_ptr(m_worldTr.m_orientation));
+			//ImGui::DragFloat3("Scale##1", glm::value_ptr(m_worldTr.m_scale));
 		}
 	}
 }

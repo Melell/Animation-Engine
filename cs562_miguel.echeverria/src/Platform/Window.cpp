@@ -65,6 +65,11 @@ namespace cs460
 	// Swaps the buffers, clears them, and polls for events
 	void Window::update()
 	{
+		// TODO: Put this in another place
+		if (glfwGetKey(m_handle, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&
+			glfwGetKey(m_handle, GLFW_KEY_Q) == GLFW_PRESS)
+			set_window_should_close(1);
+
 		glfwSwapBuffers(m_handle);
 		glfwPollEvents();
 	}

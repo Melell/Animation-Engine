@@ -10,6 +10,9 @@
 #include "pch.h"
 #include "Scene.h"
 #include "SceneNode.h"
+#include "Graphics/Renderer.h"
+#include "GUI/Editor.h"
+#include <GLFW/glfw3.h>		// Input
 
 
 namespace cs460
@@ -39,6 +42,15 @@ namespace cs460
 	{
 		if (m_root == nullptr)
 			return;
+
+		// TODO: Put this in another place
+		if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&
+			glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_R) == GLFW_PRESS)
+		{
+			clear();
+			Editor::get_instance().get_state().m_selectedNode = m_root;
+			return;
+		}
 
 		// Special case, set the root's world transform as the local transform
 		m_root->m_worldTr = m_root->m_localTr;

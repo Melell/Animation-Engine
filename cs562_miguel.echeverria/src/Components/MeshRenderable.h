@@ -24,7 +24,7 @@ namespace cs460
 	public:
 
 		MeshRenderable();
-		~MeshRenderable();
+		virtual ~MeshRenderable();
 
 		// Render the primitives of the mesh this component references, with the transform of the node it belongs to.
 		void render_primitives() const;

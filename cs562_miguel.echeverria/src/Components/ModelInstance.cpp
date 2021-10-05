@@ -13,12 +13,18 @@
 #include "Graphics/Model.h"
 #include "Resources/ResourceManager.h"
 #include "Composition/SceneNode.h"
+#include "Composition/Scene.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
 
 namespace cs460
 {
+	ModelInstance::~ModelInstance()
+	{
+		//std::cout << "MODEL INSTANCE DESTRUCTOR\n";
+	}
+
 	// Load all the nodes from the gltf filePath onto the scene graph, each referencing their corresponding mesh
 	void ModelInstance::load_gltf_nodes(const std::string& filePath)
 	{
@@ -86,6 +92,8 @@ namespace cs460
 						if (ImGui::Selectable(filename.c_str()))
 						{
 							m_previewName = filename;
+							Scene& scene = Scene::get_instance();
+							get_owner()->delete_all_children();
 							m_model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
 							load_gltf_nodes(dir_it.path().generic_string());
 						}

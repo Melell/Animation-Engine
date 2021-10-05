@@ -16,6 +16,8 @@
 #include "Graphics/Shader.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
+#include <imgui/imgui.h>
+#include <GLFW/glfw3.h>
 
 
 namespace cs460
@@ -27,6 +29,8 @@ namespace cs460
 
 	MeshRenderable::~MeshRenderable()
 	{
+		//std::cout << "MESH RENDERABLE DESTRUCTOR\n";
+		Renderer::get_instance().remove_mesh_renderable(this);
 	}
 
 	// Render the primitives of the mesh this component references, with the transform of the node it belongs to.
@@ -42,14 +46,22 @@ namespace cs460
 		std::vector<Primitive>& primitives = mesh->get_all_primitives();
 		for (int i = 0; i < primitives.size(); ++i)
 		{
-			const glm::mat4& modelToWorld = get_owner()->m_modelToWorldMtx;
+			// Kind of hardcoded, will improve organization in the future
+			bool useNormalMap = true;
+			if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_N) == GLFW_PRESS)
+				useNormalMap = !useNormalMap;
+
+
+			const glm::mat4& modelToWorld = get_owner()->m_worldTr.get_model_mtx();
 			const glm::mat4& worldToView = scene.get_camera().get_view_mtx();
 			const glm::mat4& perspectiveProjection = scene.get_camera().get_projection_mtx();
 
-			// Decide between phong and phong_texture
+			// Decide between phong color, phong texture, and phong normal map
 			Shader* shader = primitives[i].get_shader();
 			const Material& material = primitives[i].get_material();
-			if (material.m_usesTexture)
+			if (material.m_usesNormalTexture && useNormalMap)
+				shader = primitives[i].set_shader("phong_normal_map");
+			else if (material.m_usesBaseTexture)
 				shader = primitives[i].set_shader("phong_texture");
 			else
 				shader = primitives[i].set_shader("phong_color");
@@ -68,10 +80,17 @@ namespace cs460
 			shader->set_uniform("light.m_specular", scene.m_lightProperties.m_specular);
 
 			// Set the material properties
-			if (material.m_usesTexture)
+			if (material.m_usesBaseTexture)
 				shader->set_uniform("mat.m_diffuse", material.m_baseColorTex.get_texture_unit());
 			else
 				shader->set_uniform("mat.m_diffuse", glm::vec3(material.m_baseColor));
+
+			if (material.m_usesNormalTexture && useNormalMap)
+			{
+				shader->set_uniform("camPosWorldSpace", scene.get_camera().get_position());
+				shader->set_uniform("mat.m_normalMap", material.m_normalMapTex.get_texture_unit());
+				shader->set_uniform("normalColorScale", material.m_normalMapScale);
+			}
 
 			shader->set_uniform("mat.m_shininess", 32.0f);
 			
@@ -118,6 +137,13 @@ namespace cs460
 
 	void MeshRenderable::on_gui()
 	{
-
+		if (m_model)
+		{
+			Mesh* mesh = m_model->get_mesh(m_meshIdx);
+			if (mesh)
+			{
+				ImGui::Text("Primitive Count: %i", mesh->get_all_primitives().size());
+			}
+		}
 	}
 }

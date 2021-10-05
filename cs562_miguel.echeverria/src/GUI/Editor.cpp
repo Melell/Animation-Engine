@@ -11,9 +11,11 @@
 #include "Editor.h"
 #include "Graphics/Renderer.h"
 #include "Composition/Scene.h"
+#include "Composition/SceneNode.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>                 // For input (remove once own input system is done)
 
 
 
@@ -64,9 +66,23 @@ namespace cs460
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        m_mainMenuBar.update();
-        m_sceneGraphGui.update();
+        ImGuizmo::BeginFrame();
+
+        Renderer& renderer = Renderer::get_instance();
+
+        // TODO: Make own class for this
+        if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_1) == GLFW_PRESS)
+            m_state.m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_2) == GLFW_PRESS)
+            m_state.m_gizmoOperation = ImGuizmo::OPERATION::ROTATE;
+        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_3) == GLFW_PRESS)
+            m_state.m_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+
+        ImGuizmo::AllowAxisFlip(false);
+
         m_componentEditor.update();
+        //m_mainMenuBar.update();
+        m_sceneGraphGui.update();
 
         Scene& scene = Scene::get_instance();
 
@@ -81,7 +97,7 @@ namespace cs460
 
             ImGui::Separator();
 
-            ImGui::SliderFloat("Camera Speed", &scene.get_camera().m_movementSpeed, 1.0f, 30.0f);
+            ImGui::SliderFloat("Camera Speed", &scene.get_camera().m_movementSpeed, 0.1f, 100.0f);
             ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_keyboardTiltSpeed, 10.0f, 60.0f);
             ImGui::SliderFloat("Camera Mouse Tilt Speed", &scene.get_camera().m_mouseTiltSpeed, 50.0f, 400.0f);
         }
@@ -104,8 +120,63 @@ namespace cs460
         ImGui::End();
 
 
+        // Gizmo's drawing
+        const float* viewMtx = glm::value_ptr(scene.get_camera().get_view_mtx());
+        const float* projMtx = glm::value_ptr(scene.get_camera().get_projection_mtx());
+        glm::mat4 modelMtx;
+
+        if (m_state.m_selectedNode)
+        {
+            modelMtx = m_state.m_selectedNode->m_worldTr.get_model_mtx();
+
+            // Set perspective projection
+            ImGuizmo::SetOrthographic(false);
+            //ImGuizmo::SetDrawlist();
+
+            ImGuiIO& io = ImGui::GetIO();
+            ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+            ImGuizmo::Manipulate(viewMtx, projMtx, m_state.m_gizmoOperation, m_state.m_gizmoMode, glm::value_ptr(modelMtx));
+            //ImGuizmo::DrawGrid(viewMtx, projMtx, glm::value_ptr(modelMtx), 10.0f);
+
+            // Update the position/orientation/scale only when modified
+            if (ImGuizmo::IsUsing())
+            {
+                // Take the world position, orientation and scale from the matrix passed to manipulate
+                glm::vec3 childWorldPos = modelMtx[3];
+                glm::vec3 childWorldScale = glm::vec3(glm::length(modelMtx[0]), glm::length(modelMtx[1]), glm::length(modelMtx[2]));
+                glm::mat3 orientationMtx;
+                orientationMtx[0] = glm::normalize(modelMtx[0]);
+                orientationMtx[1] = glm::normalize(modelMtx[1]);
+                orientationMtx[2] = glm::normalize(modelMtx[2]);
+                glm::quat childWorldOrientation = glm::quat_cast(orientationMtx);
+
+                SceneNode* parent = m_state.m_selectedNode->get_parent();
+                // If there is no parent, the world transform is the local transform
+                if (parent == nullptr)
+                {
+                    m_state.m_selectedNode->m_localTr.m_position = childWorldPos;
+                    m_state.m_selectedNode->m_localTr.m_scale = childWorldScale;
+                    m_state.m_selectedNode->m_localTr.m_orientation = childWorldOrientation;
+                }
+                // Otherwise, do inverse concatenation to obtain the local transform of the selected object from its world transform
+                else
+                {
+                    float invScaleX = parent->m_worldTr.m_scale.x > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.x) : 0.0f;
+                    float invScaleY = parent->m_worldTr.m_scale.y > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.y) : 0.0f;
+                    float invScaleZ = parent->m_worldTr.m_scale.z > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.z) : 0.0f;
+                    glm::vec3 invScale = glm::vec3(invScaleX, invScaleY, invScaleZ);
+
+                    glm::quat invRotation = glm::inverse(parent->m_worldTr.m_orientation);
+
+                    m_state.m_selectedNode->m_localTr.m_scale = invScale * childWorldScale;
+                    m_state.m_selectedNode->m_localTr.m_orientation = invRotation * childWorldOrientation;
+                    m_state.m_selectedNode->m_localTr.m_position = invScale * (invRotation * (childWorldPos - parent->m_worldTr.m_position));
+                }
+            }
+        }
+
         // Show the demo window for reference
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
     }
 
 

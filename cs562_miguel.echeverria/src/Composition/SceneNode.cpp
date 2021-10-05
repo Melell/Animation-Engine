@@ -33,6 +33,16 @@ namespace cs460
 		clear();
 	}
 
+	// Free all the children of this node
+	void SceneNode::delete_all_children()
+	{
+		for (auto it = m_children.begin(); it != m_children.end();)
+		{
+			Scene::get_instance().delete_tree(*it, false);
+			it = m_children.erase(it);
+		}
+	}
+
 	// Free all the components of this node
 	void SceneNode::delete_all_components()
 	{
@@ -53,6 +63,11 @@ namespace cs460
 	// Create a new node and add it as this node's child (from name)
 	SceneNode* SceneNode::create_child(const std::string& name)
 	{
+		//static unsigned id = 0;
+		//std::string newName = "Unnamed";
+		//if (name == "")
+		//	newName = "Unnamed" + std::to_string(id++);
+
 		SceneNode* newNode = new SceneNode(name);
 		newNode->m_parent = this;
 		m_children.push_back(newNode);
@@ -62,7 +77,6 @@ namespace cs460
 	// Generates all the data for this scenenode from a gltf node
 	void SceneNode::from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model* sourceRsrc, SceneNode const* modelRootNode)
 	{
-		m_name = node.name;
 		set_localtr_from_gltf_node(node);
 		
 		// If this node uses a mesh, save its index in the model's vector of meshes (by generating a mesh renderable for drawing)
@@ -167,15 +181,16 @@ namespace cs460
 		if (node.matrix.size())
 		{
 			// Store the matrix
+			glm::mat4 modelToLocalMtx(1.0f);
 			for (int i = 0; i < node.matrix.size(); i += 4)
-					m_modelToLocalMtx[i / 4] = glm::vec4(node.matrix[i], node.matrix[i + 1], node.matrix[i + 2], node.matrix[i + 3]);
+				modelToLocalMtx[i / 4] = glm::vec4(node.matrix[i], node.matrix[i + 1], node.matrix[i + 2], node.matrix[i + 3]);
 			
 			glm::vec3 position;
 			glm::quat orientation;
 			glm::vec3 scale;
 			glm::vec3 skew;
 			glm::vec4 perspective;
-			glm::decompose(m_modelToLocalMtx, scale, orientation, position, skew, perspective);
+			glm::decompose(modelToLocalMtx, scale, orientation, position, skew, perspective);
 
 			// Store the position extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!locationSet)
@@ -201,7 +216,7 @@ namespace cs460
 		{
 			ImGui::Text("Local");
 			ImGui::DragFloat3("Position##0", glm::value_ptr(m_localTr.m_position));
-			ImGui::DragFloat3("Rotation##0", glm::value_ptr(m_localTr.m_orientation));
+			ImGui::DragFloat4("Rotation##0", glm::value_ptr(m_localTr.m_orientation));
 			ImGui::DragFloat3("Scale##0", glm::value_ptr(m_localTr.m_scale));
 
 			//ImGui::NewLine();

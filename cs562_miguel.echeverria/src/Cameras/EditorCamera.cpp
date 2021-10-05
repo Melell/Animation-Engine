@@ -145,6 +145,12 @@ namespace cs460
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 			set_target(get_target() - get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 
+		if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+		{
+			set_position(glm::vec3(0.0f, 0.0f, 25.0f));
+			set_target(glm::vec3(0.0f, 0.0f, 0.0f));
+		}
+
 
 		// Only allow mouse panning when right click is held
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)

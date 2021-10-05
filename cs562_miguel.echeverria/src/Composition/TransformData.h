@@ -22,6 +22,5 @@ namespace cs460
 		glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
 		glm::quat m_orientation{ 1.0f, 0.0f, 0.0f, 0.0f };
-		//glm::vec3 m_orientation{0.0f, 0.0f, 0.0f};
 	};
 }

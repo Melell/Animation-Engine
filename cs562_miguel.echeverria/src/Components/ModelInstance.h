@@ -26,6 +26,8 @@ namespace cs460
 	{
 	public:
 
+		virtual ~ModelInstance();
+
 		// Load all the nodes from the gltf filePath onto the scene graph, each referencing their corresponding mesh
 		void load_gltf_nodes(const std::string& filePath);
 

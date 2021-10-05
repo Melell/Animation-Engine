@@ -40,9 +40,8 @@ namespace cs460
 		if (m_root == nullptr)
 			return;
 
-		// Special case, set the root's model to world matrix as its model to local
-		m_root->m_modelToLocalMtx = m_root->m_localTr.get_model_mtx();
-		m_root->m_modelToWorldMtx = m_root->m_modelToLocalMtx;
+		// Special case, set the root's world transform as the local transform
+		m_root->m_worldTr = m_root->m_localTr;
 
 		// Update its childs
 		const std::vector<SceneNode*>& children = m_root->get_children();
@@ -96,12 +95,13 @@ namespace cs460
 		if (node == nullptr)
 			return;
 
-		// Update the model to local space matrix
-		node->m_modelToLocalMtx = node->m_localTr.get_model_mtx();
-
-		// Update the model to world space matrix (the parent's model to world is already updated)
-		if (node->get_parent())
-			node->m_modelToWorldMtx = node->get_parent()->m_modelToWorldMtx * node->m_modelToLocalMtx;
+		// Update the world transform of the current node (it's parent world tr is already updated)
+		if (SceneNode* parent = node->get_parent())
+		{
+			node->m_worldTr.m_scale = parent->m_worldTr.m_scale * node->m_localTr.m_scale;
+			node->m_worldTr.m_orientation = parent->m_worldTr.m_orientation * node->m_localTr.m_orientation;
+			node->m_worldTr.m_position = parent->m_worldTr.m_position + parent->m_worldTr.m_orientation * (parent->m_worldTr.m_scale * node->m_localTr.m_position);
+		}
 
 		// Update all its childs
 		const std::vector<SceneNode*>& children = node->get_children();
@@ -110,14 +110,27 @@ namespace cs460
 	}
 
 	// Recursive function to free the memory of all the nodes
-	void Scene::delete_tree(SceneNode* node)
+	void Scene::delete_tree(SceneNode* node, bool clearParentChildren)
+	{
+		SceneNode* parent = node->get_parent();
+		delete_tree_internal(node);
+
+		if (parent != nullptr && clearParentChildren)
+			parent->m_children.clear();
+	}
+
+	void Scene::delete_tree_internal(SceneNode* node)
 	{
 		if (node == nullptr)
 			return;
 
-		const std::vector<SceneNode*>& children = node->get_children();
-		for (int i = 0; i < children.size(); ++i)
-			delete_tree(children[i]);
+		std::vector<SceneNode*>& children = node->m_children;
+		for (auto it = children.begin(); it != children.end();)
+		{
+			//std::cout << "DELETE TREE\n";
+			delete_tree_internal(*it);
+			it = children.erase(it);
+		}
 
 		delete node;
 	}

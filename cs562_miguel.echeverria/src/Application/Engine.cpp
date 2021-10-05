@@ -54,7 +54,7 @@ namespace cs460
 			// Update the editor camera (the way the camera is organized will change)
 			scene.get_camera().update();
 
-			// Do all the gui logic
+			// Do all the gui logic as well as the gizmos
 			editor.update();
 
 			// Update all the model to local and model to world matrices

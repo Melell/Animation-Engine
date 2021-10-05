@@ -16,9 +16,16 @@ namespace cs460
 {
 	struct Material
 	{
-		glm::vec4 m_baseColor;
+		// Base color (texture)
+		glm::vec4 m_baseColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 		Texture m_baseColorTex;
-		bool m_usesTexture;
+		bool m_usesBaseTexture = false;
+
+		// Normal map texture
+		float m_normalMapScale;
+		Texture m_normalMapTex;
+		bool m_usesNormalTexture = false;
+
 		//bool m_doubleSided;
 	};
 }

@@ -39,7 +39,7 @@ namespace cs460
 		void close();
 
 		void clear();							// Delete all the nodes in the scene graph except the root
-		void delete_tree(SceneNode* node);		// Recursive function to free the memory of all the nodes in the given tree
+		void delete_tree(SceneNode* node, bool clearParentChildren = true);		// Recursive function to free the memory of all the nodes in the given tree
 
 		SceneNode* get_root() const;
 	
@@ -54,6 +54,7 @@ namespace cs460
 		EditorCamera m_camera;
 		
 		void update_node(SceneNode* node);		// Recursive function to update the transform of the provided node
+		void delete_tree_internal(SceneNode* node);
 
 		// For singleton pattern
 		Scene();

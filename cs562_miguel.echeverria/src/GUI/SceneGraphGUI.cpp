@@ -109,6 +109,10 @@ namespace cs460
 			if (ImGui::Selectable("Change Name"))
 				m_newname_popup_active = true;
 
+			// Can only delete node if it is not the root
+			if (state.m_selectedNode->get_parent() && ImGui::Selectable("Delete This Node"))
+				delete_node();
+
 			ImGui::EndPopup();
 		}
 	}
@@ -158,5 +162,15 @@ namespace cs460
 
 			ImGui::EndPopup();
 		}
+	}
+
+
+	void SceneGraphGUI::delete_node()
+	{
+		EditorState& state = Editor::get_instance().get_state();
+		Scene& scene = Scene::get_instance();
+
+		scene.delete_tree(state.m_selectedNode);
+		state.m_selectedNode = nullptr;
 	}
 }

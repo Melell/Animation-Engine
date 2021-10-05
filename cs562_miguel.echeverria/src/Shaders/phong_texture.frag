@@ -6,7 +6,7 @@ out vec4 fragColor;				// Final output color
 // Material properties of the object to be rendered
 struct Material
 {
-	sampler2D m_diffuse;	// Diffuse and ambient texture are the same
+	sampler2D m_diffuse;	// Diffuse, ambient and specular texture are the same for now
 	float m_shininess;		// How rough or smooth (shiny) the specular highlight is
 };
 

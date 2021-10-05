@@ -40,6 +40,7 @@ namespace cs460
 		load_shader("simple", "src/Shaders/simple.vert", "src/Shaders/simple.frag");
 		load_shader("phong_color", "src/Shaders/phong_color.vert", "src/Shaders/phong_color.frag");
 		load_shader("phong_texture", "src/Shaders/phong_texture.vert", "src/Shaders/phong_texture.frag");
+		load_shader("phong_normal_map", "src/Shaders/phong_normal_map.vert", "src/Shaders/phong_normal_map.frag");
 	}
 
 

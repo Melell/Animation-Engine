@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <imgui/ImGuizmo.h>
+
 
 namespace cs460
 {
@@ -19,5 +21,7 @@ namespace cs460
 	{
 		SceneNode* m_selectedNode;
 		char m_textBuffer[128] = { '\0' };
+		ImGuizmo::OPERATION m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+		ImGuizmo::MODE m_gizmoMode = ImGuizmo::MODE::WORLD;
 	};
 }

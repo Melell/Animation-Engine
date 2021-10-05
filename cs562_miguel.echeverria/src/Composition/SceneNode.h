@@ -29,6 +29,8 @@ namespace cs460
 	{
 	public:
 		
+		friend class Scene;								// Scene can access private members of SceneNode
+
 		SceneNode(const std::string& name = "Unnamed");
 		~SceneNode();
 
@@ -36,9 +38,7 @@ namespace cs460
 		TransformData m_localTr;	// Local transform (with respect to parent)
 		TransformData m_worldTr;	// World transform (with respect world origin)
 
-		glm::mat4 m_modelToLocalMtx = glm::mat4(1.0f);	// Store the model to local (this is temporary, until vqs is integrated)
-		glm::mat4 m_modelToWorldMtx = glm::mat4(1.0f);	// Store the model to world (this is temporary, until vqs is integrated)
-
+		void delete_all_children();			// Free all the children of this node
 		void delete_all_components();		// Free all the components of this node
 		void clear();						// Free all the components and children of this node
 

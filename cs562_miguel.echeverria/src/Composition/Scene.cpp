@@ -42,6 +42,7 @@ namespace cs460
 	{
 		if (m_root == nullptr)
 			return;
+		
 
 		// TODO: Put this in another place
 		if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&

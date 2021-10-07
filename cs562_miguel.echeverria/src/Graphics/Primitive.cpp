@@ -96,23 +96,27 @@ namespace cs460
 				attArrayIdx = 2;
 			else if (attName == "TANGENT")
 				attArrayIdx = 3;
+			else if (attName == "JOINTS_0")
+				attArrayIdx = 4;
+			else if (attName == "WEIGHTS_0")
+				attArrayIdx = 5;
 			else
 				continue;
 			//
 			// COLOR_0?
-			// TANGENT?
 			// TEXCOORD_1?
 
-			// If we haven't created the buffer and uploaded the data yet, do it
+			// If we haven't created the buffer and uploaded the data yet, do it (this
+			// is because we might have only 1 vbo in the case of interleaved data)
 			if (m_vbos.find(attAccessor.bufferView) == m_vbos.end())
 			{
-				// Prepare the ebo
+				// Prepare the vbo
 				unsigned vbo;
 				glGenBuffers(1, &vbo);
 				glBindBuffer(bufView.target, vbo);
 				m_vbos[attAccessor.bufferView] = vbo;
 
-				// Upload the ebo data
+				// Upload the vbo data
 				const std::vector<unsigned char>& buffer = model.buffers[bufView.buffer].data;
 				glBufferData(bufView.target, bufView.byteLength, buffer.data() + bufView.byteOffset, GL_STATIC_DRAW);
 			}

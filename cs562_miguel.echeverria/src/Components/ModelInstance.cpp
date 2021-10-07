@@ -49,6 +49,8 @@ namespace cs460
 			return;
 		}
 
+		std::cout << "Target of bind matrices vbo: " << std::to_string(model.bufferViews[model.accessors[82].bufferView].target) << std::endl;
+
 		process_nodes_data(model);
 	}
 

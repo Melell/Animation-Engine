@@ -13,12 +13,15 @@
 #include "Graphics/Model.h"
 #include "Composition/SceneNode.h"
 #include "Components/ModelInstance.h"
+#include "Skybox.h"
+#include "Resources/ResourceManager.h"
 #include <GL/glew.h>
 
 
 namespace cs460
 {
 	Renderer::Renderer()
+		:	m_skybox(nullptr)
 	{
 	}
 
@@ -56,6 +59,7 @@ namespace cs460
 
 	void Renderer::render()
 	{
+		// Draw each renderable
 		for (int i = 0; i < m_renderables.size(); ++i)
 		{
 			// Skip drawing the mesh if it is not active
@@ -70,6 +74,9 @@ namespace cs460
 			// Render all the primitives in the current mesh
 			m_renderables[i]->render_primitives();
 		}
+
+		// Draw the skybox last if active
+		m_skybox->render();
 	}
 
 	void Renderer::close()
@@ -113,9 +120,31 @@ namespace cs460
 	}
 
 
+	// Change the skybox resource that will be rendered. Return true
+	// if the skybox was found in the resource manager, false otherwise.
+	bool Renderer::change_skybox(const std::string& skyboxIdName)
+	{
+		Skybox* newSkybox = ResourceManager::get_instance().get_skybox(skyboxIdName);
+
+		if (newSkybox == nullptr)
+		{
+			std::cout << "WARNING: There isn't any skybox with \"" << skyboxIdName << "\" as key\n";
+			return false;
+		}
+
+		m_skybox = newSkybox;
+		return true;
+	}
+
+
 	Window& Renderer::get_window()
 	{
 		return m_window;
+	}
+
+	Skybox* Renderer::get_skybox()
+	{
+		return m_skybox;
 	}
 
 	void Renderer::set_gl_properties()
@@ -124,6 +153,7 @@ namespace cs460
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 		//glDisable(GL_CULL_FACE);
 		
 		//std::cout << glGetString(GL_VERSION) << std::endl;

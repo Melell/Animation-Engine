@@ -49,7 +49,7 @@ namespace cs460
 			return;
 		}
 
-		std::cout << "Target of bind matrices vbo: " << std::to_string(model.bufferViews[model.accessors[82].bufferView].target) << std::endl;
+		//std::cout << "Target of bind matrices vbo: " << std::to_string(model.bufferViews[model.accessors[82].bufferView].target) << std::endl;
 
 		process_nodes_data(model);
 	}
@@ -96,6 +96,8 @@ namespace cs460
 							m_previewName = filename;
 							Scene& scene = Scene::get_instance();
 							get_owner()->delete_all_children();
+
+							// TODO: Improve the fact that the first time a model is loaded, the gltf file is parsed twice
 							m_model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
 							load_gltf_nodes(dir_it.path().generic_string());
 						}

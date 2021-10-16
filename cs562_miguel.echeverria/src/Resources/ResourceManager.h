@@ -9,11 +9,14 @@
 
 #pragma once
 
+#include "Graphics/BasicShapes/Cube.h"
+
 
 namespace cs460
 {
 	class Model;
 	class Shader;
+	class Skybox;
 
 
 	class ResourceManager
@@ -30,6 +33,7 @@ namespace cs460
 		void clear_resources();
 		void clear_models();
 		void clear_shaders();
+		void clear_skyboxes();
 
 		// Get the model associated to the filePath parameter.
 		// Loads it if it is not already loaded.
@@ -44,10 +48,24 @@ namespace cs460
 		// retreive again the shader resource.
 		void load_shader(const std::string& shaderIdName, const std::string& vertexPath, const std::string& fragmentPath);
 
+		// Get the skybox associated to the name provided.
+		// Returns nullptr if the skybox hasn't been loaded already.
+		Skybox* get_skybox(const std::string& skyboxIdName);
+
+		// Loads the cubemap textures in skyboxPath used for a skybox, and stores the resulting skybox object in the
+		// resource manager, with skyboxIdName as key. Any calls to get_skybox should have this key as parameter to
+		// retreive again the skybox resource.
+		void load_skybox(const std::string& skyboxIdName, const std::string& skyboxDirPath);
+
+		// Get the cube geometry
+		Cube& get_cube();
+
 	private:
 
 		std::unordered_map<std::string, Model*> m_models;
 		std::unordered_map<std::string, Shader*> m_shaders;
+		std::unordered_map<std::string, Skybox*> m_skyboxes;
+		Cube m_cube;
 
 		ResourceManager();
 		ResourceManager(const ResourceManager&) = delete;

@@ -123,10 +123,25 @@
     <ClCompile Include="src\Graphics\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Graphics\Texture.cpp">
+    <ClCompile Include="src\Graphics\Textures\Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="include\imgui\ImGuizmo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Textures\CubeMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Textures\ITexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utilities\ImageProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\BasicShapes\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -242,10 +257,25 @@
     <ClInclude Include="include\gltf\tiny_gltf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Graphics\Texture.h">
+    <ClInclude Include="src\Graphics\Textures\Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\imgui\ImGuizmo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Textures\CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Textures\ITexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utilities\ImageProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\BasicShapes\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

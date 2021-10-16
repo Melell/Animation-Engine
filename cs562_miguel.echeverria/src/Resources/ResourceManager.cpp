@@ -11,6 +11,7 @@
 #include "ResourceManager.h"
 #include "Graphics/Model.h"
 #include "Graphics/Shader.h"
+#include "Graphics/Skybox.h"
 
 
 namespace cs460
@@ -37,10 +38,16 @@ namespace cs460
 	// Loads all the necessary resources for the demos. Meant to be called in Engine::Initialize.
 	void ResourceManager::load_resources()
 	{
+		// Load all the shaders
 		load_shader("simple", "src/Shaders/simple.vert", "src/Shaders/simple.frag");
 		load_shader("phong_color", "src/Shaders/phong_color.vert", "src/Shaders/phong_color.frag");
 		load_shader("phong_texture", "src/Shaders/phong_texture.vert", "src/Shaders/phong_texture.frag");
 		load_shader("phong_normal_map", "src/Shaders/phong_normal_map.vert", "src/Shaders/phong_normal_map.frag");
+		load_shader("skybox", "src/Shaders/skybox.vert", "src/Shaders/skybox.frag");
+
+		// Load all the skyboxes
+		load_skybox("WaterAndMountains", "data/CubeMaps/Skyboxes/WaterAndMountains");
+		load_skybox("Night", "data/CubeMaps/Skyboxes/Night");
 	}
 
 
@@ -49,6 +56,7 @@ namespace cs460
 	{
 		clear_models();
 		clear_shaders();
+		clear_skyboxes();
 	}
 
 	void ResourceManager::clear_models()
@@ -79,6 +87,21 @@ namespace cs460
 		}
 
 		m_shaders.clear();
+	}
+
+	void ResourceManager::clear_skyboxes()
+	{
+		// Free the memory of the skyboxes
+		for (auto it : m_skyboxes)
+		{
+			if (it.second != nullptr)
+			{
+				delete it.second;
+				it.second = nullptr;
+			}
+		}
+
+		m_skyboxes.clear();
 	}
 
 
@@ -133,5 +156,46 @@ namespace cs460
 		Shader* newShader = new Shader;
 		newShader->create_shader_program(vertexPath, fragmentPath);
 		m_shaders[shaderIdName] = newShader;
+	}
+
+	// Get the skybox associated to the name provided.
+	// Loads the skybox if it hasn't been already loaded.
+	// Returns nullptr if the shader hasn't been loaded already.
+	Skybox* ResourceManager::get_skybox(const std::string& skyboxIdName)
+	{
+		auto foundIt = m_skyboxes.find(skyboxIdName);
+
+		// If not found it, return null
+		if (foundIt == m_skyboxes.end())
+		{
+			std::cout << "WARNING: The requested skybox was not found in the resource manager\n";
+			return nullptr;
+		}
+
+		return foundIt->second;
+	}
+
+	// Loads the cubemap textures in skyboxPath used for a skybox, and stores the resulting skybox object in the
+	// resource manager, with skyboxIdName as key. Any calls to get_skybox should have this key as parameter to
+	// retreive again the skybox resource.
+	void ResourceManager::load_skybox(const std::string& skyboxIdName, const std::string& skyboxDirPath)
+	{
+		auto foundIt = m_skyboxes.find(skyboxIdName);
+
+		if (foundIt != m_skyboxes.end())
+		{
+			std::cout << "ERROR: Skybox with key \"" << skyboxIdName << "\" already exists\n";
+			return;
+		}
+
+		Skybox* newSkybox = new Skybox;
+		newSkybox->load_skybox(skyboxDirPath);
+		m_skyboxes[skyboxIdName] = newSkybox;
+	}
+
+	// Get the cube geometry
+	Cube& ResourceManager::get_cube()
+	{
+		return m_cube;
 	}
 }

@@ -22,19 +22,24 @@ namespace cs460
 	bool Engine::initialize()
 	{
 		// IMPORTANT!! Initialize the renderer first, as it initializes glfw, which might be needed for other systems like input
-		if (!Renderer::get_instance().initialize())
+		Renderer& renderer = Renderer::get_instance();
+		if (!renderer.initialize())
 			return false;
 
 		// Initialize imgui and set up the context for gui drawing
-		if (!Editor::get_instance().initialize())
+		Editor& editor = Editor::get_instance();
+		if (!editor.initialize())
 			return false;
 
 		// Initialize the scene graph (create the root node)
-		if (!Scene::get_instance().initialize())
+		Scene& scene = Scene::get_instance();
+		if (!scene.initialize())
 			return false;
 
-		// Load all the necessary resources beforehand (mainly shaders)
-		ResourceManager::get_instance().load_resources();
+		// Load all the necessary resources beforehand (mainly shaders), and set the initial skybox
+		ResourceManager& resourceManager = ResourceManager::get_instance();
+		resourceManager.load_resources();
+		renderer.change_skybox("WaterAndMountains");
 
 		return true;
 	}

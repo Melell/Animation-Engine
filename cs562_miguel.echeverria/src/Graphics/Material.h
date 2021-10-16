@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Texture.h"
+#include "Textures/Texture2D.h"
 
 
 namespace cs460
@@ -18,12 +18,12 @@ namespace cs460
 	{
 		// Base color (texture)
 		glm::vec4 m_baseColor{ 1.0f, 1.0f, 1.0f, 1.0f };
-		Texture m_baseColorTex;
+		Texture2D m_baseColorTex;
 		bool m_usesBaseTexture = false;
 
 		// Normal map texture
 		float m_normalMapScale;
-		Texture m_normalMapTex;
+		Texture2D m_normalMapTex;
 		bool m_usesNormalTexture = false;
 
 		//bool m_doubleSided;

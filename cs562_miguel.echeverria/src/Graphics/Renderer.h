@@ -15,6 +15,7 @@
 namespace cs460
 {
 	class MeshRenderable;
+	class Skybox;
 
 
 	class Renderer
@@ -37,12 +38,18 @@ namespace cs460
 		void add_mesh_renderable(MeshRenderable* renderable);		// Adds a mesh renderable component to the internal vector, so that it can be rendered
 		void remove_mesh_renderable(MeshRenderable* renderable);	// Removes a mesh renderable component from the internal vector that is being rendered
 
+		// Change the skybox resource that will be rendered. Return true
+		// if the skybox was found in the resource manager, false otherwise.
+		bool change_skybox(const std::string& skyboxIdName);
+
 		Window& get_window();
+		Skybox* get_skybox();
 
 	private:
 
 		Window m_window;
 		std::vector<MeshRenderable*> m_renderables;		// All the components that reference a mesh in a model
+		Skybox* m_skybox;
 
 		void set_gl_properties();
 

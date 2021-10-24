@@ -22,7 +22,7 @@ namespace tinygltf
 namespace cs460
 {
 	class IComponent;
-	class Model;
+	struct Model;
 
 
 	class SceneNode

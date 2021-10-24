@@ -121,7 +121,7 @@ namespace cs460
 
             ImGui::Separator();
 
-            bool useSkybox = true;
+            bool useSkybox = renderer.get_skybox()->get_active();
             ImGui::Checkbox("Use Skybox", &useSkybox);
             renderer.get_skybox()->set_active(useSkybox);
 

@@ -19,7 +19,7 @@ namespace tinygltf
 
 namespace cs460
 {
-	class Model;
+	struct Model;
 
 
 	class ModelInstance : public IComponent

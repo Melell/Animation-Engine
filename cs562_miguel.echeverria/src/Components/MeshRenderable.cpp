@@ -42,8 +42,8 @@ namespace cs460
 		Scene& scene = Scene::get_instance();
 
 		// Get all the primitives of the mesh this component is referencing
-		Mesh* mesh = m_model->get_mesh(m_meshIdx);
-		std::vector<Primitive>& primitives = mesh->get_all_primitives();
+		Mesh& mesh = m_model->m_meshes[m_meshIdx];
+		std::vector<Primitive>& primitives = mesh.m_primitives;
 		for (int i = 0; i < primitives.size(); ++i)
 		{
 			// Kind of hardcoded, will improve organization in the future
@@ -139,11 +139,8 @@ namespace cs460
 	{
 		if (m_model)
 		{
-			Mesh* mesh = m_model->get_mesh(m_meshIdx);
-			if (mesh)
-			{
-				ImGui::Text("Primitive Count: %i", mesh->get_all_primitives().size());
-			}
+			Mesh& mesh = m_model->m_meshes[m_meshIdx];
+			ImGui::Text("Primitive Count: %i", mesh.m_primitives.size());
 		}
 	}
 }

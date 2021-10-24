@@ -20,27 +20,19 @@ namespace tinygltf
 
 namespace cs460
 {
-	class Mesh
+	struct Mesh
 	{
 	public:
 
 		Mesh();
 		~Mesh();
 
-		// Processes the data from a tinygltf model's mesh into this mesh
-		void process_mesh_data(const tinygltf::Model& model, const tinygltf::Mesh& mesh);
-
-		Primitive const* get_primitve(int index) const;
-		std::vector<Primitive>& get_all_primitives();
-
 		// Release all resources allocated by the mesh.
 		void clear();
 
-		// Getter and setter for the name
-		void set_name(const std::string& newName);
-		std::string get_name() const;
+		// Processes the data from a tinygltf model's mesh into this mesh
+		void load_mesh_data(const tinygltf::Model& model, const tinygltf::Mesh& mesh);
 
-	private:
 
 		std::string m_name;
 		std::vector<Primitive> m_primitives;

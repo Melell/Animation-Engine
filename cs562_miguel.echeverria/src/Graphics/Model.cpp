@@ -16,7 +16,6 @@ namespace cs460
 {
 	Model::Model()
 	{
-
 	}
 
 
@@ -25,8 +24,8 @@ namespace cs460
 		clear();
 	}
 
-	// Loads a gltf file (only meshes, primitives and material, but not the nodes)
-	void Model::load_gltf(const std::string& filePath)
+	// Loads the given gltf file and stores all its data
+	void Model::load_gltf_file(const std::string& filePath)
 	{
 		// Store the filepath and filename
 		m_filePath = filePath;
@@ -48,22 +47,38 @@ namespace cs460
 		if (!errorStr.empty())
 			std::cout << "TINYGLTF ERROR: " << errorStr << std::endl;
 
-
 		if (!ret) {
 			std::cout << "TINYGLTF: Failed to parse glTF\n";
 			return;
 		}
 
-		process_model_data(model);
+		load_model_data(model);
 	}
 
-	Mesh* Model::get_mesh(int index)
+
+	// Process the tinygltf model structure into our own
+	void Model::load_model_data(const tinygltf::Model& model)
 	{
-		if (index < 0 || index >= m_meshes.size())
-			return nullptr;
+		// Reallocate the vector of meshes with enough size
+		clear();
+		m_scenes.resize(model.scenes.size());
+		m_nodes.resize(model.nodes.size());
+		m_meshes.resize(model.meshes.size());
+		m_skins.resize(model.skins.size());
 
-		return &m_meshes[index];
+		// Load the scenes
+		for (int i = 0; i < m_scenes.size(); ++i)
+			m_scenes[i].load_scene_data(model, model.scenes[i]);
+
+		// Load the nodes
+		for (int i = 0; i < m_nodes.size(); ++i)
+			m_nodes[i].load_node_data(model, model.nodes[i]);
+
+		// Load the meshes
+		for (int i = 0; i < m_meshes.size(); ++i)
+			m_meshes[i].load_mesh_data(model, model.meshes[i]);
 	}
+
 
 	// Releases all the resources used by the meshes
 	void Model::clear()
@@ -71,37 +86,15 @@ namespace cs460
 		for (int i = 0; i < m_meshes.size(); ++i)
 			m_meshes[i].clear();
 
+		m_scenes.clear();
+		m_skins.clear();
 		m_meshes.clear();
+		m_skins.clear();
 	}
 
 	// Compare two models based on their filename
 	bool Model::operator==(const Model& other) const
 	{
 		return m_fileName == other.m_fileName;
-	}
-
-
-	std::string Model::get_filename() const
-	{
-		return m_fileName;
-	}
-	std::string Model::get_filepath() const
-	{
-		return m_filePath;
-	}
-
-
-	// Process the tinygltf model structure into our own
-	void Model::process_model_data(const tinygltf::Model& model)
-	{
-		// Reallocate the vector of meshes with enough size
-		clear();
-		m_meshes.resize(model.meshes.size());
-
-		// Process the data of each tinygltf mesh into our own
-		for (int i = 0; i < m_meshes.size(); ++i)
-		{
-			m_meshes[i].process_mesh_data(model, model.meshes[i]);
-		}
 	}
 }

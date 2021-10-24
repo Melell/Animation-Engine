@@ -22,7 +22,7 @@ namespace cs460
 		bool m_usesBaseTexture = false;
 
 		// Normal map texture
-		float m_normalMapScale;
+		float m_normalMapScale = 1.0f;
 		Texture2D m_normalMapTex;
 		bool m_usesNormalTexture = false;
 

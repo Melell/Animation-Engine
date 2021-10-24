@@ -10,6 +10,10 @@
 #pragma once
 
 #include "Mesh.h"
+#include "Animation/Skin.h"
+#include "Composition/GLTFNode.h"
+#include "Composition/GLTFScene.h"
+
 
 namespace tinygltf
 {
@@ -19,17 +23,16 @@ namespace tinygltf
 
 namespace cs460
 {
-	class Model
+	struct Model
 	{
-	public:
-
 		Model();
 		~Model();
 
-		// Loads a gltf file (only meshes, primitives and material, but not the nodes)
-		void load_gltf(const std::string& filePath);
+		// Loads the given gltf file and stores all its data
+		void load_gltf_file(const std::string& filePath);
 
-		Mesh* get_mesh(int index);
+		// Process the tinygltf model structure into our own
+		void load_model_data(const tinygltf::Model& model);
 
 		// Releases all the resources used by the meshes
 		void clear();
@@ -37,17 +40,12 @@ namespace cs460
 		// Compare two models based on their filename
 		bool operator==(const Model& other) const;
 
-		// Getters for the filename and path to the file
-		std::string get_filename() const;
-		std::string get_filepath() const;
-
-	private:
 
 		std::string m_fileName;
 		std::string m_filePath;
+		std::vector<GLTFScene> m_scenes;
+		std::vector<GLTFNode> m_nodes;
 		std::vector<Mesh> m_meshes;
-
-		// Process the tinygltf model structure into our own
-		void process_model_data(const tinygltf::Model& model);
+		std::vector<Skin> m_skins;
 	};
 }

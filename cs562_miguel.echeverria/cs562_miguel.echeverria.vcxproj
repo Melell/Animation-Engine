@@ -126,12 +126,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Animation\Skin.cpp" />
     <ClCompile Include="src\Application\Engine.cpp" />
     <ClCompile Include="src\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Components\IComponent.cpp" />
     <ClCompile Include="src\Components\ModelInstance.cpp" />
     <ClCompile Include="src\Components\MeshRenderable.cpp" />
+    <ClCompile Include="src\Composition\GLTFNode.cpp" />
+    <ClCompile Include="src\Composition\GLTFScene.cpp" />
     <ClCompile Include="src\Graphics\BasicShapes\Cube.cpp" />
     <ClCompile Include="src\Graphics\Skybox.cpp" />
     <ClCompile Include="src\Graphics\Textures\CubeMap.cpp" />
@@ -179,12 +182,15 @@
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Animation\Skin.h" />
     <ClInclude Include="src\Application\Engine.h" />
     <ClInclude Include="src\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Components\IComponent.h" />
     <ClInclude Include="src\Components\ModelInstance.h" />
     <ClInclude Include="src\Components\MeshRenderable.h" />
+    <ClInclude Include="src\Composition\GLTFNode.h" />
+    <ClInclude Include="src\Composition\GLTFScene.h" />
     <ClInclude Include="src\Graphics\BasicShapes\Cube.h" />
     <ClInclude Include="src\Graphics\Skybox.h" />
     <ClInclude Include="src\Graphics\Textures\CubeMap.h" />

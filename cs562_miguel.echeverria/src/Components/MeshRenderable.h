@@ -15,7 +15,7 @@
 
 namespace cs460
 {
-	class Model;
+	struct Model;
 	class SceneNode;
 
 

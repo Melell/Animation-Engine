@@ -14,7 +14,7 @@
 
 namespace cs460
 {
-	class Model;
+	struct Model;
 	class Shader;
 	class Skybox;
 

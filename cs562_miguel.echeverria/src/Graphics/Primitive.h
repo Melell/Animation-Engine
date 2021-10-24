@@ -18,6 +18,10 @@ namespace tinygltf
 	class Model;
 	struct Primitive;
 	struct Material;
+	struct Accessor;
+	struct BufferView;
+	struct Texture;
+	struct Image;
 }
 
 
@@ -34,11 +38,17 @@ namespace cs460
 		Primitive();
 		~Primitive();
 
-		// Process the primitive's data from a tinygltf model's primitive into this one
-		void process_primitive_data(const tinygltf::Model& model, const tinygltf::Primitive& primitive);//, MeshRenderable* meshOwner);
+
+		// Load the primitive's data from a tinygltf model's primitive into this one
+		void load_primitive_data(const tinygltf::Model& model, const tinygltf::Primitive& primitive);//, MeshRenderable* meshOwner);
+
+		// Load the material data from the given tinygltf model to this primitive's material
+		void load_material_data(const tinygltf::Model& model, const tinygltf::Material& material);
+
 
 		// Draw the primitive
 		void render() const;
+
 
 		// Set the shader this primitive will use for drawing (from its name key) and returns it
 		Shader* set_shader(const std::string& shaderId);
@@ -46,6 +56,7 @@ namespace cs460
 		// Getters for the shader and material
 		Shader* get_shader() const;
 		const Material& get_material() const;
+
 
 		// Free all the opengl buffers used by this primitive
 		void delete_gl_buffers();
@@ -63,7 +74,20 @@ namespace cs460
 		bool m_usesEbo = false;
 
 
-		// Process the material data from the given tinygltf model to this primitive's material
-		void process_material_data(const tinygltf::Model& model, const tinygltf::Material& material);
+		// Save the necessary variables that are needed for drawing, and load
+		// the ebo into one of the elements in m_vbos if it uses ebo.
+		void setup_ebo(const tinygltf::Model& model, const tinygltf::Primitive& primitive);
+
+		// Get the vertex attribute index that corresponds to the given attribute name.
+		int get_attribute_index(const std::string& attributeName);
+
+		// Create and upload the data of the vbo with the given index, if it hasn't been already created.
+		void setup_vbo(const tinygltf::Model& model, const tinygltf::Accessor& accessor, const tinygltf::BufferView& bufferView);
+
+		// Tell OpenGL how to use the vertex attribute given by accessor.
+		void setup_vertex_attribute(int attArrayIdx, const tinygltf::Accessor& accessor, const tinygltf::BufferView& bufferView);
+
+		// Set the texture configuration parameters (return them on config parameter) for the texture given by texture and image.
+		void set_texture_config(TextureInformation& config, const tinygltf::Model& model, const tinygltf::Texture& texture, const tinygltf::Image& image);
 	};
 }

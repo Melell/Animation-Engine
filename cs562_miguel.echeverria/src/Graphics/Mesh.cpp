@@ -25,31 +25,6 @@ namespace cs460
 	}
 
 
-	// Processes the data from a tinygltf model's mesh into this mesh
-	void Mesh::process_mesh_data(const tinygltf::Model& model, const tinygltf::Mesh& mesh)
-	{
-		m_name = mesh.name;
-
-		m_primitives.resize(mesh.primitives.size());
-		for (int i = 0; i < m_primitives.size(); ++i)
-		{
-			m_primitives[i].process_primitive_data(model, mesh.primitives[i]);
-		}
-	}
-
-	Primitive const* Mesh::get_primitve(int index) const
-	{
-		if (index < 0 || index >= m_primitives.size())
-			return nullptr;
-
-		return &m_primitives[index];
-	}
-
-	std::vector<Primitive>& Mesh::get_all_primitives()
-	{
-		return m_primitives;
-	}
-
 	// Release all resources allocated by the mesh.
 	void Mesh::clear()
 	{
@@ -60,14 +35,15 @@ namespace cs460
 	}
 
 
-	// Getter and setter for the name
-	void Mesh::set_name(const std::string& newName)
+	// Processes the data from a tinygltf model's mesh into this mesh
+	void Mesh::load_mesh_data(const tinygltf::Model& model, const tinygltf::Mesh& mesh)
 	{
-		m_name = newName;
-	}
+		m_name = mesh.name;
 
-	std::string Mesh::get_name() const
-	{
-		return m_name;
+		m_primitives.resize(mesh.primitives.size());
+		for (int i = 0; i < m_primitives.size(); ++i)
+		{
+			m_primitives[i].load_primitive_data(model, mesh.primitives[i]);
+		}
 	}
 }

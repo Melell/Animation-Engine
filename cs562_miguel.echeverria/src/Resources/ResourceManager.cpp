@@ -48,6 +48,8 @@ namespace cs460
 		// Load all the skyboxes
 		load_skybox("WaterAndMountains", "data/CubeMaps/Skyboxes/WaterAndMountains");
 		load_skybox("Night", "data/CubeMaps/Skyboxes/Night");
+		load_skybox("ClearSky", "data/CubeMaps/Skyboxes/ClearSky");
+		load_skybox("Sunny", "data/CubeMaps/Skyboxes/Sunny");
 	}
 
 
@@ -115,7 +117,7 @@ namespace cs460
 		if (foundIt == m_models.end())
 		{
 			Model* newModel = new Model;
-			newModel->load_gltf(filePath);
+			newModel->load_gltf_file(filePath);
 
 			m_models[filePath] = newModel;
 		}

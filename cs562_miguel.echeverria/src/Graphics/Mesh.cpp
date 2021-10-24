@@ -42,8 +42,6 @@ namespace cs460
 
 		m_primitives.resize(mesh.primitives.size());
 		for (int i = 0; i < m_primitives.size(); ++i)
-		{
 			m_primitives[i].load_primitive_data(model, mesh.primitives[i]);
-		}
 	}
 }

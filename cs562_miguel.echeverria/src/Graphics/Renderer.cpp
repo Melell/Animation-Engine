@@ -68,7 +68,7 @@ namespace cs460
 
 			// Skip drawing the mesh if its entire model is not active
 			ModelInstance* modelInst = m_renderables[i]->get_model_root_node()->get_component<ModelInstance>();
-			if (!modelInst->get_active())
+			if (modelInst == nullptr || !modelInst->get_active())	// TODO: modelInst == nullptr is a very temporary fix so that it doesn't crash when deleting a ModelInstance component
 				continue;
 
 			// Render all the primitives in the current mesh

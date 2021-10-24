@@ -47,5 +47,6 @@ namespace cs460
 		std::vector<GLTFNode> m_nodes;
 		std::vector<Mesh> m_meshes;
 		std::vector<Skin> m_skins;
+		int m_defaultScene;
 	};
 }

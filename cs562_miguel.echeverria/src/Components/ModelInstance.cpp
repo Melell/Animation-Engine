@@ -25,47 +25,22 @@ namespace cs460
 		//std::cout << "MODEL INSTANCE DESTRUCTOR\n";
 	}
 
-	// Load all the nodes from the gltf filePath onto the scene graph, each referencing their corresponding mesh
-	void ModelInstance::load_gltf_nodes(const std::string& filePath)
+	// Create all the nodes from the given Model resource, with their corresponding components
+	void ModelInstance::generate_nodes(Model* model)
 	{
-		// Use tinygltf to parse the file and get the data
-		tinygltf::Model model;
-		tinygltf::TinyGLTF loader;
-		std::string errorStr;
-		std::string warningStr;
-
-		bool ret = loader.LoadASCIIFromFile(&model, &errorStr, &warningStr, filePath);
-		//bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, argv[1]); // for binary glTF(.glb)
-
-		if (!warningStr.empty())
-			std::cout << "TINYGLTF WARNING: " << warningStr << std::endl;
-
-		if (!errorStr.empty())
-			std::cout << "TINYGLTF ERROR: " << errorStr << std::endl;
-
-
-		if (!ret) {
-			std::cout << "TINYGLTF: Failed to parse glTF\n";
+		if (model == nullptr)
 			return;
-		}
 
-		//std::cout << "Target of bind matrices vbo: " << std::to_string(model.bufferViews[model.accessors[82].bufferView].target) << std::endl;
+		m_model = model;
 
-		process_nodes_data(model);
-	}
+		GLTFScene& scene = model->m_scenes[model->m_defaultScene];
+		std::vector<int>& nodesIndices = scene.m_nodeIndices;
 
-	// Process the model structure to create the necessary nodes in the scene graph
-	void ModelInstance::process_nodes_data(const tinygltf::Model& model)
-	{
-		int sceneIdx = model.defaultScene > 0 ? model.defaultScene : 0;
-		const std::vector<int>& nodesIndices = model.scenes[sceneIdx].nodes;
-
-		// Create the immeadiate children, and generate their children and other data
+		// Create the immediate children, which will create their own childrens
 		for (int i = 0; i < nodesIndices.size(); ++i)
 		{
-			const tinygltf::Node& node = model.nodes[nodesIndices[i]];
-			SceneNode* child = get_owner()->create_child(node.name);
-			child->from_gltf_node(model, node, m_model, get_owner());
+			SceneNode* child = get_owner()->create_child(model->m_nodes[i].m_name);
+			child->from_node_resource(model, i, get_owner());
 		}
 	}
 
@@ -97,9 +72,8 @@ namespace cs460
 							Scene& scene = Scene::get_instance();
 							get_owner()->delete_all_children();
 
-							// TODO: Improve the fact that the first time a model is loaded, the gltf file is parsed twice
-							m_model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
-							load_gltf_nodes(dir_it.path().generic_string());
+							// Get the model from the resource manager (load if it is not already there), and generate the nodes
+							generate_nodes(ResourceManager::get_instance().get_model(dir_it.path().generic_string()));
 						}
 					}
 				}

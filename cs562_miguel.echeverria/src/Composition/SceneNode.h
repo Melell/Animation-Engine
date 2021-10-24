@@ -40,13 +40,12 @@ namespace cs460
 
 		void delete_all_children();			// Free all the children of this node
 		void delete_all_components();		// Free all the components of this node
-		void clear();						// Free all the components and children of this node
 
 		// Create a new node and add it as this node's child
 		SceneNode* create_child(const std::string& name);
 
-		// Generates all the data for this scenenode from a gltf node
-		void from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model* sourceRsrc, SceneNode const* modelRootNode);
+		// Generates all the data for this scenenode from a Model resource
+		void from_node_resource(Model* sourceModel, int nodeIdx, SceneNode* modelRootNode);
 
 		// -------------------------- Component management functions --------------------------
 		template<typename T>
@@ -64,17 +63,20 @@ namespace cs460
 
 		void on_gui();	// Show the components gui
 
-		// Getters for the parent and children nodes, as well as the components
+		// Getters for the parent and children nodes, as well as the components, and the Model resource this node belongs to
 		SceneNode* get_parent() const;
 		const std::vector<SceneNode*>& get_children() const;
 		const std::vector<IComponent*>& get_components() const;
+		SceneNode* get_model_root_node() const;
+		Model* get_model() const;
 
 	private:
 		SceneNode* m_parent;
 		std::vector<SceneNode*> m_children;
 		std::vector<IComponent*> m_components;
+		SceneNode* m_modelRootNode;				// The root node of the model's hierarchy (null if it doesn't belong to a model)
+		Model* m_sourceModel;					// The gltf model resource this node belongs to (null if doesn't belong to any model)
 
-		void set_localtr_from_gltf_node(const tinygltf::Node& node);
 		void show_transforms_gui();
 	};
 

@@ -15,6 +15,7 @@
 namespace cs460
 {
 	Model::Model()
+		:	m_defaultScene(0)
 	{
 	}
 
@@ -66,6 +67,8 @@ namespace cs460
 		m_meshes.resize(model.meshes.size());
 		m_skins.resize(model.skins.size());
 
+		m_defaultScene = model.defaultScene > 0 ? model.defaultScene : 0;
+
 		// Load the scenes
 		for (int i = 0; i < m_scenes.size(); ++i)
 			m_scenes[i].load_scene_data(model, model.scenes[i]);
@@ -87,7 +90,7 @@ namespace cs460
 			m_meshes[i].clear();
 
 		m_scenes.clear();
-		m_skins.clear();
+		m_nodes.clear();
 		m_meshes.clear();
 		m_skins.clear();
 	}

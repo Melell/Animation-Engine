@@ -23,14 +23,16 @@ namespace cs460
 {
 	SceneNode::SceneNode(const std::string& name)
 		:	m_name(name),
-			m_parent(nullptr)
+			m_parent(nullptr),
+			m_modelRootNode(nullptr),
+			m_sourceModel(nullptr)
 	{
 
 	}
 	SceneNode::~SceneNode()
 	{
 		// Clear in case there are still components
-		clear();
+		delete_all_components();
 	}
 
 	// Free all the children of this node
@@ -54,20 +56,9 @@ namespace cs460
 		m_components.clear();
 	}
 
-	// Free all the components and children of this node
-	void SceneNode::clear()
-	{
-		delete_all_components();
-	}
-
 	// Create a new node and add it as this node's child (from name)
 	SceneNode* SceneNode::create_child(const std::string& name)
 	{
-		//static unsigned id = 0;
-		//std::string newName = "Unnamed";
-		//if (name == "")
-		//	newName = "Unnamed" + std::to_string(id++);
-
 		SceneNode* newNode = new SceneNode(name);
 		newNode->m_parent = this;
 		m_children.push_back(newNode);
@@ -75,26 +66,34 @@ namespace cs460
 	}
 
 	// Generates all the data for this scenenode from a gltf node
-	void SceneNode::from_gltf_node(const tinygltf::Model& model, const tinygltf::Node& node, Model* sourceRsrc, SceneNode const* modelRootNode)
+	void SceneNode::from_node_resource(Model* sourceModel, int nodeIdx, SceneNode* modelRootNode)
 	{
-		set_localtr_from_gltf_node(node);
+		//set_localtr_from_gltf_node(node);
 		
+		m_sourceModel = sourceModel;
+		m_modelRootNode = modelRootNode;
+
+		GLTFNode& node = sourceModel->m_nodes[nodeIdx];
+		m_localTr.m_position = node.m_position;
+		m_localTr.m_orientation = node.m_orientation;
+		m_localTr.m_scale = node.m_scale;
+
 		// If this node uses a mesh, save its index in the model's vector of meshes (by generating a mesh renderable for drawing)
-		if (node.mesh >= 0 && node.mesh < model.meshes.size())
+		if (node.m_meshIdx >= 0 && node.m_meshIdx < sourceModel->m_meshes.size())
 		{
 			MeshRenderable* comp = add_component<MeshRenderable>();
-			comp->set_model_src(sourceRsrc);
-			comp->set_mesh_idx(node.mesh);
+			comp->set_model_src(sourceModel);
+			comp->set_mesh_idx(node.m_meshIdx);
 			comp->set_model_root_node(modelRootNode);
 		}
 
 		// Create the child nodes
-		for (int i = 0; i < node.children.size(); ++i)
+		for (int i = 0; i < node.m_childrenIndices.size(); ++i)
 		{
-			int childIdx = node.children[i];
-			const tinygltf::Node& childNode = model.nodes[childIdx];
-			SceneNode* child = create_child(childNode.name);
-			child->from_gltf_node(model, childNode, sourceRsrc, modelRootNode);
+			int childIdx = node.m_childrenIndices[i];
+			GLTFNode& childNode = sourceModel->m_nodes[childIdx];
+			SceneNode* child = create_child(childNode.m_name);
+			child->from_node_resource(sourceModel, childIdx, modelRootNode);
 		}
 	}
 
@@ -147,68 +146,16 @@ namespace cs460
 		return m_components;
 	}
 
-	void SceneNode::set_localtr_from_gltf_node(const tinygltf::Node& node)
+	SceneNode* SceneNode::get_model_root_node() const
 	{
-		bool locationSet = false;
-		bool scaleSet = false;
-		bool orientationSet = false;
-
-		// Set the local position, scale and orientation from the gltf node data if it was provided
-		if (node.translation.size())
-		{
-			m_localTr.m_position.x = (float)node.translation[0];
-			m_localTr.m_position.y = (float)node.translation[1];
-			m_localTr.m_position.z = (float)node.translation[2];
-			locationSet = true;
-		}
-		if (node.scale.size())
-		{
-			m_localTr.m_scale.x = (float)node.scale[0];
-			m_localTr.m_scale.y = (float)node.scale[1];
-			m_localTr.m_scale.z = (float)node.scale[2];
-			scaleSet = true;
-		}
-		if (node.rotation.size())
-		{
-			m_localTr.m_orientation.x = (float)node.rotation[0];
-			m_localTr.m_orientation.y = (float)node.rotation[1];
-			m_localTr.m_orientation.z = (float)node.rotation[2];
-			m_localTr.m_orientation.w = (float)node.rotation[3];
-			orientationSet = true;
-		}
-
-
-		if (node.matrix.size())
-		{
-			// Store the matrix
-			glm::mat4 modelToLocalMtx(1.0f);
-			for (int i = 0; i < node.matrix.size(); i += 4)
-				modelToLocalMtx[i / 4] = glm::vec4(node.matrix[i], node.matrix[i + 1], node.matrix[i + 2], node.matrix[i + 3]);
-			
-			glm::vec3 position;
-			glm::quat orientation;
-			glm::vec3 scale;
-			glm::vec3 skew;
-			glm::vec4 perspective;
-			glm::decompose(modelToLocalMtx, scale, orientation, position, skew, perspective);
-
-			// Store the position extracted from the matrix if it hasn't already been provided if it hasn't already been provided
-			if (!locationSet)
-			{
-				m_localTr.m_position = position;
-			}
-			// Store the scale extracted from the matrix if it hasn't already been provided if it hasn't already been provided
-			if (!scaleSet)
-			{
-				m_localTr.m_scale = scale;
-			}
-			// Store the orientation extracted from the matrix if it hasn't already been provided if it hasn't already been provided
-			if (!orientationSet)
-			{
-				m_localTr.m_orientation = orientation;
-			}
-		}
+		return m_modelRootNode;
 	}
+
+	Model* SceneNode::get_model() const
+	{
+		return m_sourceModel;
+	}
+
 
 	void SceneNode::show_transforms_gui()
 	{

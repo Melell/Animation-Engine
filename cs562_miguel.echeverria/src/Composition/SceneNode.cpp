@@ -66,26 +66,32 @@ namespace cs460
 	}
 
 	// Generates all the data for this scenenode from a gltf node
-	void SceneNode::from_node_resource(Model* sourceModel, int nodeIdx, SceneNode* modelRootNode)
+	void SceneNode::from_node_resource(Model* sourceModel, int nodeIdx, ModelInstance* rootModelInst)
 	{
-		//set_localtr_from_gltf_node(node);
-		
+		// Save the model resource and the scene node with the model instance
 		m_sourceModel = sourceModel;
-		m_modelRootNode = modelRootNode;
+		m_modelRootNode = rootModelInst->get_owner();
 
+
+		// Store the node in the "dictionary"
+		auto& modelInstNodes = Scene::get_instance().get_model_inst_nodes(rootModelInst->get_instance_id());
+		modelInstNodes[nodeIdx] = this;
+
+
+		// Save the transform info
 		GLTFNode& node = sourceModel->m_nodes[nodeIdx];
-		m_localTr.m_position = node.m_position;
-		m_localTr.m_orientation = node.m_orientation;
-		m_localTr.m_scale = node.m_scale;
+		m_localTr.m_position = node.m_localTransform.m_position;
+		m_localTr.m_orientation = node.m_localTransform.m_orientation;
+		m_localTr.m_scale = node.m_localTransform.m_scale;
+
 
 		// If this node uses a mesh, save its index in the model's vector of meshes (by generating a mesh renderable for drawing)
 		if (node.m_meshIdx >= 0 && node.m_meshIdx < sourceModel->m_meshes.size())
 		{
 			MeshRenderable* comp = add_component<MeshRenderable>();
-			comp->set_model_src(sourceModel);
 			comp->set_mesh_idx(node.m_meshIdx);
-			comp->set_model_root_node(modelRootNode);
 		}
+
 
 		// Create the child nodes
 		for (int i = 0; i < node.m_childrenIndices.size(); ++i)
@@ -93,7 +99,7 @@ namespace cs460
 			int childIdx = node.m_childrenIndices[i];
 			GLTFNode& childNode = sourceModel->m_nodes[childIdx];
 			SceneNode* child = create_child(childNode.m_name);
-			child->from_node_resource(sourceModel, childIdx, modelRootNode);
+			child->from_node_resource(sourceModel, childIdx, rootModelInst);
 		}
 	}
 

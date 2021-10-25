@@ -15,13 +15,18 @@
 namespace cs460
 {
 	// Loads the data from the give gltf node to our own
-	void GLTFNode::load_node_data(const tinygltf::Model& model, const tinygltf::Node& node)
+	void GLTFNode::load_node_data(const tinygltf::Model& model, int nodeIdx, std::map<int, int>& skinNodes)
 	{
+		const tinygltf::Node& node = model.nodes[nodeIdx];
+
 		m_name = node.name;
 		m_meshIdx = node.mesh;
 		m_skinIdx = node.skin;
 		m_childrenIndices = node.children;
 		set_tr_data(node);
+
+		if (m_skinIdx > 0)
+			skinNodes[m_skinIdx] = nodeIdx;
 	}
 
 
@@ -34,24 +39,24 @@ namespace cs460
 		// Set the local position, scale and orientation from the gltf node data if it was provided
 		if (node.translation.size())
 		{
-			m_position.x = (float)node.translation[0];
-			m_position.y = (float)node.translation[1];
-			m_position.z = (float)node.translation[2];
+			m_localTransform.m_position.x = (float)node.translation[0];
+			m_localTransform.m_position.y = (float)node.translation[1];
+			m_localTransform.m_position.z = (float)node.translation[2];
 			locationSet = true;
 		}
 		if (node.scale.size())
 		{
-			m_scale.x = (float)node.scale[0];
-			m_scale.y = (float)node.scale[1];
-			m_scale.z = (float)node.scale[2];
+			m_localTransform.m_scale.x = (float)node.scale[0];
+			m_localTransform.m_scale.y = (float)node.scale[1];
+			m_localTransform.m_scale.z = (float)node.scale[2];
 			scaleSet = true;
 		}
 		if (node.rotation.size())
 		{
-			m_orientation.x = (float)node.rotation[0];
-			m_orientation.y = (float)node.rotation[1];
-			m_orientation.z = (float)node.rotation[2];
-			m_orientation.w = (float)node.rotation[3];
+			m_localTransform.m_orientation.x = (float)node.rotation[0];
+			m_localTransform.m_orientation.y = (float)node.rotation[1];
+			m_localTransform.m_orientation.z = (float)node.rotation[2];
+			m_localTransform.m_orientation.w = (float)node.rotation[3];
 			orientationSet = true;
 		}
 
@@ -72,13 +77,13 @@ namespace cs460
 
 			// Store the position extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!locationSet)
-				m_position = position;
+				m_localTransform.m_position = position;
 			// Store the scale extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!scaleSet)
-				m_scale = scale;
+				m_localTransform.m_scale = scale;
 			// Store the orientation extracted from the matrix if it hasn't already been provided if it hasn't already been provided
 			if (!orientationSet)
-				m_orientation = orientation;
+				m_localTransform.m_orientation = orientation;
 		}
 	}
 }

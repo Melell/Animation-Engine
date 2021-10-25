@@ -26,18 +26,20 @@ namespace cs460
 	{
 	public:
 
+		ModelInstance();
 		virtual ~ModelInstance();
 
 		// Create all the nodes from the given Model resource, with their corresponding components
 		void generate_nodes(Model* model);
 
+		unsigned get_instance_id() const;
+
 	private:
 
 		Model* m_model = nullptr;
 		std::string m_previewName = "Empty";
+		unsigned m_instanceId = 0;
 
-		// Process the model structure to create the necessary nodes in the scene graph
-		void process_nodes_data(const tinygltf::Model& model);
 		void on_gui() override;
 	};
 }

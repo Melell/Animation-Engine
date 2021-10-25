@@ -20,6 +20,14 @@
 
 namespace cs460
 {
+	ModelInstance::ModelInstance()
+	{
+		Scene& scene = Scene::get_instance();
+		auto& allModelNodes = scene.get_all_model_nodes();
+		m_instanceId = (unsigned)allModelNodes.size();
+		allModelNodes.push_back({});
+	}
+
 	ModelInstance::~ModelInstance()
 	{
 		//std::cout << "MODEL INSTANCE DESTRUCTOR\n";
@@ -33,15 +41,24 @@ namespace cs460
 
 		m_model = model;
 
-		GLTFScene& scene = model->m_scenes[model->m_defaultScene];
-		std::vector<int>& nodesIndices = scene.m_nodeIndices;
+		Scene& scene = Scene::get_instance();
+		auto& instanceNodes = scene.get_model_inst_nodes(m_instanceId);
+		instanceNodes.clear();
+
+		GLTFScene& gltfScene = model->m_scenes[model->m_defaultScene];
+		std::vector<int>& nodesIndices = gltfScene.m_nodeIndices;
 
 		// Create the immediate children, which will create their own childrens
 		for (int i = 0; i < nodesIndices.size(); ++i)
 		{
 			SceneNode* child = get_owner()->create_child(model->m_nodes[i].m_name);
-			child->from_node_resource(model, i, get_owner());
+			child->from_node_resource(model, i, this);
 		}
+	}
+
+	unsigned ModelInstance::get_instance_id() const
+	{
+		return m_instanceId;
 	}
 
 
@@ -73,7 +90,8 @@ namespace cs460
 							get_owner()->delete_all_children();
 
 							// Get the model from the resource manager (load if it is not already there), and generate the nodes
-							generate_nodes(ResourceManager::get_instance().get_model(dir_it.path().generic_string()));
+							Model* model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
+							generate_nodes(model);
 						}
 					}
 				}

@@ -46,11 +46,15 @@ namespace cs460
 		// The whole camera api will change
 		EditorCamera& get_camera();
 
+		std::vector<std::unordered_map<unsigned, SceneNode*>>& get_all_model_nodes();
+		std::unordered_map<unsigned, SceneNode*>& get_model_inst_nodes(unsigned instanceId);
+
 		LightProperties m_lightProperties;
 
 	private:
 	
 		SceneNode* m_root;
+		std::vector<std::unordered_map<unsigned, SceneNode*>> m_modelNodes;		// One "dictionary" per model instance in the scene
 		EditorCamera m_camera;
 		
 		void update_node(SceneNode* node);		// Recursive function to update the transform of the provided node

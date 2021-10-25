@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "TransformData.h"
+
 namespace tinygltf
 {
 	class Model;
@@ -22,7 +24,7 @@ namespace cs460
 	struct GLTFNode
 	{
 		// Loads the data from the give gltf node to our own
-		void load_node_data(const tinygltf::Model& model, const tinygltf::Node& node);
+		void load_node_data(const tinygltf::Model& model, int nodeIdx, std::map<int, int>& skinNodes);
 		void set_tr_data(const tinygltf::Node& node);
 
 
@@ -30,8 +32,6 @@ namespace cs460
 		std::vector<int> m_childrenIndices;
 		int m_meshIdx = -1;
 		int m_skinIdx = -1;
-		glm::vec3 m_position{0.0f, 0.0f, 0.0f};
-		glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
-		glm::quat m_orientation{ 1.0f, 0.0f, 0.0f, 0.0f };
+		TransformData m_localTransform;
 	};
 }

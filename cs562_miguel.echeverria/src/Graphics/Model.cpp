@@ -67,6 +67,9 @@ namespace cs460
 		m_meshes.resize(model.meshes.size());
 		m_skins.resize(model.skins.size());
 
+		// Associates skin index to index of node that referenced the skin
+		std::map<int, int> skinNodes;
+
 		m_defaultScene = model.defaultScene > 0 ? model.defaultScene : 0;
 
 		// Load the scenes
@@ -75,11 +78,15 @@ namespace cs460
 
 		// Load the nodes
 		for (int i = 0; i < m_nodes.size(); ++i)
-			m_nodes[i].load_node_data(model, model.nodes[i]);
+			m_nodes[i].load_node_data(model, i, skinNodes);
 
 		// Load the meshes
 		for (int i = 0; i < m_meshes.size(); ++i)
 			m_meshes[i].load_mesh_data(model, model.meshes[i]);
+
+		// Load the skins
+		for (int i = 0; i < m_skins.size(); ++i)
+			m_skins[i].load_skin_data(model, i, skinNodes);
 	}
 
 

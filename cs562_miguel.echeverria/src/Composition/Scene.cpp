@@ -102,6 +102,16 @@ namespace cs460
 		return m_camera;
 	}
 
+	std::vector<std::unordered_map<unsigned, SceneNode*>>& Scene::get_all_model_nodes()
+	{
+		return m_modelNodes;
+	}
+
+	std::unordered_map<unsigned, SceneNode*>& Scene::get_model_inst_nodes(unsigned instanceId)
+	{
+		return m_modelNodes[instanceId];
+	}
+
 	// Recursive function to update the transform of the provided node
 	void Scene::update_node(SceneNode* node)
 	{

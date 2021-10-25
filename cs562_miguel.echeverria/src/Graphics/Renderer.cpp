@@ -67,7 +67,7 @@ namespace cs460
 				continue;
 
 			// Skip drawing the mesh if its entire model is not active
-			ModelInstance* modelInst = m_renderables[i]->get_model_root_node()->get_component<ModelInstance>();
+			ModelInstance* modelInst = m_renderables[i]->get_owner()->get_model_root_node()->get_component<ModelInstance>();
 			if (modelInst == nullptr || !modelInst->get_active())	// TODO: modelInst == nullptr is a very temporary fix so that it doesn't crash when deleting a ModelInstance component
 				continue;
 

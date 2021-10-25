@@ -23,6 +23,7 @@ namespace cs460
 {
 	class IComponent;
 	struct Model;
+	class ModelInstance;
 
 
 	class SceneNode
@@ -45,7 +46,7 @@ namespace cs460
 		SceneNode* create_child(const std::string& name);
 
 		// Generates all the data for this scenenode from a Model resource
-		void from_node_resource(Model* sourceModel, int nodeIdx, SceneNode* modelRootNode);
+		void from_node_resource(Model* sourceModel, int nodeIdx, ModelInstance* rootModelInst);
 
 		// -------------------------- Component management functions --------------------------
 		template<typename T>

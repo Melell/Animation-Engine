@@ -47,7 +47,7 @@ namespace cs460
 	private:
 		glm::vec3 m_position = glm::vec3(0.0f, 0.0f, 25.0f);
 		glm::vec3 m_target = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::mat4 m_viewMtx;
+		glm::mat4 m_viewMtx = glm::mat4(1.0f);
 		PerspectiveCamera m_camera;
 
 		float m_initialCursorPosX = 0.0f;

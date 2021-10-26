@@ -86,7 +86,7 @@ namespace cs460
 
 		// Helper functions for creating and adding the meshrenderable and skin components to this SceneNode if necessary.
 		void generate_mesh_comp(const GLTFNode& node);
-		void generate_skin_comps(const GLTFNode& node, std::unordered_map<unsigned, SceneNode*>& modelInstNodes);
+		void generate_skin_comps(const GLTFNode& node, std::unordered_map<int, SceneNode*>& modelInstNodes);
 	};
 
 

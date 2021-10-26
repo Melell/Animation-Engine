@@ -191,13 +191,58 @@ namespace cs460
 			int modelInstanceId = skinRef->get_owner()->get_model_root_node()->get_component<ModelInstance>()->get_instance_id();
 			auto& modelInstNodes = scene.get_model_inst_nodes(modelInstanceId);
 
-			// Get the actual skin data, and iterate through its joints
+
+			// If the root is part of the joints, draw it as joint and draw the link with its children
 			Skin& skin = sourceModel->m_skins[skinIdx];
-			for (int j = 0; j < skin.m_joints.size(); ++j)
+			if (std::find(skin.m_joints.begin(), skin.m_joints.end(), skin.m_commonRootIdx) != skin.m_joints.end())
 			{
-				int jointIdx = skin.m_joints[i];
-				SceneNode* jointNode = modelInstNodes[jointIdx];
+				draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, skin.m_commonRootIdx);
 			}
+			// Otherwise, draw the skeleton hierarchies taking each  of the children of the root as the root of the hierarchy to draw
+			else
+			{
+				GLTFNode& rootNode = sourceModel->m_nodes[skin.m_commonRootIdx];
+				for (int j = 0; j < rootNode.m_childrenIndices.size(); ++j)
+				{
+					int childIdx = rootNode.m_childrenIndices[i];
+					draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, childIdx);
+				}
+			}
+		}
+	}
+
+
+	void DebugRenderer::draw_joint(const glm::vec3& worldPos, const glm::vec4& color)
+	{
+		glm::vec3 diagonal{ 0.025f, 0.025f, 0.025f };
+		glm::vec3 halfDiagonal = 0.5f * diagonal;
+		AABB jointBox;
+		jointBox.m_min = worldPos - halfDiagonal;
+		jointBox.m_max = worldPos + halfDiagonal;
+
+		DebugRenderer::draw_aabb(jointBox, color, false);
+	}
+
+
+	void DebugRenderer::draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx)
+	{
+		// Draw the joint of the root
+		SceneNode* rootNode = modelInstNodes[rootIdx];
+		draw_joint(rootNode->m_worldTr.m_position, jointColor);
+
+		// Draw the hierarchy of each of the children
+		GLTFNode& gltfNode = sourceModel->m_nodes[rootIdx];
+		for (int i = 0; i < gltfNode.m_childrenIndices.size(); ++i)
+		{
+			int childIdx = gltfNode.m_childrenIndices[i];
+			SceneNode* childNode = modelInstNodes[childIdx];
+
+			Segment seg;
+			seg.m_start = rootNode->m_worldTr.m_position;
+			seg.m_end = childNode->m_worldTr.m_position;
+
+			draw_segment(seg, boneColor);
+			draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, gltfNode.m_childrenIndices[i]);
 		}
 	}
 }

@@ -102,12 +102,12 @@ namespace cs460
 		return m_camera;
 	}
 
-	std::vector<std::unordered_map<unsigned, SceneNode*>>& Scene::get_all_model_nodes()
+	std::vector<std::unordered_map<int, SceneNode*>>& Scene::get_all_model_nodes()
 	{
 		return m_modelNodes;
 	}
 
-	std::unordered_map<unsigned, SceneNode*>& Scene::get_model_inst_nodes(unsigned instanceId)
+	std::unordered_map<int, SceneNode*>& Scene::get_model_inst_nodes(int instanceId)
 	{
 		return m_modelNodes[instanceId];
 	}

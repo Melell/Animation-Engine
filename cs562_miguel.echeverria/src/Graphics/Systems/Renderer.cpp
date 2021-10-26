@@ -79,8 +79,9 @@ namespace cs460
 		// Draw the skybox last if active
 		m_skybox->render();
 
+		// Debug draw all skeletons
 		glDisable(GL_DEPTH_TEST);
-		DebugRenderer::draw_all_skeletons({ 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.5f, 0.5f, 1.0f });
+		DebugRenderer::draw_all_skeletons({ 0.25f, 1.0f, 0.25f, 1.0f }, { 0.8f, 0.4f, 0.0f, 1.0f });
 		glEnable(GL_DEPTH_TEST);
 	}
 

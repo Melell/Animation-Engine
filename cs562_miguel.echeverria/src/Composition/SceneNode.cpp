@@ -214,7 +214,7 @@ namespace cs460
 		}
 	}
 
-	void SceneNode::generate_skin_comps(const GLTFNode& node, std::unordered_map<unsigned, SceneNode*>& modelInstNodes)
+	void SceneNode::generate_skin_comps(const GLTFNode& node, std::unordered_map<int, SceneNode*>& modelInstNodes)
 	{
 		// If this node uses a skin, generate a skin reference component
 		// to keep track and update the matrices for each joint

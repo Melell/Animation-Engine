@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "EditorCamera.h"
 #include "Platform/FrameRateController.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/Systems/Renderer.h"
 #include <GLFW/glfw3.h>
 
 

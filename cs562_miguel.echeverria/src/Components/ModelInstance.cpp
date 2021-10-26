@@ -10,7 +10,7 @@
 #include "pch.h"
 #include "ModelInstance.h"
 #include "IComponent.h"
-#include "Graphics/Model.h"
+#include "Graphics/GLTF/Model.h"
 #include "Resources/ResourceManager.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
@@ -33,28 +33,50 @@ namespace cs460
 		//std::cout << "MODEL INSTANCE DESTRUCTOR\n";
 	}
 
-	// Create all the nodes from the given Model resource, with their corresponding components
-	void ModelInstance::generate_nodes(Model* model)
+
+	// Create all the nodes/components from the internal Model resource
+	void ModelInstance::generate_nodes()
 	{
-		if (model == nullptr)
+		if (m_model == nullptr)
 			return;
 
-		m_model = model;
-
+		// Reset the dictionary of nodes
 		Scene& scene = Scene::get_instance();
 		auto& instanceNodes = scene.get_model_inst_nodes(m_instanceId);
 		instanceNodes.clear();
 
-		GLTFScene& gltfScene = model->m_scenes[model->m_defaultScene];
+		// Create the immediate children, which will create their own childrens
+		GLTFScene& gltfScene = m_model->m_scenes[m_model->m_defaultScene];
 		std::vector<int>& nodesIndices = gltfScene.m_nodeIndices;
 
-		// Create the immediate children, which will create their own childrens
 		for (int i = 0; i < nodesIndices.size(); ++i)
 		{
-			SceneNode* child = get_owner()->create_child(model->m_nodes[i].m_name);
-			child->from_node_resource(model, i, this);
+			int childIdx = nodesIndices[i];
+			SceneNode* child = get_owner()->create_child(m_model->m_nodes[childIdx].m_name);
+			child->from_node_resource(m_model, childIdx, this);
 		}
 	}
+
+	void ModelInstance::generate_components()
+	{
+		if (m_model == nullptr)
+			return;
+
+		Scene& scene = Scene::get_instance();
+		auto& modelNodes = scene.get_model_inst_nodes(m_instanceId);
+
+		// Create the immediate children, which will create their own childrens
+		GLTFScene& gltfScene = m_model->m_scenes[m_model->m_defaultScene];
+		std::vector<int>& nodesIndices = gltfScene.m_nodeIndices;
+
+		for (int i = 0; i < nodesIndices.size(); ++i)
+		{
+			int childIdx = nodesIndices[i];
+			SceneNode* childNode = modelNodes[childIdx];
+			childNode->generate_components(childIdx);
+		}
+	}
+
 
 	unsigned ModelInstance::get_instance_id() const
 	{
@@ -91,7 +113,12 @@ namespace cs460
 
 							// Get the model from the resource manager (load if it is not already there), and generate the nodes
 							Model* model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
-							generate_nodes(model);
+							if (model != nullptr)
+							{
+								m_model = model;
+								generate_nodes();
+								generate_components();
+							}
 						}
 					}
 				}

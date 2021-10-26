@@ -29,8 +29,9 @@ namespace cs460
 		ModelInstance();
 		virtual ~ModelInstance();
 
-		// Create all the nodes from the given Model resource, with their corresponding components
-		void generate_nodes(Model* model);
+		// Create all the nodes/components from the internal Model resources
+		void generate_nodes();
+		void generate_components();
 
 		unsigned get_instance_id() const;
 

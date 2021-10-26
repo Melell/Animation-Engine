@@ -9,11 +9,12 @@
 
 #include "pch.h"
 #include "Engine.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/Systems/Renderer.h"
 #include "GUI/Editor.h"
 #include "Composition/Scene.h"
 #include "Resources/ResourceManager.h"
 #include "Platform/FrameRateController.h"
+#include "Animation/Animator.h"
 
 
 namespace cs460
@@ -26,6 +27,10 @@ namespace cs460
 		if (!renderer.initialize())
 			return false;
 
+		Animator& animator = Animator::get_instance();
+		if (!animator.initialize())
+			return false;
+
 		// Initialize imgui and set up the context for gui drawing
 		Editor& editor = Editor::get_instance();
 		if (!editor.initialize())
@@ -36,7 +41,7 @@ namespace cs460
 		if (!scene.initialize())
 			return false;
 
-		// Load all the necessary resources beforehand (mainly shaders), and set the initial skybox
+		// Load all the necessary resources beforehand (mainly shaders and skyboxes), and set the initial skybox
 		ResourceManager& resourceManager = ResourceManager::get_instance();
 		resourceManager.load_resources();
 		renderer.change_skybox("WaterAndMountains");
@@ -49,6 +54,7 @@ namespace cs460
 	void Engine::update()
 	{
 		Renderer& renderer = Renderer::get_instance();
+		Animator& animator = Animator::get_instance();
 		Editor& editor = Editor::get_instance();
 		Scene& scene = Scene::get_instance();
 		FrameRateController& frc = FrameRateController::get_instance();
@@ -64,6 +70,9 @@ namespace cs460
 
 			// Update all the model to local and model to world matrices
 			scene.update();
+
+			// Update the animations and joint matrices
+			animator.update();
 
 			// Render the scene
 			renderer.render();
@@ -88,6 +97,7 @@ namespace cs460
 	{
 		Scene::get_instance().close();					// Release the memory of all the scene nodes
 		Editor::get_instance().close();					// Terminate imgui
+		Animator::get_instance().close();				// Terminate the animation system
 		Renderer::get_instance().close();				// Buffer cleanup
 		Renderer::get_instance().get_window().close();	// Terminate glfw
 	}

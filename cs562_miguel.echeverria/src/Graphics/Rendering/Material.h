@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Textures/Texture2D.h"
+#include "Graphics/Textures/Texture2D.h"
 
 
 namespace cs460

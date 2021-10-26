@@ -10,12 +10,13 @@
 
 #include "pch.h"
 #include "MeshRenderable.h"
-#include "Graphics/Model.h"
-#include "Graphics/Primitive.h"
-#include "Graphics/Renderer.h"
-#include "Graphics/Shader.h"
+#include "Graphics/GLTF/Model.h"
+#include "Graphics/GLTF/Primitive.h"
+#include "Graphics/Systems/Renderer.h"
+#include "Graphics/Rendering/Shader.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
+#include "SkinReference.h"
 #include <imgui/imgui.h>
 #include <GLFW/glfw3.h>
 
@@ -75,6 +76,18 @@ namespace cs460
 			shader->set_uniform("perspectiveProj", perspectiveProjection);	// Set the perspective projection matrix
 			shader->set_uniform("normalViewMtx", glm::transpose(glm::inverse(glm::mat3(worldToView * modelToWorld))));
 
+			// Set the joint matrices (if the mesh has a skin)
+			if (SkinReference* skin = get_owner()->get_component<SkinReference>())
+			{
+				shader->set_uniform("useSkinning", true);
+
+				const std::vector<glm::mat4>& jointMatrices = skin->get_joint_matrices();
+				for (int j = 0; j < jointMatrices.size(); ++j)
+					shader->set_uniform("jointMatrices[" + std::to_string(j) + "]", jointMatrices[j]);
+			}
+			else
+				shader->set_uniform("useSkinning", false);
+
 			// Set the light properties
 			shader->set_uniform("light.m_direction", scene.m_lightProperties.m_direction);
 			shader->set_uniform("light.m_ambient", scene.m_lightProperties.m_ambient);
@@ -118,6 +131,8 @@ namespace cs460
 		Model* modelResource = get_owner()->get_model();
 		if (modelResource)
 		{
+			ImGui::Text("Mesh Index: %i", m_meshIdx);
+
 			Mesh& mesh = modelResource->m_meshes[m_meshIdx];
 			ImGui::Text("Primitive Count: %i", mesh.m_primitives.size());
 		}

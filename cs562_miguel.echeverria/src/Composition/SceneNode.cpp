@@ -12,9 +12,13 @@
 #include "SceneNode.h"
 #include "Components/IComponent.h"
 #include "Components/ModelInstance.h"
-#include "Graphics/Model.h"
+#include "Graphics/GLTF/Model.h"
 #include "Components/MeshRenderable.h"
 #include "Scene.h"
+#include "Components/SkinReference.h"
+#include "Composition/GLTFNode.h"
+#include "Components/SkeletonRoot.h"
+#include "Components/Joint.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
@@ -65,7 +69,8 @@ namespace cs460
 		return newNode;
 	}
 
-	// Generates all the data for this scenenode from a gltf node
+
+	// Generates all the data for this scenenode from a Model resource (except the necessary components)
 	void SceneNode::from_node_resource(Model* sourceModel, int nodeIdx, ModelInstance* rootModelInst)
 	{
 		// Save the model resource and the scene node with the model instance
@@ -85,23 +90,36 @@ namespace cs460
 		m_localTr.m_scale = node.m_localTransform.m_scale;
 
 
-		// If this node uses a mesh, save its index in the model's vector of meshes (by generating a mesh renderable for drawing)
-		if (node.m_meshIdx >= 0 && node.m_meshIdx < sourceModel->m_meshes.size())
-		{
-			MeshRenderable* comp = add_component<MeshRenderable>();
-			comp->set_mesh_idx(node.m_meshIdx);
-		}
-
-
-		// Create the child nodes
+		// Create the children nodes
 		for (int i = 0; i < node.m_childrenIndices.size(); ++i)
 		{
 			int childIdx = node.m_childrenIndices[i];
-			GLTFNode& childNode = sourceModel->m_nodes[childIdx];
-			SceneNode* child = create_child(childNode.m_name);
+			SceneNode* child = create_child(sourceModel->m_nodes[childIdx].m_name);
 			child->from_node_resource(sourceModel, childIdx, rootModelInst);
 		}
 	}
+
+	// Generate the components necessary for this node (from the gltf node info), and its children
+	void SceneNode::generate_components(int nodeIdx)
+	{
+		GLTFNode& node = m_sourceModel->m_nodes[nodeIdx];
+		Scene& scene = Scene::get_instance();
+		auto& modelNodes = scene.get_model_inst_nodes(m_modelRootNode->get_component<ModelInstance>()->get_instance_id());
+
+		// Generate a mesh and skin comp if necessary
+		generate_mesh_comp(node);
+		generate_skin_comps(node, modelNodes);
+
+
+		// Iterate over the children and call generate_components on them
+		for (int i = 0; i < node.m_childrenIndices.size(); ++i)
+		{
+			int childIdx = node.m_childrenIndices[i];
+			SceneNode* childNode = modelNodes[childIdx];
+			childNode->generate_components(childIdx);
+		}
+	}
+
 
 	// Show the components gui
 	void SceneNode::on_gui()
@@ -180,6 +198,45 @@ namespace cs460
 			//ImGui::DragFloat3("Position##1", glm::value_ptr(m_worldTr.m_position));
 			//ImGui::DragFloat3("Rotation##1", glm::value_ptr(m_worldTr.m_orientation));
 			//ImGui::DragFloat3("Scale##1", glm::value_ptr(m_worldTr.m_scale));
+		}
+	}
+
+
+	// Helper functions for creating and adding the meshrenderable and skin components to this SceneNode if necessary.
+	void SceneNode::generate_mesh_comp(const GLTFNode& node)
+	{
+		// If this node uses a mesh, generate a mesh renderable component
+		// for drawing (save its index into the model's vector of meshes)
+		if (node.m_meshIdx >= 0 && node.m_meshIdx < m_sourceModel->m_meshes.size())
+		{
+			MeshRenderable* comp = add_component<MeshRenderable>();
+			comp->set_mesh_idx(node.m_meshIdx);
+		}
+	}
+
+	void SceneNode::generate_skin_comps(const GLTFNode& node, std::unordered_map<unsigned, SceneNode*>& modelInstNodes)
+	{
+		// If this node uses a skin, generate a skin reference component
+		// to keep track and update the matrices for each joint
+		if (node.m_skinIdx >= 0 && node.m_skinIdx < m_sourceModel->m_skins.size())
+		{
+			SkinReference* comp = add_component<SkinReference>();
+			comp->set_skin_idx(node.m_skinIdx);
+
+			// Generate the skeleton root component
+			Skin& skin = m_sourceModel->m_skins[node.m_skinIdx];
+			SceneNode* skeletonRootNode = modelInstNodes[skin.m_commonRootIdx];
+			SkeletonRoot* rootComp = skeletonRootNode->add_component<SkeletonRoot>();
+			rootComp->set_skin_idx(node.m_skinIdx);
+
+			// Generate the joint components
+			for (int i = 0; i < skin.m_joints.size(); ++i)
+			{
+				int jointIdx = skin.m_joints[i];
+				SceneNode* jointNode = modelInstNodes[jointIdx];
+				Joint* comp = jointNode->add_component<Joint>();
+				comp->set_skin_idx(node.m_skinIdx);
+			}
 		}
 	}
 }

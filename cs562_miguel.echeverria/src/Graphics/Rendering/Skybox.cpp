@@ -10,7 +10,7 @@
 #include "pch.h"
 #include "Skybox.h"
 #include "Resources/ResourceManager.h"
-#include "Graphics/Shader.h"
+#include "Graphics/Rendering/Shader.h"
 #include "Composition/Scene.h"
 #include <GL/glew.h>
 

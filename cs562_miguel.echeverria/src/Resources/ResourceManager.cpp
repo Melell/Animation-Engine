@@ -9,9 +9,9 @@
 
 #include "pch.h"
 #include "ResourceManager.h"
-#include "Graphics/Model.h"
-#include "Graphics/Shader.h"
-#include "Graphics/Skybox.h"
+#include "Graphics/GLTF/Model.h"
+#include "Graphics/Rendering/Shader.h"
+#include "Graphics/Rendering/Skybox.h"
 
 
 namespace cs460

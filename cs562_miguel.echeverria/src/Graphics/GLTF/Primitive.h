@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "Graphics/Material.h"
+#include "Graphics/Rendering/Material.h"
 
 
 namespace tinygltf

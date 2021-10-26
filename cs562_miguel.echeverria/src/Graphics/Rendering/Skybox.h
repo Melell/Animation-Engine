@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "Textures/CubeMap.h"
+#include "Graphics/Textures/CubeMap.h"
 
 
 namespace cs460

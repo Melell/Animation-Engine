@@ -25,7 +25,7 @@ namespace cs460
 		m_childrenIndices = node.children;
 		set_tr_data(node);
 
-		if (m_skinIdx > 0)
+		if (m_skinIdx >= 0)
 			skinNodes[m_skinIdx] = nodeIdx;
 	}
 

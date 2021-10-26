@@ -24,6 +24,7 @@ namespace cs460
 	class IComponent;
 	struct Model;
 	class ModelInstance;
+	struct GLTFNode;
 
 
 	class SceneNode
@@ -45,8 +46,11 @@ namespace cs460
 		// Create a new node and add it as this node's child
 		SceneNode* create_child(const std::string& name);
 
-		// Generates all the data for this scenenode from a Model resource
+		// Generates all the data for this scenenode from a Model resource (except the necessary components)
 		void from_node_resource(Model* sourceModel, int nodeIdx, ModelInstance* rootModelInst);
+
+		// Generate the components necessary for this node (from the gltf node info), and its children
+		void generate_components(int nodeIdx);
 
 		// -------------------------- Component management functions --------------------------
 		template<typename T>
@@ -79,6 +83,10 @@ namespace cs460
 		Model* m_sourceModel;					// The gltf model resource this node belongs to (null if doesn't belong to any model)
 
 		void show_transforms_gui();
+
+		// Helper functions for creating and adding the meshrenderable and skin components to this SceneNode if necessary.
+		void generate_mesh_comp(const GLTFNode& node);
+		void generate_skin_comps(const GLTFNode& node, std::unordered_map<unsigned, SceneNode*>& modelInstNodes);
 	};
 
 

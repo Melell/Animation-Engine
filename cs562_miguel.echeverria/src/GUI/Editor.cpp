@@ -9,10 +9,10 @@
 
 #include "pch.h"
 #include "Editor.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/Systems/Renderer.h"
 #include "Composition/Scene.h"
 #include "Composition/SceneNode.h"
-#include "Graphics/Skybox.h"
+#include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>

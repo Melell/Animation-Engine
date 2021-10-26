@@ -11,7 +11,7 @@
 #include "pch.h"
 #include "Primitive.h"
 //#include "Components/MeshRenderable.h"
-#include "Shader.h"
+#include "Graphics/Rendering/Shader.h"
 #include "Resources/ResourceManager.h"
 #include <gltf/tiny_gltf.h>
 #include <GL/glew.h>

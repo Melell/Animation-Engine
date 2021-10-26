@@ -10,7 +10,7 @@
 #include "pch.h"
 #include "Scene.h"
 #include "SceneNode.h"
-#include "Graphics/Renderer.h"
+#include "Graphics/Systems/Renderer.h"
 #include "GUI/Editor.h"
 #include <GLFW/glfw3.h>		// Input
 

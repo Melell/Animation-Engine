@@ -10,11 +10,13 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Components/MeshRenderable.h"
-#include "Graphics/Model.h"
+#include "Graphics/GLTF/Model.h"
 #include "Composition/SceneNode.h"
 #include "Components/ModelInstance.h"
-#include "Skybox.h"
+#include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
+#include "DebugRenderer.h"	// Debug rendering test
+#include "Math/Geometry/Geometry.h"
 #include <GL/glew.h>
 
 
@@ -77,6 +79,13 @@ namespace cs460
 
 		// Draw the skybox last if active
 		m_skybox->render();
+
+		//glDisable(GL_DEPTH_TEST);
+		//DebugRenderer::draw_point({ -10.0f, 0, 0 }, { 0.0f, 1.0f, 0.0f, 1.0f }, 16.0f);
+		//DebugRenderer::draw_point({ 10.0f, 0, 0 }, { 0.0f, 1.0f, 0.0f, 1.0f }, 16.0f);
+		//DebugRenderer::draw_segment({ {-10.0f, 0, 0}, {10.0f, 0, 0} }, { 1.0f, 0.0f, 0.0f, 1.0f });
+		//DebugRenderer::draw_aabb({ {-2.0f, -4.0f, 2.0f}, {2.0f, 4.0f, 4.0f} }, { 0.0f, 0.0f, 1.0f, 1.0f }, true);
+		//glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::close()
@@ -95,15 +104,9 @@ namespace cs460
 	}
 
 
-	// Adds a mesh renderable components to the internal vector, so that it can be rendered
+	// Adds a mesh renderable component to the internal vector, so that it can be rendered
 	void Renderer::add_mesh_renderable(MeshRenderable* renderable)
 	{
-		//auto foundIt = std::find(m_renderables.begin(), m_renderables.end(), renderable);
-
-		// Probably won't happen, but just in case, check if the renderable is already in the vector to not add it twice
-		//if (foundIt != m_renderables.end())
-		//	return;
-
 		m_renderables.push_back(renderable);
 	}
 

@@ -36,6 +36,6 @@ namespace cs460
 		int stride = accessor.ByteStride(bufferView);
 
 		for (int i = 0; i < m_invBindMatrices.size(); ++i)
-			m_invBindMatrices[i] = glm::make_mat4(data + stride * i);
+			m_invBindMatrices[i] = glm::make_mat4(reinterpret_cast<const float*>(data + stride * i));
 	}
 }

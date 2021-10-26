@@ -105,7 +105,7 @@ namespace cs460
 				const glm::mat4& jointModelMtx = jointNode->m_worldTr.get_model_mtx();
 
 				// Update the joint matrix
-				jointMatrices[j] = rootInvModelMtx * jointModelMtx * skin.m_invBindMatrices[j];
+				jointMatrices[j] = skeletonRootNode->m_localTr.get_model_mtx() * rootInvModelMtx * jointModelMtx * skin.m_invBindMatrices[j];
 			}
 		}
 	}

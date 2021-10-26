@@ -15,6 +15,7 @@
 #include "Components/ModelInstance.h"
 #include "Composition/Scene.h"
 #include "Graphics/GLTF/Model.h"
+#include "Components/AnimationReference.h"
 
 
 namespace cs460
@@ -55,16 +56,35 @@ namespace cs460
 	}
 
 
-	// Adds a skin root component to the internal vector
-	void Animator::add_skin_root(SkinReference* rootComp)
+	// Adds an animation reference component to the internal vector
+	void Animator::add_animation_ref(AnimationReference* animComp)
 	{
-		m_skinReferences.push_back(rootComp);
+		m_animReferences.push_back(animComp);
 	}
 
-	// Removes a skin root component from the internal vector
-	void Animator::remove_skin_root(SkinReference* rootComp)
+	// Removes an animation reference component from the internal vector
+	void Animator::remove_animation_ref(AnimationReference* animComp)
 	{
-		auto foundIt = std::find(m_skinReferences.begin(), m_skinReferences.end(), rootComp);
+		auto foundIt = std::find(m_animReferences.begin(), m_animReferences.end(), animComp);
+
+		// Nothing to remove if not in the vector
+		if (foundIt == m_animReferences.end())
+			return;
+
+		m_animReferences.erase(foundIt);
+	}
+
+
+	// Adds a skin reference component to the internal vector
+	void Animator::add_skin_ref(SkinReference* skinComp)
+	{
+		m_skinReferences.push_back(skinComp);
+	}
+
+	// Removes a skin reference component from the internal vector
+	void Animator::remove_skin_ref(SkinReference* skinComp)
+	{
+		auto foundIt = std::find(m_skinReferences.begin(), m_skinReferences.end(), skinComp);
 
 		// Nothing to remove if not in the vector
 		if (foundIt == m_skinReferences.end())

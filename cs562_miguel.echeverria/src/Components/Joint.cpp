@@ -16,6 +16,15 @@
 
 namespace cs460
 {
+	Joint::Joint()
+	{
+	}
+
+	Joint::~Joint()
+	{
+	}
+
+
 	// Getters and setters for the skin index
 	void Joint::set_skin_idx(int idx)
 	{

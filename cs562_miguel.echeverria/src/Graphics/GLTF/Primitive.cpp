@@ -279,8 +279,9 @@ namespace cs460
 	{
 		// Get the number of components in each vertex attribute
 		int attComponentCount = 1;
-		if (accessor.type != TINYGLTF_TYPE_SCALAR)
-			attComponentCount = accessor.type;
+		attComponentCount = tinygltf::GetNumComponentsInType(accessor.type);
+		//if (accessor.type != TINYGLTF_TYPE_SCALAR)
+		//	attComponentCount = accessor.type;
 
 
 		// Get the stride of the attribute, and whether it is normalized

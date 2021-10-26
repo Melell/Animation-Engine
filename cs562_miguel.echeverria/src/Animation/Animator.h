@@ -13,6 +13,7 @@
 
 namespace cs460
 {
+	class AnimationReference;
 	class SkinReference;
 
 	class Animator
@@ -29,11 +30,15 @@ namespace cs460
 		void update();
 		void close();
 
-		void add_skin_root(SkinReference* rootComp);		// Adds a skin root component to the internal vector
-		void remove_skin_root(SkinReference* rootComp);		// Removes a skin root component from the internal vector
+		void add_animation_ref(AnimationReference* animComp);		// Adds an animation reference component to the internal vector
+		void remove_animation_ref(AnimationReference* animComp);	// Removes an animation reference component from the internal vector
+
+		void add_skin_ref(SkinReference* skinComp);					// Adds a skin reference component to the internal vector
+		void remove_skin_ref(SkinReference* skinComp);				// Removes a skin reference component from the internal vector
 
 	private:
 
+		std::vector<AnimationReference*> m_animReferences;
 		std::vector<SkinReference*> m_skinReferences;
 
 		Animator();

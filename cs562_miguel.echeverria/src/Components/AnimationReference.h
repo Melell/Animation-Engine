@@ -1,8 +1,9 @@
 /**
-* @file Joint.h
+* @file AnimationReference.h
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/10
-* @brief Component that represents a joint in a skin.
+* @brief Component that references an animation resource (this is added
+*		 to the node with the model instance component).
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */
@@ -14,20 +15,14 @@
 
 namespace cs460
 {
-	class Joint : public IComponent
+	class AnimationReference : public IComponent
 	{
 	public:
 
-		Joint();
-		virtual ~Joint();
-
-		// Getters and setters for the skin index
-		void set_skin_idx(int idx);
-		int get_skin_idx() const;
+		AnimationReference();
+		virtual ~AnimationReference();
 
 	private:
-		int m_skinIdx = -1;
-
 		void on_gui() override;
 	};
 }

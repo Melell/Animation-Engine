@@ -171,6 +171,15 @@
     <ClCompile Include="src\Components\Joint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Components\PiecewiseCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Animation\Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\AnimationReference.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -330,6 +339,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Components\Joint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\PiecewiseCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Animation\Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\AnimationReference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

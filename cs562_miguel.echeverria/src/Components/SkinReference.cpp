@@ -19,12 +19,12 @@ namespace cs460
 {
 	SkinReference::SkinReference()
 	{
-		Animator::get_instance().add_skin_root(this);
+		Animator::get_instance().add_skin_ref(this);
 	}
 
 	SkinReference::~SkinReference()
 	{
-		Animator::get_instance().remove_skin_root(this);
+		Animator::get_instance().remove_skin_ref(this);
 	}
 
 

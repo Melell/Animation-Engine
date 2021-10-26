@@ -13,6 +13,7 @@
 #include "Animation/Skin.h"
 #include "Composition/GLTFNode.h"
 #include "Composition/GLTFScene.h"
+#include "Animation/Animation.h"
 
 
 namespace tinygltf
@@ -47,6 +48,7 @@ namespace cs460
 		std::vector<GLTFNode> m_nodes;
 		std::vector<Mesh> m_meshes;
 		std::vector<Skin> m_skins;
+		std::vector<Animation> m_animations;
 		int m_defaultScene;
 	};
 }

@@ -87,6 +87,10 @@ namespace cs460
 		// Load the skins
 		for (int i = 0; i < m_skins.size(); ++i)
 			m_skins[i].load_skin_data(model, i, skinNodes);
+
+		// Load the animations
+		for (int i = 0; i < m_animations.size(); ++i)
+			m_animations[i].load_animation_data(model, model.animations[i]);
 	}
 
 

@@ -19,7 +19,7 @@ namespace cs460
 	public:
 
 		SkinReference();
-		~SkinReference();
+		virtual ~SkinReference();
 
 		// Getters and setters for the skin index
 		void set_skin_idx(int idx);

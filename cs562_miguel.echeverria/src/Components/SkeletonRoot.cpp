@@ -17,6 +17,15 @@
 
 namespace cs460
 {
+	SkeletonRoot::SkeletonRoot()
+	{
+	}
+
+	SkeletonRoot::~SkeletonRoot()
+	{
+	}
+
+
 	// Getters and setters for the skin index
 	void SkeletonRoot::set_skin_idx(int idx)
 	{

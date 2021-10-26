@@ -19,6 +19,9 @@ namespace cs460
 	{
 	public:
 
+		SkeletonRoot();
+		virtual ~SkeletonRoot();
+
 		// Getters and setters for the skin index
 		void set_skin_idx(int idx);
 		int get_skin_idx() const;

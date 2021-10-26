@@ -25,6 +25,8 @@ namespace cs460
 		static void draw_point(const glm::vec3& position, const glm::vec4& color, float pointSize);
 		static void draw_segment(const Segment& segment, const glm::vec4& color);
 		static void draw_aabb(const AABB& aabb, const glm::vec4& color, bool wireframe = false);
-		static void draw_aabb(const glm::mat4& m2w, const glm::vec3& color, bool wireframe = false);
+		static void draw_aabb(const glm::mat4& m2w, const glm::vec3& color, bool wireframe = false);	// Not tested
+
+		static void draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor);
 	};
 }

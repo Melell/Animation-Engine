@@ -19,6 +19,8 @@ namespace cs460
 	{
 	public:
 
+		friend class DebugRenderer;			// So that the debug renderer draw_all_skeleton function can access the skin references
+
 		static Animator& get_instance();
 		~Animator();
 

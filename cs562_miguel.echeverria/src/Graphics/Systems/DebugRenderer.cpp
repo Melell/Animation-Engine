@@ -13,6 +13,11 @@
 #include "Resources/ResourceManager.h"
 #include "Graphics/Rendering/Shader.h"
 #include "Composition/Scene.h"
+#include "Animation/Animator.h"
+#include "Components/SkinReference.h"
+#include "Composition/SceneNode.h"
+#include "Graphics/GLTF/Model.h"
+#include "Components/ModelInstance.h"
 #include <GL/glew.h>
 
 
@@ -166,5 +171,33 @@ namespace cs460
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		cube.unbind();
+	}
+
+
+	void DebugRenderer::draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor)
+	{
+		Animator& animator = Animator::get_instance();
+		Scene& scene = Scene::get_instance();
+
+		// Iterate through each skin reference component to draw the skins one by one
+		for (int i = 0; i < animator.m_skinReferences.size(); ++i)
+		{
+			// Get some necessary variables to later get the skin
+			SkinReference* skinRef = animator.m_skinReferences[i];
+			Model* sourceModel = skinRef->get_owner()->get_model();
+			int skinIdx = skinRef->get_skin_idx();
+
+			// Get the "dictionary" of nodes for the model of the current skin
+			int modelInstanceId = skinRef->get_owner()->get_model_root_node()->get_component<ModelInstance>()->get_instance_id();
+			auto& modelInstNodes = scene.get_model_inst_nodes(modelInstanceId);
+
+			// Get the actual skin data, and iterate through its joints
+			Skin& skin = sourceModel->m_skins[skinIdx];
+			for (int j = 0; j < skin.m_joints.size(); ++j)
+			{
+				int jointIdx = skin.m_joints[i];
+				SceneNode* jointNode = modelInstNodes[jointIdx];
+			}
+		}
 	}
 }

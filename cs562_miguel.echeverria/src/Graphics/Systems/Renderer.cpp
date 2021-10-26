@@ -15,8 +15,7 @@
 #include "Components/ModelInstance.h"
 #include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
-#include "DebugRenderer.h"	// Debug rendering test
-#include "Math/Geometry/Geometry.h"
+#include "DebugRenderer.h"
 #include <GL/glew.h>
 
 
@@ -80,12 +79,9 @@ namespace cs460
 		// Draw the skybox last if active
 		m_skybox->render();
 
-		//glDisable(GL_DEPTH_TEST);
-		//DebugRenderer::draw_point({ -10.0f, 0, 0 }, { 0.0f, 1.0f, 0.0f, 1.0f }, 16.0f);
-		//DebugRenderer::draw_point({ 10.0f, 0, 0 }, { 0.0f, 1.0f, 0.0f, 1.0f }, 16.0f);
-		//DebugRenderer::draw_segment({ {-10.0f, 0, 0}, {10.0f, 0, 0} }, { 1.0f, 0.0f, 0.0f, 1.0f });
-		//DebugRenderer::draw_aabb({ {-2.0f, -4.0f, 2.0f}, {2.0f, 4.0f, 4.0f} }, { 0.0f, 0.0f, 1.0f, 1.0f }, true);
-		//glEnable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+		DebugRenderer::draw_all_skeletons({ 0.0f, 1.0f, 0.0f, 1.0f }, { 0.0f, 0.5f, 0.5f, 1.0f });
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::close()

@@ -75,6 +75,10 @@ namespace cs460
 		SceneNode* get_model_root_node() const;
 		Model* get_model() const;
 
+		// Setters for the model referenced by this node, as well as the root node of the model's hierarchy
+		void set_model_source(Model* newModel);
+		void set_model_root_node(SceneNode* modelRootNode);
+
 	private:
 		SceneNode* m_parent;
 		std::vector<SceneNode*> m_children;

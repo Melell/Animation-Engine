@@ -14,6 +14,7 @@
 #include "Resources/ResourceManager.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
+#include "Components/AnimationReference.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
@@ -45,6 +46,7 @@ namespace cs460
 		auto& instanceNodes = scene.get_model_inst_nodes(m_instanceId);
 		instanceNodes.clear();
 
+
 		// Create the immediate children, which will create their own childrens
 		GLTFScene& gltfScene = m_model->m_scenes[m_model->m_defaultScene];
 		std::vector<int>& nodesIndices = gltfScene.m_nodeIndices;
@@ -65,7 +67,9 @@ namespace cs460
 		Scene& scene = Scene::get_instance();
 		auto& modelNodes = scene.get_model_inst_nodes(m_instanceId);
 
-		// Create the immediate children, which will create their own childrens
+		add_anim_comp();		
+
+		// Create the immediate children's components, which will create their own childrens' components
 		GLTFScene& gltfScene = m_model->m_scenes[m_model->m_defaultScene];
 		std::vector<int>& nodesIndices = gltfScene.m_nodeIndices;
 
@@ -115,6 +119,9 @@ namespace cs460
 							Model* model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
 							if (model != nullptr)
 							{
+								get_owner()->set_model_source(m_model);
+								get_owner()->set_model_root_node(get_owner());
+
 								m_model = model;
 								generate_nodes();
 								generate_components();
@@ -130,5 +137,12 @@ namespace cs460
 
 			ImGui::EndCombo();
 		}
+	}
+
+
+	void ModelInstance::add_anim_comp()
+	{
+		// Add the animation reference component to the node with the model instance component
+		AnimationReference* anim = get_owner()->add_component<AnimationReference>();
 	}
 }

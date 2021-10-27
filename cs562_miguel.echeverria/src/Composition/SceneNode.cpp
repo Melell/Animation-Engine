@@ -181,6 +181,18 @@ namespace cs460
 	}
 
 
+	// Setters for the model referenced by this node, as well as the root node of the model's hierarchy
+	void SceneNode::set_model_source(Model* newModel)
+	{
+		m_sourceModel = newModel;
+	}
+
+	void SceneNode::set_model_root_node(SceneNode* modelRootNode)
+	{
+		m_modelRootNode = modelRootNode;
+	}
+
+
 	void SceneNode::show_transforms_gui()
 	{
 		if (ImGui::CollapsingHeader("Transform"))

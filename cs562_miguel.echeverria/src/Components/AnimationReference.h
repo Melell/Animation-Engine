@@ -22,7 +22,24 @@ namespace cs460
 		AnimationReference();
 		virtual ~AnimationReference();
 
+		// Animate the properties of this animation
+		void update_properties();
+
+		// Setter and getter for the index of the animation
+		void change_animation(int idx, const std::string& animName);
+		int get_anim_idx() const;
+		std::string get_anim_name() const;
+
 	private:
+
+		std::vector<AnimationProperty> m_animProperties;
+		std::string m_previewName = "None";
+		int m_animIdx = -1;
+		float m_animTimer = 0.0f;
+		float m_timeScale = 1.0f;
+		bool m_looping = true;
+		bool m_paused = false;
+
 		void on_gui() override;
 	};
 }

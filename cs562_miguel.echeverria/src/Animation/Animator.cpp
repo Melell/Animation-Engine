@@ -43,8 +43,8 @@ namespace cs460
 
 	void Animator::update()
 	{
-		// Update animations...
-
+		// Update all the animations' properties
+		update_animations();
 
 		// Update the joint matrices of each skin
 		update_skins();
@@ -94,6 +94,16 @@ namespace cs460
 	}
 
 
+	// Update each animation
+	void Animator::update_animations()
+	{
+		for (int i = 0; i < m_animReferences.size(); ++i)
+		{
+			AnimationReference* animComp = m_animReferences[i];
+			
+		}
+	}
+
 	// Update the joint matrices of each skin
 	void Animator::update_skins()
 	{
@@ -101,6 +111,8 @@ namespace cs460
 
 		for (int i = 0; i < m_skinReferences.size(); ++i)
 		{
+			// TODO: Put all of this inside a function of SkinReference and make skinRef->get_joint_matrices function const
+
 			SkinReference* skinRef = m_skinReferences[i];
 			ModelInstance* rootModelInst = skinRef->get_owner()->get_model_root_node()->get_component<ModelInstance>();
 			int modelInstanceId = rootModelInst->get_instance_id();

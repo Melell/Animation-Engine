@@ -39,8 +39,10 @@ namespace cs460
 
 		Model* m_model = nullptr;
 		std::string m_previewName = "Empty";
-		unsigned m_instanceId = 0;
+		unsigned m_instanceId = 0;				// For accessing the Index->SceneNode dictionaries in Scenes
 
+		
 		void on_gui() override;
+		void add_anim_comp();
 	};
 }

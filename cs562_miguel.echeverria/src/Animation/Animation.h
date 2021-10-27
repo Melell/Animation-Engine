@@ -18,6 +18,14 @@ namespace tinygltf
 
 namespace cs460
 {
+	struct AnimationProperty
+	{
+		float* m_property;
+		int m_animIdx;
+		int m_animDataIdx;
+		std::function<float(float*, float*, int, float)> m_interpolationFn;
+	};
+
 	struct AnimationChannel
 	{
 		void load_channel_data(const tinygltf::Animation& anim, int channelIdx);
@@ -28,6 +36,7 @@ namespace cs460
 		int m_animDataIdx;
 	};
 
+	
 	struct AnimationData
 	{
 		void load_keyframe_data(const tinygltf::Model& model, const tinygltf::Animation& anim, int samplerIdx);

@@ -46,6 +46,9 @@ namespace cs460
 		Animator& operator=(const Animator&) = delete;
 
 
+		// Update each animation
+		void update_animations();
+
 		// Update the joint matrices of each skin
 		void update_skins();
 	};

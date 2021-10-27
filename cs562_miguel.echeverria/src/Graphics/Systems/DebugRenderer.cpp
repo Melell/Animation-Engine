@@ -144,7 +144,7 @@ namespace cs460
 	}
 
 
-	void DebugRenderer::draw_aabb(const glm::mat4& m2w, const glm::vec3& color, bool wireframe)
+	void DebugRenderer::draw_aabb(const glm::mat4& m2w, const glm::vec4& color, bool wireframe)
 	{
 		// Shader and uniform setup
 		ResourceManager& resourceMgr = ResourceManager::get_instance();

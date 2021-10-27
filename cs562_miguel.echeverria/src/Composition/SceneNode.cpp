@@ -19,6 +19,7 @@
 #include "Composition/GLTFNode.h"
 #include "Components/SkeletonRoot.h"
 #include "Components/Joint.h"
+#include "Components/PiecewiseCurve.h"
 #include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
@@ -150,6 +151,10 @@ namespace cs460
 			{
 				add_component<ModelInstance>();
 			}
+			if (ImGui::Selectable("PiecewiseCurve"))
+			{
+				add_component<PiecewiseCurve>();
+			}
 
 			ImGui::EndPopup();
 		}
@@ -223,6 +228,7 @@ namespace cs460
 		{
 			MeshRenderable* comp = add_component<MeshRenderable>();
 			comp->set_mesh_idx(node.m_meshIdx);
+			comp->set_bounding_volume(m_sourceModel->m_meshes[node.m_meshIdx].m_boundingVolume);
 		}
 	}
 

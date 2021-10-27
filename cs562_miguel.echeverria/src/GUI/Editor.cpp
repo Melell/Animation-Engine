@@ -83,7 +83,7 @@ namespace cs460
         ImGuizmo::AllowAxisFlip(false);
 
         m_componentEditor.update();
-        //m_mainMenuBar.update();
+        m_mainMenuBar.update();
         m_sceneGraphGui.update();
 
         Scene& scene = Scene::get_instance();
@@ -100,7 +100,7 @@ namespace cs460
             ImGui::Separator();
 
             ImGui::SliderFloat("Camera Speed", &scene.get_camera().m_movementSpeed, 0.1f, 100.0f);
-            ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_keyboardTiltSpeed, 10.0f, 60.0f);
+            ImGui::SliderFloat("Camera Pan Speed", &scene.get_camera().m_keyboardTiltSpeed, 10.0f, 1000.0f);
             ImGui::SliderFloat("Camera Mouse Tilt Speed", &scene.get_camera().m_mouseTiltSpeed, 50.0f, 400.0f);
         }
 
@@ -231,7 +231,7 @@ namespace cs460
         }
 
         // Show the demo window for reference
-        //ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
     }
 
 

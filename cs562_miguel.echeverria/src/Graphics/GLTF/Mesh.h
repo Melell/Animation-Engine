@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Primitive.h"
+#include "Math/Geometry/Geometry.h"
 
 namespace tinygltf
 {
@@ -36,5 +37,6 @@ namespace cs460
 
 		std::string m_name;
 		std::vector<Primitive> m_primitives;
+		AABB m_boundingVolume;
 	};
 }

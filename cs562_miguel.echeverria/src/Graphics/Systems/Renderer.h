@@ -45,6 +45,9 @@ namespace cs460
 		Window& get_window();
 		Skybox* get_skybox();
 
+		// Debug draws the bounding volumes of the meshrenderables in the scene
+		void debug_draw_bvs() const;
+
 	private:
 
 		Window m_window;

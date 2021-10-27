@@ -41,7 +41,7 @@ namespace cs460
 		glm::mat4 get_projection_mtx() const;
 
 		float m_movementSpeed = 15.0f;
-		float m_keyboardTiltSpeed = 40.0f;
+		float m_keyboardTiltSpeed = 100.0f;
 		float m_mouseTiltSpeed = 100.0f;
 
 	private:

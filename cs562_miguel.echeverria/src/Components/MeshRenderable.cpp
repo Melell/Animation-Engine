@@ -114,6 +114,7 @@ namespace cs460
 		}
 	}
 
+
 	// Set the index of the referenced mesh inside the model's vector of meshes
 	void MeshRenderable::set_mesh_idx(int meshIdx)
 	{
@@ -125,6 +126,19 @@ namespace cs460
 	{
 		return m_meshIdx;
 	}
+
+	// Set the bounding volume of this mesh as an aabb
+	void MeshRenderable::set_bounding_volume(const AABB& newBv)
+	{
+		m_localBv = newBv;
+	}
+
+	// Get the bounding volume of this mesh as an aabb
+	AABB MeshRenderable::get_bounding_volume() const
+	{
+		return m_localBv;
+	}
+
 
 	void MeshRenderable::on_gui()
 	{

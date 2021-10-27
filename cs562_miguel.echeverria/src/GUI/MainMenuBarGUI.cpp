@@ -24,26 +24,41 @@ namespace cs460
 	{
 		if (ImGui::BeginMainMenuBar())
 		{
-			if (ImGui::BeginMenu("Load GLTF"))
+			if (ImGui::BeginMenu("Load Scene"))
 			{
-				try
-				{
-					fs::path startingPath("data");
+				//try
+				//{
+				//	fs::path startingPath("data");
+				//
+				//	if (!fs::exists(startingPath) || !fs::is_directory(startingPath))
+				//	{
+				//		std::cout << "ERROR: Starting path doesn't exist or is not a directory\n";
+				//		return;
+				//	}
+				//
+				//	// For every .gltf file in the subdirectories
+				//	for (const auto& dir_it : fs::recursive_directory_iterator(startingPath))
+				//		if (dir_it.is_regular_file() && dir_it.path().extension().generic_string() == ".gltf")
+				//			ImGui::MenuItem(dir_it.path().filename().generic_string().c_str());
+				//}
+				//catch (const fs::filesystem_error& error)
+				//{
+				//	std::cout<<"FILESYSTEM ERROR: "<<error.what()<<std::endl;
+				//}
 
-					if (!fs::exists(startingPath) || !fs::is_directory(startingPath))
-					{
-						std::cout << "ERROR: Starting path doesn't exist or is not a directory\n";
-						return;
-					}
+				ImGui::EndMenu();
+			}
 
-					// For every .gltf file in the subdirectories
-					for (const auto& dir_it : fs::recursive_directory_iterator(startingPath))
-						if (dir_it.is_regular_file() && dir_it.path().extension().generic_string() == ".gltf")
-							ImGui::MenuItem(dir_it.path().filename().generic_string().c_str());
-				}
-				catch (const fs::filesystem_error& error)
+			if (ImGui::BeginMenu("Debug Drawing"))
+			{
+				if (ImGui::BeginMenu("Bounding Volumes"))
 				{
-					std::cout<<"FILESYSTEM ERROR: "<<error.what()<<std::endl;
+					static int bvRenderMode = 0;
+					ImGui::RadioButton("None", &bvRenderMode, 0);
+					ImGui::RadioButton("Selected", &bvRenderMode, 1);
+					ImGui::RadioButton("All", &bvRenderMode, 2);
+
+					ImGui::EndMenu();
 				}
 
 				ImGui::EndMenu();

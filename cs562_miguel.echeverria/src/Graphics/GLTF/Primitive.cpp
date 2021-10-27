@@ -66,6 +66,19 @@ namespace cs460
 				continue;
 
 
+			// If we are setting up the position attribute, save min and max for bv drawing
+			if (attArrayIdx == 0)
+			{
+				m_minPos.x = (float)attAccessor.minValues[0];
+				m_minPos.y = (float)attAccessor.minValues[1];
+				m_minPos.z = (float)attAccessor.minValues[2];
+
+				m_maxPos.x = (float)attAccessor.maxValues[0];
+				m_maxPos.y = (float)attAccessor.maxValues[1];
+				m_maxPos.z = (float)attAccessor.maxValues[2];
+			}
+
+
 			// If we haven't created the buffer and uploaded the data yet, do it (this
 			// is because we might have only 1 vbo in the case of interleaved data)
 			setup_vbo(model, attAccessor, bufView);
@@ -181,6 +194,16 @@ namespace cs460
 	const Material& Primitive::get_material() const
 	{
 		return m_material;
+	}
+
+	glm::vec3 Primitive::get_min_pos() const
+	{
+		return m_minPos;
+	}
+
+	glm::vec3 Primitive::get_max_pos() const
+	{
+		return m_maxPos;
 	}
 
 	// Free all the opengl buffers used by this primitive

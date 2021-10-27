@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Components/IComponent.h"
+#include "Math/Geometry/Geometry.h"
 
 
 namespace cs460
@@ -32,9 +33,13 @@ namespace cs460
 		void set_mesh_idx(int meshIdx);						// Set the index of the referenced mesh inside the model's vector of meshes
 		int get_mesh_idx() const;							// Get the index of the referenced mesh inside the model's vector of meshes
 
+		void set_bounding_volume(const AABB& newBv);		// Set the local bounding volume of this mesh as an aabb
+		AABB get_bounding_volume() const;					// Get the local bounding volume of this mesh as an aabb
+
 	private:
 
 		int m_meshIdx = -1;
+		AABB m_localBv;
 
 		void on_gui() override;
 	};

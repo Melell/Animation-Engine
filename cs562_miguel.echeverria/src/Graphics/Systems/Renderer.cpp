@@ -82,6 +82,9 @@ namespace cs460
 		// Debug draw all skeletons
 		glDisable(GL_DEPTH_TEST);
 		DebugRenderer::draw_all_skeletons({ 0.25f, 1.0f, 0.25f, 1.0f }, { 0.8f, 0.4f, 0.0f, 1.0f });
+		glDisable(GL_CULL_FACE);
+		debug_draw_bvs();
+		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 	}
 
@@ -146,6 +149,17 @@ namespace cs460
 	{
 		return m_skybox;
 	}
+
+
+	// Debug draws the bounding volumes of the meshrenderables in the scene
+	void Renderer::debug_draw_bvs() const
+	{
+		for (auto currMesh : m_renderables)
+		{
+			DebugRenderer::draw_aabb(currMesh->get_owner()->m_worldTr.get_model_mtx(), {1.0f, 1.0f, 1.0f, 1.0f}, true);
+		}
+	}
+
 
 	void Renderer::set_gl_properties()
 	{

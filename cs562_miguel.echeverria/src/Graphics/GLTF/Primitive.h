@@ -57,6 +57,8 @@ namespace cs460
 		Shader* get_shader() const;
 		const Material& get_material() const;
 
+		glm::vec3 get_min_pos() const;
+		glm::vec3 get_max_pos() const;
 
 		// Free all the opengl buffers used by this primitive
 		void delete_gl_buffers();
@@ -72,6 +74,10 @@ namespace cs460
 		int m_eboComponentType = -1;			// The type of the ebo data (unsigned char, short etc)
 		int m_mode = -1;						// GL_POINTS, GL_LINES, GL_TRIANGLES etc
 		bool m_usesEbo = false;
+
+		// For mesh bv computation
+		glm::vec3 m_minPos{ FLT_MAX, FLT_MAX, FLT_MAX };
+		glm::vec3 m_maxPos{ FLT_MIN, FLT_MIN, FLT_MIN };
 
 
 		// Save the necessary variables that are needed for drawing, and load

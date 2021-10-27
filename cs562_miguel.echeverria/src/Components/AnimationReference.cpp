@@ -78,7 +78,13 @@ namespace cs460
 			}
 		}
 
-		m_animTimer += FrameRateController::get_instance().get_dt_float();
+
+		// Update the timer of the animation
+		m_animTimer += FrameRateController::get_instance().get_dt_float() * m_timeScale;
+
+		// If looping and animation has finished, restart the animation
+		if (m_looping && m_animTimer > m_duration)
+			m_animTimer = 0.0f;
 	}
 
 
@@ -88,6 +94,9 @@ namespace cs460
 
 		if (ImGui::BeginCombo("Animation", m_previewName.c_str()))
 		{
+			if (ImGui::Selectable("None"))
+				change_animation(-1, "None");
+
 			for (int i = 0; i < model->m_animations.size(); i++)
 			{
 				if (ImGui::Selectable(model->m_animations[i].m_name.c_str()))
@@ -101,6 +110,7 @@ namespace cs460
 
 		ImGui::Checkbox("Loop", &m_looping);
 		ImGui::Checkbox("Paused", &m_paused);
+		ImGui::SliderFloat("Time Scale", &m_timeScale, 0.01f, 5.0f, "%.2f");
 	}
 
 
@@ -113,12 +123,17 @@ namespace cs460
 		m_animIdx = idx;
 		m_previewName = animName;
 
+		// Nothing else to do if "no animation" option has been selected
+		if (m_animIdx < 0)
+			return;
+
 		Model* model = get_owner()->get_model();
 		Animation& anim = model->m_animations[m_animIdx];
 
 
-		// Reset the timer of the animation
+		// Reset the timer of the animation and total duration
 		m_animTimer = 0.0f;
+		m_duration = anim.m_duration;
 
 
 		// Initialize animation properties
@@ -143,6 +158,7 @@ namespace cs460
 				m_animProperties[i].m_property = glm::value_ptr(targetNode->m_localTr.m_orientation);
 			else if (anim.m_channels[i].m_targetProperty == "scale")
 				m_animProperties[i].m_property = glm::value_ptr(targetNode->m_localTr.m_scale);
+
 
 			// Set the interpolation function
 			const std::string& interpolationMethod = anim.m_animData[anim.m_channels[i].m_animDataIdx].m_interpolationMethod;

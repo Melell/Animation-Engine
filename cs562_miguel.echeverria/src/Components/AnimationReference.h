@@ -40,6 +40,7 @@ namespace cs460
 
 		// Animation control data
 		float m_animTimer = 0.0f;
+		float m_duration = 0.0f;
 		float m_timeScale = 1.0f;
 		bool m_looping = true;
 		bool m_paused = false;

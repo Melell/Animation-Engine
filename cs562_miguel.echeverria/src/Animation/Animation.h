@@ -62,7 +62,8 @@ namespace cs460
 		std::vector<float> m_keys;
 		std::vector<float> m_values;
 		std::string m_interpolationMethod;
-		int m_componentCount;				// The number of float components (3 for vec3, 4 for quat) in m_values for each m_keys
+		int m_componentCount;				// The number of float components for each m_key (I will probably get rid of this in the future)
+		float m_time = 0.0f;
 	};
 
 
@@ -75,5 +76,6 @@ namespace cs460
 		std::string m_name;
 		std::vector<AnimationChannel> m_channels;
 		std::vector<AnimationData> m_animData;
+		float m_duration = 0.0f;
 	};
 }

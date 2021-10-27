@@ -48,6 +48,11 @@ namespace cs460
 		const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
 		const unsigned char* data = model.buffers[bufferView.buffer].data.data() + bufferView.byteOffset + accessor.byteOffset;
 
+		// Save the total time it takes to complete the interpolation of this property
+		float maxTime = (float)accessor.maxValues.front();
+		if (maxTime > m_time)
+			m_time = maxTime;
+
 		int byteStride = accessor.ByteStride(bufferView);
 		m_keys.resize(accessor.count);
 
@@ -91,6 +96,12 @@ namespace cs460
 		// Load the samplers data (the keyframe data)
 		m_animData.resize(anim.samplers.size());
 		for (int i = 0; i < m_animData.size(); ++i)
+		{
 			m_animData[i].load_keyframe_data(model, anim, i);
+
+			// Save the time to complete the animation (longest interpolation)
+			if (m_animData[i].m_time > m_duration)
+				m_duration = m_animData[i].m_time;
+		}
 	}
 }

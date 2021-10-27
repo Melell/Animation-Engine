@@ -11,6 +11,7 @@
 #pragma once
 
 #include "IComponent.h"
+#include "Animation/Animation.h"
 
 
 namespace cs460
@@ -32,13 +33,17 @@ namespace cs460
 
 	private:
 
+		// Anim resource related data
 		std::vector<AnimationProperty> m_animProperties;
 		std::string m_previewName = "None";
 		int m_animIdx = -1;
+
+		// Animation control data
 		float m_animTimer = 0.0f;
 		float m_timeScale = 1.0f;
 		bool m_looping = true;
 		bool m_paused = false;
+
 
 		void on_gui() override;
 	};

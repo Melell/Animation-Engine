@@ -114,15 +114,17 @@ namespace cs460
 							m_previewName = filename;
 							Scene& scene = Scene::get_instance();
 							get_owner()->delete_all_children();
+							get_owner()->delete_component<AnimationReference>();
 
 							// Get the model from the resource manager (load if it is not already there), and generate the nodes
 							Model* model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
 							if (model != nullptr)
 							{
+								m_model = model;
 								get_owner()->set_model_source(m_model);
 								get_owner()->set_model_root_node(get_owner());
 
-								m_model = model;
+
 								generate_nodes();
 								generate_components();
 							}

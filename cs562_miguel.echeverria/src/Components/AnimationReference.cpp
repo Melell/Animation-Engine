@@ -13,6 +13,11 @@
 #include "Animation/Animator.h"
 #include "Composition/SceneNode.h"
 #include "Graphics/GLTF/Model.h"
+#include "Composition/Scene.h"
+#include "Composition/SceneNode.h"
+#include "Components/ModelInstance.h"
+#include "Math/Interpolation/InterpolationFunctions.h"
+#include "Platform/FrameRateController.h"
 #include <imgui/imgui.h>
 
 
@@ -39,14 +44,41 @@ namespace cs460
 
 		for (int i = 0; i < m_animProperties.size(); ++i)
 		{
+			// Go to the next if there is no property to update
+			if (m_animProperties[i].m_property == nullptr)
+				continue;
+
+			// Get the animation data and number of components in this property
 			int animIdx = m_animProperties[i].m_animIdx;
 			int dataIdx = m_animProperties[i].m_animDataIdx;
-
-			// TODO: This is probably wrong because animation values are not given by gltf in float arrays, but in vec3/vec4 arrays
 			AnimationData& data = model->m_animations[animIdx].m_animData[dataIdx];
-			float interpolatedVal = m_animProperties[i].m_interpolationFn(data.m_values.data(), data.m_keys.data(), data.m_keys.size(), m_animTimer);
-			m_animProperties[i].m_property[0] = interpolatedVal;
+			int componentCount = data.m_componentCount;
+			
+
+			// Interpolate the current property based on the animation timer and the interpolation method
+			if (m_animProperties[i].m_interpolationMode == INTERPOLATION_MODE::LERP)
+			{
+				const glm::vec3& interpolatedVal = piecewise_lerp(data.m_keys, data.m_values, m_animTimer);
+				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 3 * sizeof(float));
+			}
+			else if (m_animProperties[i].m_interpolationMode == INTERPOLATION_MODE::SLERP)
+			{
+				const glm::quat& interpolatedVal = piecewise_slerp(data.m_keys, data.m_values, m_animTimer);
+				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 4 * sizeof(float));
+			}
+			if (m_animProperties[i].m_interpolationMode == INTERPOLATION_MODE::STEP)
+			{
+				const glm::vec3& interpolatedVal = piecewise_step(data.m_keys, data.m_values, m_animTimer);
+				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 3 * sizeof(float));
+			}
+			if (m_animProperties[i].m_interpolationMode == INTERPOLATION_MODE::CUBIC_SPLINE)
+			{
+				const glm::vec3& interpolatedVal = piecewise_hermite_spline(data.m_keys, data.m_values, m_animTimer);
+				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 3 * sizeof(float));
+			}
 		}
+
+		m_animTimer += FrameRateController::get_instance().get_dt_float();
 	}
 
 
@@ -75,15 +107,57 @@ namespace cs460
 	// Setter and getter for the index of the animation
 	void AnimationReference::change_animation(int idx, const std::string& animName)
 	{
+		Scene& scene = Scene::get_instance();
+		auto& modelNodes = scene.get_model_inst_nodes(get_owner()->get_model_root_node()->get_component<ModelInstance>()->get_instance_id());
+
 		m_animIdx = idx;
 		m_previewName = animName;
+
+		Model* model = get_owner()->get_model();
+		Animation& anim = model->m_animations[m_animIdx];
+
 
 		// Reset the timer of the animation
 		m_animTimer = 0.0f;
 
 
-		// TODO: Initialize animation properties
+		// Initialize animation properties
+		m_animProperties.clear();
+		m_animProperties.resize(anim.m_channels.size());
 
+		for (int i = 0; i < m_animProperties.size(); ++i)
+		{
+			// We will not be doing anything with weights at the moment
+			if (anim.m_channels[i].m_targetProperty == "weights")
+				continue;
+
+			// Set the animation and anim data (sampler) indices
+			m_animProperties[i].m_animIdx = m_animIdx;
+			m_animProperties[i].m_animDataIdx = anim.m_channels[i].m_animDataIdx;
+			
+			// Get the target node, and set the property to the appropriate data
+			SceneNode* targetNode = modelNodes[anim.m_channels[i].m_targetNodeIdx];
+			if (anim.m_channels[i].m_targetProperty == "translation")
+				m_animProperties[i].m_property = glm::value_ptr(targetNode->m_localTr.m_position);
+			else if (anim.m_channels[i].m_targetProperty == "rotation")
+				m_animProperties[i].m_property = glm::value_ptr(targetNode->m_localTr.m_orientation);
+			else if (anim.m_channels[i].m_targetProperty == "scale")
+				m_animProperties[i].m_property = glm::value_ptr(targetNode->m_localTr.m_scale);
+
+			// Set the interpolation function
+			const std::string& interpolationMethod = anim.m_animData[anim.m_channels[i].m_animDataIdx].m_interpolationMethod;
+			if (interpolationMethod == "LINEAR")
+			{
+				m_animProperties[i].m_interpolationMode = INTERPOLATION_MODE::LERP;
+				
+				if (anim.m_channels[i].m_targetProperty == "rotation")
+					m_animProperties[i].m_interpolationMode = INTERPOLATION_MODE::SLERP;
+			}
+			else if (interpolationMethod == "STEP")
+				m_animProperties[i].m_interpolationMode = INTERPOLATION_MODE::STEP;
+			else if (interpolationMethod == "CUBICSPLINE")
+				m_animProperties[i].m_interpolationMode = INTERPOLATION_MODE::CUBIC_SPLINE;
+		}
 	}
 
 	int AnimationReference::get_anim_idx() const

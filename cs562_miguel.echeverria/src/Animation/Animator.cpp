@@ -100,7 +100,7 @@ namespace cs460
 		for (int i = 0; i < m_animReferences.size(); ++i)
 		{
 			AnimationReference* animComp = m_animReferences[i];
-			
+			animComp->update_properties();
 		}
 	}
 

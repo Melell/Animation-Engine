@@ -18,14 +18,29 @@ namespace tinygltf
 
 namespace cs460
 {
+	enum INTERPOLATION_MODE
+	{
+		LERP,
+		SLERP,
+		STEP,
+		CUBIC_SPLINE
+	};
+
+
+	// Holds a pointer to the property to interpolate, as well as a reference to
+	// the resource with the keyframe data, and the function used to interpolate
 	struct AnimationProperty
 	{
+		AnimationProperty();
+
 		float* m_property;
 		int m_animIdx;
 		int m_animDataIdx;
-		std::function<float(float*, float*, int, float)> m_interpolationFn;
+		INTERPOLATION_MODE m_interpolationMode;
 	};
 
+
+	// Contains info about which node, and which property to animate
 	struct AnimationChannel
 	{
 		void load_channel_data(const tinygltf::Animation& anim, int channelIdx);
@@ -35,8 +50,8 @@ namespace cs460
 		int m_targetNodeIdx;
 		int m_animDataIdx;
 	};
-
 	
+	// Contains the keyframe data for different time values
 	struct AnimationData
 	{
 		void load_keyframe_data(const tinygltf::Model& model, const tinygltf::Animation& anim, int samplerIdx);
@@ -47,9 +62,11 @@ namespace cs460
 		std::vector<float> m_keys;
 		std::vector<float> m_values;
 		std::string m_interpolationMethod;
+		int m_componentCount;				// The number of float components (3 for vec3, 4 for quat) in m_values for each m_keys
 	};
 
 
+	// Represents an animation resource
 	struct Animation
 	{
 		void load_animation_data(const tinygltf::Model& model, const tinygltf::Animation& anim);

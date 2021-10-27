@@ -60,12 +60,13 @@ namespace cs460
 	// Process the tinygltf model structure into our own
 	void Model::load_model_data(const tinygltf::Model& model)
 	{
-		// Reallocate the vector of meshes with enough size
+		// Reallocate the vector of meshes, skins etc with enough size
 		clear();
 		m_scenes.resize(model.scenes.size());
 		m_nodes.resize(model.nodes.size());
 		m_meshes.resize(model.meshes.size());
 		m_skins.resize(model.skins.size());
+		m_animations.resize(model.animations.size());
 
 		// Associates skin index to index of node that referenced the skin
 		std::map<int, int> skinNodes;

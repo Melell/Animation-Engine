@@ -180,6 +180,9 @@
     <ClCompile Include="src\Components\AnimationReference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Interpolation\InterpolationFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -348,6 +351,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Components\AnimationReference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Interpolation\InterpolationFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

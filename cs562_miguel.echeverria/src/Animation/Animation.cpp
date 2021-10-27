@@ -14,6 +14,16 @@
 
 namespace cs460
 {
+	AnimationProperty::AnimationProperty()
+		:	m_property(nullptr),
+			m_animIdx(0),
+			m_animDataIdx(0),
+			m_interpolationMode(INTERPOLATION_MODE::LERP)
+	{
+	}
+	
+
+
 	void AnimationChannel::load_channel_data(const tinygltf::Animation& anim, int channelIdx)
 	{
 		const tinygltf::AnimationChannel& channel = anim.channels[channelIdx];
@@ -38,16 +48,12 @@ namespace cs460
 		const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
 		const unsigned char* data = model.buffers[bufferView.buffer].data.data() + bufferView.byteOffset + accessor.byteOffset;
 
-		// Assume the time values will always be floats, and that they will be contiguous
+		int byteStride = accessor.ByteStride(bufferView);
 		m_keys.resize(accessor.count);
-		std::memcpy(m_keys.data(), data, bufferView.byteLength);
-
-		//int stride = accessor.ByteStride(bufferView);
-		//m_keys.resize(accessor.count);
 
 		// Assume the time values will always be floats
-		//for (int i = 0; i < m_keys.size(); ++i)
-		//	m_keys[i] = *(reinterpret_cast<const float*>(data + stride * i));
+		for (int i = 0; i < m_keys.size(); ++i)
+			m_keys[i] = *(reinterpret_cast<const float*>(data + byteStride * i));
 	}
 
 	void AnimationData::load_output_data(const tinygltf::Model& model, int accessorIdx)
@@ -56,28 +62,19 @@ namespace cs460
 		const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
 		const unsigned char* data = model.buffers[bufferView.buffer].data.data() + bufferView.byteOffset + accessor.byteOffset;
 
-		// Assume the data will be contiguous
-		int componentsInType = tinygltf::GetNumComponentsInType(accessor.type);
-		int elementCount = accessor.count;
-		int floatCount = elementCount * componentsInType;
+		// Resize the float vector to the appropriate size
+		m_componentCount = tinygltf::GetNumComponentsInType(accessor.type);
+		size_t elementCount = accessor.count;
+		size_t floatCount = elementCount * m_componentCount;
 		m_values.resize(floatCount);
-		std::memcpy(m_values.data(), data, bufferView.byteLength);
 
-		// Assume we are dealing with vec3 or vec4
-		//int numberOfComponents = accessor.type;
-		//
-		//int stride = accessor.ByteStride(bufferView);
-		//m_values.resize(accessor.count * numberOfComponents);
-		//
-		//// For each "attribute" value (vec3, vec4 etc)
-		//for (int i = 0; i < accessor.count; ++i)
-		//{
-		//	// For each float component, add the float
-		//	for (int j = 0; j < numberOfComponents; ++j)
-		//	{
-		//		m_values[i * numberOfComponents + j] = *(reinterpret_cast<const float*>(data + stride * i));
-		//	}
-		//}
+		int componentSize = tinygltf::GetComponentSizeInBytes(accessor.componentType);
+		int byteStride = accessor.ByteStride(bufferView);
+		int elementSize = componentSize * m_componentCount;
+
+		// For each "element" value (vec3, vec4 etc), copy from the gltf data to our own
+		for (int i = 0; i < accessor.count; ++i)
+			std::memcpy(m_values.data() + i * m_componentCount, data + i * byteStride, elementSize);
 	}
 
 

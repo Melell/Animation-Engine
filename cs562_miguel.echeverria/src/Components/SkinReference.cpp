@@ -2,7 +2,7 @@
 * @file SkinReference.cpp
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/10
-* @brief Component that represents the root node of a skin/skeleton.
+* @brief Component that indicates this node's mesh is using a skin.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */

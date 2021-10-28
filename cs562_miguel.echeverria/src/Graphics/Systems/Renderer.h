@@ -48,6 +48,8 @@ namespace cs460
 		// Debug draws the bounding volumes of the meshrenderables in the scene
 		void debug_draw_bvs() const;
 
+		int m_bvDrawMode = 0;	// 0 = Draw none. 1 = Draw the bv of the selected node. 2 = Draw all the bvs
+
 	private:
 
 		Window m_window;

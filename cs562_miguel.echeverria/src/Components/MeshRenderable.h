@@ -30,11 +30,13 @@ namespace cs460
 		// Render the primitives of the mesh this component references, with the transform of the node it belongs to.
 		void render_primitives() const;
 
-		void set_mesh_idx(int meshIdx);						// Set the index of the referenced mesh inside the model's vector of meshes
-		int get_mesh_idx() const;							// Get the index of the referenced mesh inside the model's vector of meshes
+		void set_mesh_idx(int meshIdx);							// Set the index of the referenced mesh inside the model's vector of meshes
+		int get_mesh_idx() const;								// Get the index of the referenced mesh inside the model's vector of meshes
 
-		void set_bounding_volume(const AABB& newBv);		// Set the local bounding volume of this mesh as an aabb
-		AABB get_bounding_volume() const;					// Get the local bounding volume of this mesh as an aabb
+		void set_local_bounding_volume(const AABB& newBv);		// Set the local bounding volume of this mesh as an aabb
+		AABB get_local_bounding_volume() const;					// Get the local bounding volume of this mesh as an aabb
+
+		AABB get_world_bounding_volume() const;					// Get the world bounding volume of this mesh as an aabb
 
 	private:
 

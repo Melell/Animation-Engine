@@ -128,11 +128,14 @@
     </ClCompile>
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\Animator.cpp" />
+    <ClCompile Include="src\Animation\PiecewiseCurveMgr.cpp" />
     <ClCompile Include="src\Animation\Skin.cpp" />
     <ClCompile Include="src\Application\Engine.cpp" />
     <ClCompile Include="src\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Components\AnimationReference.cpp" />
+    <ClCompile Include="src\Components\CurvePoint.cpp" />
+    <ClCompile Include="src\Components\CurveTangent.cpp" />
     <ClCompile Include="src\Components\IComponent.cpp" />
     <ClCompile Include="src\Components\Joint.cpp" />
     <ClCompile Include="src\Components\ModelInstance.cpp" />
@@ -194,11 +197,14 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\Animator.h" />
+    <ClInclude Include="src\Animation\PiecewiseCurveMgr.h" />
     <ClInclude Include="src\Animation\Skin.h" />
     <ClInclude Include="src\Application\Engine.h" />
     <ClInclude Include="src\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Components\AnimationReference.h" />
+    <ClInclude Include="src\Components\CurvePoint.h" />
+    <ClInclude Include="src\Components\CurveTangent.h" />
     <ClInclude Include="src\Components\IComponent.h" />
     <ClInclude Include="src\Components\Joint.h" />
     <ClInclude Include="src\Components\ModelInstance.h" />

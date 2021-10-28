@@ -170,6 +170,7 @@ namespace cs460
 		EditorState& state = Editor::get_instance().get_state();
 		Scene& scene = Scene::get_instance();
 
+		// TODO: Because we don't set the last parameter, there are problems when deleting childs
 		scene.delete_tree(state.m_selectedNode);
 		state.m_selectedNode = nullptr;
 	}

@@ -228,7 +228,7 @@ namespace cs460
 		{
 			MeshRenderable* comp = add_component<MeshRenderable>();
 			comp->set_mesh_idx(node.m_meshIdx);
-			comp->set_bounding_volume(m_sourceModel->m_meshes[node.m_meshIdx].m_boundingVolume);
+			comp->set_local_bounding_volume(m_sourceModel->m_meshes[node.m_meshIdx].m_boundingVolume);
 		}
 	}
 

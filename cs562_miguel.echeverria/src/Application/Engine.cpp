@@ -15,6 +15,7 @@
 #include "Resources/ResourceManager.h"
 #include "Platform/FrameRateController.h"
 #include "Animation/Animator.h"
+#include "Animation/PiecewiseCurveMgr.h"
 
 
 namespace cs460
@@ -58,6 +59,7 @@ namespace cs460
 		Editor& editor = Editor::get_instance();
 		Scene& scene = Scene::get_instance();
 		FrameRateController& frc = FrameRateController::get_instance();
+		PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())
@@ -65,11 +67,14 @@ namespace cs460
 			// Update the editor camera (the way the camera is organized will change)
 			scene.get_camera().update();
 
+			// Update all the model to local and model to world matrices
+			scene.update();
+
 			// Do all the gui logic as well as the gizmos
 			editor.update();
 
-			// Update all the model to local and model to world matrices
-			scene.update();
+			// Update all the piecewise curves
+			curveMgr.update();
 
 			// Update the animations and joint matrices
 			animator.update();

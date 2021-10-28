@@ -2,7 +2,8 @@
 * @file Joint.h
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/10
-* @brief Component that represents a joint in a skin.
+* @brief Component that represents a joint in a skin. Merely for showing
+*		 the info in the editor.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */

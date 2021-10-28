@@ -19,6 +19,9 @@ namespace cs460
 
 	struct EditorState
 	{
+		// Use this to avoid having to include the entire editor to get the editor state
+		static EditorState& get_main_editor_state();
+
 		SceneNode* m_selectedNode;
 		char m_textBuffer[128] = { '\0' };
 		ImGuizmo::OPERATION m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;

@@ -9,6 +9,7 @@
 
 #include "pch.h"
 #include "MainMenuBarGUI.h"
+#include "Graphics/Systems/Renderer.h"
 #include <imgui/imgui.h>
 
 
@@ -53,10 +54,10 @@ namespace cs460
 			{
 				if (ImGui::BeginMenu("Bounding Volumes"))
 				{
-					static int bvRenderMode = 0;
-					ImGui::RadioButton("None", &bvRenderMode, 0);
-					ImGui::RadioButton("Selected", &bvRenderMode, 1);
-					ImGui::RadioButton("All", &bvRenderMode, 2);
+					Renderer& renderer = Renderer::get_instance();
+					ImGui::RadioButton("None", &renderer.m_bvDrawMode, 0);
+					ImGui::RadioButton("Selected", &renderer.m_bvDrawMode, 1);
+					ImGui::RadioButton("All", &renderer.m_bvDrawMode, 2);
 
 					ImGui::EndMenu();
 				}

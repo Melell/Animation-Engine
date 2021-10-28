@@ -231,7 +231,7 @@ namespace cs460
         }
 
         // Show the demo window for reference
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
     }
 
 

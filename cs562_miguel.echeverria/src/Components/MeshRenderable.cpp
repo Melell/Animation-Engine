@@ -49,7 +49,7 @@ namespace cs460
 		std::vector<Primitive>& primitives = mesh.m_primitives;
 		for (int i = 0; i < primitives.size(); ++i)
 		{
-			// TODO: Kind of hardcoded, will improve organization in the future
+			// TODO: This is kind of hardcoded, will improve organization in the future
 			bool useNormalMap = true;
 			if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_N) == GLFW_PRESS)
 				useNormalMap = !useNormalMap;
@@ -128,15 +128,24 @@ namespace cs460
 	}
 
 	// Set the bounding volume of this mesh as an aabb
-	void MeshRenderable::set_bounding_volume(const AABB& newBv)
+	void MeshRenderable::set_local_bounding_volume(const AABB& newBv)
 	{
 		m_localBv = newBv;
 	}
 
 	// Get the bounding volume of this mesh as an aabb
-	AABB MeshRenderable::get_bounding_volume() const
+	AABB MeshRenderable::get_local_bounding_volume() const
 	{
 		return m_localBv;
+	}
+
+	// Get the world bounding volume of this mesh as an aabb
+	AABB MeshRenderable::get_world_bounding_volume() const
+	{
+		const glm::mat4& modelMtx = get_owner()->m_worldTr.get_model_mtx();
+		const glm::vec4& worldMin = modelMtx * glm::vec4(m_localBv.m_min, 1.0f);
+		const glm::vec4& worldMax = modelMtx * glm::vec4(m_localBv.m_max, 1.0f);
+		return { glm::vec3(worldMin), glm::vec3(worldMax) };
 	}
 
 

@@ -18,7 +18,7 @@ namespace tinygltf
 
 namespace cs460
 {
-	enum INTERPOLATION_MODE
+	enum class INTERPOLATION_MODE
 	{
 		LERP,
 		SLERP,

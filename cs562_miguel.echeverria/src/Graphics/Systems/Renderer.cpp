@@ -16,6 +16,8 @@
 #include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
 #include "DebugRenderer.h"
+#include "GUI/EditorState.h"
+#include "Animation/PiecewiseCurveMgr.h"
 #include <GL/glew.h>
 
 
@@ -85,6 +87,7 @@ namespace cs460
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
 		glEnable(GL_CULL_FACE);
+		PiecewiseCurveMgr::get_instance().debug_draw();
 		glEnable(GL_DEPTH_TEST);
 	}
 
@@ -154,9 +157,27 @@ namespace cs460
 	// Debug draws the bounding volumes of the meshrenderables in the scene
 	void Renderer::debug_draw_bvs() const
 	{
+		// Draw none
+		if (m_bvDrawMode == 0)
+			return;
+
+
+		// Draw only the one of the selected node
+		if (m_bvDrawMode == 1)
+		{
+			// Nothing to draw if there is no object selected, or the one selected doesn't have a mesh
+			EditorState& state = EditorState::get_main_editor_state();
+			if (state.m_selectedNode == nullptr || state.m_selectedNode->get_component<MeshRenderable>() == nullptr)
+				return;
+
+			DebugRenderer::draw_aabb(state.m_selectedNode->get_component<MeshRenderable>()->get_world_bounding_volume(), { 1.0f, 1.0f, 1.0f, 1.0f }, true);
+			return;
+		}
+
+		// Draw the ones of all the nodes with a mesh
 		for (auto currMesh : m_renderables)
 		{
-			DebugRenderer::draw_aabb(currMesh->get_owner()->m_worldTr.get_model_mtx(), {1.0f, 1.0f, 1.0f, 1.0f}, true);
+			DebugRenderer::draw_aabb(currMesh->get_world_bounding_volume(), {1.0f, 1.0f, 1.0f, 1.0f}, true);
 		}
 	}
 

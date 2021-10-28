@@ -126,10 +126,19 @@ namespace cs460
 		float tn = localTime / intervalDuration;
 
 		const glm::vec3& start = glm::make_vec3(val0 + componentCount);
-		const glm::vec3& startOutTangent = glm::make_vec3(val0 + componentCount * 2);
+		const glm::vec3& startOutTangent = glm::make_vec3(val0 + componentCount * 2) * intervalDuration;
 		const glm::vec3& end = glm::make_vec3(val1 + componentCount);
-		const glm::vec3& endInTangent = glm::make_vec3(val1);
+		const glm::vec3& endInTangent = glm::make_vec3(val1) * intervalDuration;
 
 		return hermite_interpolation(start, startOutTangent, end, endInTangent, tn);
+	}
+
+
+	// Perform bezier curve interpolation between a set of keyframes based on a time value t, which doesn't need
+	// to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per time
+	// key: in-control_point, property, out-control_point
+	glm::vec3 piecewise_bezier_interpolation(const std::vector<float>& keys, const std::vector<float>& values, float t)
+	{
+
 	}
 }

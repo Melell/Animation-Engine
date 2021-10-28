@@ -11,6 +11,7 @@
 #pragma once
 
 #include "TransformData.h"
+#include "Scene.h"
 
 namespace tinygltf
 {
@@ -42,6 +43,10 @@ namespace cs460
 
 		void delete_all_children();			// Free all the children of this node
 		void delete_all_components();		// Free all the components of this node
+
+		// Delete all the children with a component of type T
+		template<typename T>
+		void delete_all_children_with_comp();
 
 		// Create a new node and add it as this node's child
 		SceneNode* create_child(const std::string& name);
@@ -95,6 +100,32 @@ namespace cs460
 
 
 
+	// Delete all the children with a component of type T
+	template<typename T>
+	void SceneNode::delete_all_children_with_comp()
+	{
+		// For each child
+		for (auto it = m_children.begin(); it != m_children.end();)
+		{
+			SceneNode* child = *it;
+
+			// If it has the component, delete its subtree, and erase it as child of its parent
+			if (child->get_component<T>())
+			{
+				Scene& scene = Scene::get_instance();
+				it = m_children.erase(it);
+				scene.delete_tree(child, false);
+				continue;
+			}
+
+			// Otherwise, go into this child's children
+			child->delete_all_children_with_comp<T>();
+
+			++it;
+		}
+	}
+
+	
 	template<typename T>
 	T* SceneNode::add_component()
 	{

@@ -74,8 +74,15 @@ namespace cs460
 
 
 	// Perform hermite cubic spline interpolation between a set of keyframes based on a time value t, which doesn't
-	// need to be normalized. Assume the values given as data are vec3s (3 floating point values)
+	// need to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per
+	// time key: in-tangent, property, out-tangent
 	glm::vec3 piecewise_hermite_spline(const std::vector<float>& keys, const std::vector<float>& values, float t);
+
+
+	// Perform bezier curve interpolation between a set of keyframes based on a time value t, which doesn't need
+	// to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per time
+	// key: in-control_point, property, out-control_point
+	glm::vec3 piecewise_bezier_interpolation(const std::vector<float>& keys, const std::vector<float>& values, float t);
 
 	// ------------------------------------- PIECEWISE INTERPOLATION FUNCTIONS ----------------------------------------
 }

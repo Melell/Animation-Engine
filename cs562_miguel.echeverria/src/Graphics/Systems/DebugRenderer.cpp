@@ -174,6 +174,19 @@ namespace cs460
 	}
 
 
+	void DebugRenderer::draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color)
+	{
+		// Prepare the aabb of specific size
+		AABB box;
+		glm::vec3 halfDiagonal(0.1f, 0.1f, 0.1f);
+		box.m_min = worldPos - halfDiagonal;
+		box.m_max = worldPos + halfDiagonal;
+
+		// Draw the point as an aabb
+		DebugRenderer::draw_aabb(box, color);
+	}
+
+
 	void DebugRenderer::draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor)
 	{
 		Animator& animator = Animator::get_instance();

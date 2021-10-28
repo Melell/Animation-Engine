@@ -30,6 +30,8 @@ namespace cs460
 		static void draw_aabb(const AABB& aabb, const glm::vec4& color, bool wireframe = false);
 		static void draw_aabb(const glm::mat4& m2w, const glm::vec4& color, bool wireframe = false);	// Not tested
 
+		static void draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color);
+
 		static void draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor);
 		static void draw_joint(const glm::vec3& worldPos, const glm::vec4& color);
 		static void draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx);

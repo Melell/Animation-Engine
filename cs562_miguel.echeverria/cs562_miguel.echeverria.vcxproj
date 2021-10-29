@@ -134,6 +134,7 @@
     <ClCompile Include="src\Cameras\EditorCamera.cpp" />
     <ClCompile Include="src\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Components\AnimationReference.cpp" />
+    <ClCompile Include="src\Components\CurveControlPoint.cpp" />
     <ClCompile Include="src\Components\CurvePoint.cpp" />
     <ClCompile Include="src\Components\CurveTangent.cpp" />
     <ClCompile Include="src\Components\IComponent.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="src\Cameras\EditorCamera.h" />
     <ClInclude Include="src\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Components\AnimationReference.h" />
+    <ClInclude Include="src\Components\CurveControlPoint.h" />
     <ClInclude Include="src\Components\CurvePoint.h" />
     <ClInclude Include="src\Components\CurveTangent.h" />
     <ClInclude Include="src\Components\IComponent.h" />

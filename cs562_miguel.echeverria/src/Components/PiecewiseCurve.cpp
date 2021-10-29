@@ -17,6 +17,7 @@
 #include "Graphics/Systems/DebugRenderer.h"
 #include "Math/Geometry/Geometry.h"
 #include "Components/CurveTangent.h"
+#include "Components/CurveControlPoint.h"
 #include <imgui/imgui.h>
 
 
@@ -35,22 +36,21 @@ namespace cs460
 
 	void PiecewiseCurve::update()
 	{
+		// Gather data before pause check because other stuff depends on said data
+		gather_children_data(m_timeValues, m_propertyValues);
+
+		// Don't update if paused
 		if (m_paused)
 			return;
-
-		gather_children_data(m_timeValues, m_propertyValues);
 
 		// Nothing to update unless there are at least 2 points
 		if (m_timeValues.size() < 2)
 			return;
 
 		// Interpolate the position in the curve (based on curve type)
-		if (m_curveType == CURVE_TYPE::LINEAR)
-			m_currentPos = piecewise_lerp(m_timeValues, m_propertyValues, m_timer);
-		else if (m_curveType == CURVE_TYPE::HERMITE)
-			m_currentPos = piecewise_hermite_spline(m_timeValues, m_propertyValues, m_timer);
+		m_currentPos = interpolate_position(m_timer, m_curveType);
 
-
+		// Update the timer of the animation
 		m_timer += FrameRateController::get_instance().get_dt_float() * m_timeScale * m_direction;
 
 		check_timer_bounds();
@@ -60,8 +60,8 @@ namespace cs460
 	{
 		if (m_curveType == CURVE_TYPE::LINEAR)
 			debug_draw_linear();
-		else if (m_curveType == CURVE_TYPE::HERMITE)
-			debug_draw_hermite();
+		else if (m_curveType == CURVE_TYPE::HERMITE || m_curveType == CURVE_TYPE::BEZIER || m_curveType == CURVE_TYPE::CATMULL_ROM)
+			debug_draw_cubic_spline(m_curveType);
 
 
 		// Draw the object moving along the curve
@@ -76,6 +76,22 @@ namespace cs460
 	}
 
 
+	glm::vec3 PiecewiseCurve::interpolate_position(float time, CURVE_TYPE type)
+	{
+		// Interpolate the position in the curve (based on curve type)
+		if (type == CURVE_TYPE::LINEAR)
+			return piecewise_lerp(m_timeValues, m_propertyValues, time);
+		else if (type == CURVE_TYPE::HERMITE)
+			return piecewise_hermite(m_timeValues, m_propertyValues, time);
+		else if (type == CURVE_TYPE::CATMULL_ROM)
+			return piecewise_catmull_rom(m_timeValues, m_propertyValues, time);
+		else if (type == CURVE_TYPE::BEZIER)
+			return piecewise_bezier(m_timeValues, m_propertyValues, time);
+
+		return m_currentPos;
+	}
+
+
 	void PiecewiseCurve::change_curve_type(CURVE_TYPE newType)
 	{
 		if (newType == m_curveType)
@@ -85,6 +101,7 @@ namespace cs460
 		m_curveType = newType;
 		m_pointCount = 0;
 		m_tangentCount = 0;
+		m_controlPointCount = 0;
 		m_timer = 0.0f;
 		m_direction = 1.0f;
 
@@ -127,13 +144,11 @@ namespace cs460
 			if (m_curveType == CURVE_TYPE::HERMITE)
 			{
 				SceneNode* inTanNode = childNode->create_child("Tangent" + std::to_string(m_tangentCount));
-				inTanNode->m_localTr.m_position.z = -1.0f;
 				CurveTangent* inTangent = inTanNode->add_component<CurveTangent>();
 				inTangent->set_is_in_tangent(true);
 				++m_tangentCount;
 				
 				SceneNode* outTanNode = childNode->create_child("Tangent" + std::to_string(m_tangentCount));
-				inTanNode->m_localTr.m_position.z = 1.0f;
 				CurveTangent* outTangent = outTanNode->add_component<CurveTangent>();
 				outTangent->set_is_in_tangent(false);
 				++m_tangentCount;
@@ -141,17 +156,15 @@ namespace cs460
 			// Also add the control points as children of the point (if bezier)
 			else if (m_curveType == CURVE_TYPE::BEZIER)
 			{
-				SceneNode* inTanNode = childNode->create_child("Control_Point" + std::to_string(m_tangentCount));
-				inTanNode->m_localTr.m_position.z = -1.0f;
-				CurveTangent* inTangent = inTanNode->add_component<CurveTangent>();
-				inTangent->set_is_in_tangent(true);
-				++m_tangentCount;
+				SceneNode* inTanNode = childNode->create_child("Control_Point" + std::to_string(m_controlPointCount));
+				CurveControlPoint* leftControlPoint = inTanNode->add_component<CurveControlPoint>();
+				leftControlPoint->set_is_left_control_point(true);
+				++m_controlPointCount;
 
-				SceneNode* outTanNode = childNode->create_child("Control_Point" + std::to_string(m_tangentCount));
-				inTanNode->m_localTr.m_position.z = 1.0f;
-				CurveTangent* outTangent = outTanNode->add_component<CurveTangent>();
-				outTangent->set_is_in_tangent(false);
-				++m_tangentCount;
+				SceneNode* outTanNode = childNode->create_child("Control_Point" + std::to_string(m_controlPointCount));
+				CurveControlPoint* rightControlPoint = outTanNode->add_component<CurveControlPoint>();
+				rightControlPoint->set_is_left_control_point(false);
+				++m_controlPointCount;
 			}
 		}
 
@@ -196,8 +209,10 @@ namespace cs460
 			// Get the in and out tangents if we are in hermite or bezier
 			glm::vec3 inTangent{};
 			glm::vec3 outTangent{};
-			if (m_curveType == CURVE_TYPE::HERMITE || m_curveType == CURVE_TYPE::BEZIER)
+			if (m_curveType == CURVE_TYPE::HERMITE)
 				search_for_tangents(inTangent, outTangent, child);
+			else if (m_curveType == CURVE_TYPE::BEZIER)
+				search_for_control_points(inTangent, outTangent, child);
 
 
 			// Add the in-tangents data
@@ -239,9 +254,24 @@ namespace cs460
 			if (tangentComp)
 			{
 				if (tangentComp->get_is_in_tangent())
-					inTangent = glm::normalize(child->m_worldTr.m_position - pointNode->m_worldTr.m_position);
+					inTangent = /*glm::normalize(*/child->m_worldTr.m_position - pointNode->m_worldTr.m_position/*)*/;
 				else
-					outTangent = glm::normalize(child->m_worldTr.m_position - pointNode->m_worldTr.m_position);
+					outTangent = /*glm::normalize(*/child->m_worldTr.m_position - pointNode->m_worldTr.m_position/*)*/;
+			}
+		}
+	}
+
+	void PiecewiseCurve::search_for_control_points(glm::vec3& leftControlPoint, glm::vec3& rightControlPoint, SceneNode* pointNode)
+	{
+		for (SceneNode* child : pointNode->get_children())
+		{
+			CurveControlPoint* tangentComp = child->get_component<CurveControlPoint>();
+			if (tangentComp)
+			{
+				if (tangentComp->get_is_left_control_point())
+					leftControlPoint = child->m_worldTr.m_position;
+				else
+					rightControlPoint = child->m_worldTr.m_position;
 			}
 		}
 	}
@@ -304,8 +334,16 @@ namespace cs460
 		}
 	}
 
-	void PiecewiseCurve::debug_draw_hermite()
+	void PiecewiseCurve::debug_draw_cubic_spline(CURVE_TYPE type)
 	{
+		// Not supposed to happen, but just in case
+		if (type == CURVE_TYPE::LINEAR)
+		{
+			debug_draw_linear();
+			return;
+		}
+
+
 		// Draw the points and the tangents of the points
 		for (SceneNode* child : get_owner()->get_children())
 		{
@@ -316,8 +354,9 @@ namespace cs460
 			// Draw the point as an aabb
 			DebugRenderer::draw_curve_node(child->m_worldTr.m_position, m_pointColor);
 
-			// Debug draw the tangents of the current point
-			debug_draw_tangents(child);
+			// Debug draw the tangents/control_points of the current point
+			if (type == CURVE_TYPE::HERMITE || type == CURVE_TYPE::BEZIER)
+				debug_draw_tangents(child);
 		}
 
 
@@ -329,12 +368,25 @@ namespace cs460
 		// Draw the actual curve (a line per each timestep)
 		FrameRateController& frc = FrameRateController::get_instance();
 		float dt = frc.get_dt_float();
-		glm::vec3 prevPos = piecewise_hermite_spline(m_timeValues, m_propertyValues, 0.0f);
+		glm::vec3 prevPos;
+		if (type == CURVE_TYPE::HERMITE)
+			prevPos = piecewise_hermite(m_timeValues, m_propertyValues, 0.0f);
+		else if (type == CURVE_TYPE::BEZIER)
+			prevPos = piecewise_bezier(m_timeValues, m_propertyValues, 0.0f);
+		else if (type == CURVE_TYPE::CATMULL_ROM)
+			prevPos = piecewise_catmull_rom(m_timeValues, m_propertyValues, 0.0f);
 
 		for (float timer = dt; timer < m_totalDuration; timer += dt)
 		{
-			// Compute the current point in the spline
-			glm::vec3 currentPos = piecewise_hermite_spline(m_timeValues, m_propertyValues, timer);
+			// Compute the current point in the spline according to the given type
+			glm::vec3 currentPos;
+			
+			if (type == CURVE_TYPE::HERMITE)
+				currentPos = piecewise_hermite(m_timeValues, m_propertyValues, timer);
+			else if (type == CURVE_TYPE::BEZIER)
+				currentPos = piecewise_bezier(m_timeValues, m_propertyValues, timer);
+			else if (type == CURVE_TYPE::CATMULL_ROM)
+				currentPos = piecewise_catmull_rom(m_timeValues, m_propertyValues, timer);
 
 			// Draw the current line
 			Segment seg;
@@ -351,7 +403,7 @@ namespace cs460
 	{
 		for (SceneNode* child : pointNode->get_children())
 		{
-			if (child->get_component<CurveTangent>() == nullptr)
+			if (child->get_component<CurveTangent>() == nullptr && child->get_component<CurveControlPoint>() == nullptr)
 				continue;
 
 			// Draw the tangent endpoint
@@ -360,7 +412,7 @@ namespace cs460
 
 			// Draw the line from the point to the tangent endpoint
 			Segment seg;
-			seg.m_start = pointNode->m_localTr.m_position;
+			seg.m_start = pointNode->m_worldTr.m_position;
 			seg.m_end = child->m_worldTr.m_position;
 			DebugRenderer::draw_segment(seg, m_tangLineColor);
 		}

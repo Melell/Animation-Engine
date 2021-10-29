@@ -192,6 +192,9 @@
     <ClCompile Include="src\Components\CurveTangent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Components\CurveControlPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -372,6 +375,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Components\CurveTangent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\CurveControlPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

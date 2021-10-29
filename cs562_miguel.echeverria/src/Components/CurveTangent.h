@@ -4,8 +4,7 @@
 * @date 2020/15/10
 * @brief Represents the endpoint of a tangent in a piecewise curve. Merely for
 *		 distinguishing between normal children of a node with a PiecewiseCurve
-*		 component, and the childs that represent the tangents of the curve. This
-*		 is also used as a control point.
+*		 component, and the childs that represent the tangents of the curve.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */

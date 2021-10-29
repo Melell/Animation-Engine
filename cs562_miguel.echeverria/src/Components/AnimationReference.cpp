@@ -73,7 +73,7 @@ namespace cs460
 			}
 			if (m_animProperties[i].m_interpolationMode == INTERPOLATION_MODE::CUBIC_SPLINE)
 			{
-				const glm::vec3& interpolatedVal = piecewise_hermite_spline(data.m_keys, data.m_values, m_animTimer);
+				const glm::vec3& interpolatedVal = piecewise_hermite(data.m_keys, data.m_values, m_animTimer);
 				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 3 * sizeof(float));
 			}
 		}

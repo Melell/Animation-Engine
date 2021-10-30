@@ -35,6 +35,28 @@ namespace cs460
 	}
 
 
+	void ModelInstance::change_model(const fs::path& filePath)
+	{
+		m_previewName = filePath.filename().generic_string();
+		Scene& scene = Scene::get_instance();
+		get_owner()->delete_all_children();
+		get_owner()->delete_component<AnimationReference>();
+
+		// Get the model from the resource manager (load if it is not already there), and generate the nodes
+		Model* model = ResourceManager::get_instance().get_model(filePath.generic_string());
+		if (model != nullptr)
+		{
+			m_model = model;
+			get_owner()->set_model_source(m_model);
+			get_owner()->set_model_root_node(get_owner());
+
+
+			generate_nodes();
+			generate_components();
+		}
+	}
+
+
 	// Create all the nodes/components from the internal Model resource
 	void ModelInstance::generate_nodes()
 	{
@@ -111,23 +133,7 @@ namespace cs460
 						const std::string& filename = dir_it.path().filename().generic_string();
 						if (ImGui::Selectable(filename.c_str()))
 						{
-							m_previewName = filename;
-							Scene& scene = Scene::get_instance();
-							get_owner()->delete_all_children();
-							get_owner()->delete_component<AnimationReference>();
-
-							// Get the model from the resource manager (load if it is not already there), and generate the nodes
-							Model* model = ResourceManager::get_instance().get_model(dir_it.path().generic_string());
-							if (model != nullptr)
-							{
-								m_model = model;
-								get_owner()->set_model_source(m_model);
-								get_owner()->set_model_root_node(get_owner());
-
-
-								generate_nodes();
-								generate_components();
-							}
+							change_model(dir_it.path());
 						}
 					}
 				}

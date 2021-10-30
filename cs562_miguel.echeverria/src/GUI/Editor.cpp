@@ -256,4 +256,10 @@ namespace cs460
     {
         return m_state;
     }
+
+
+    MainMenuBarGUI& Editor::get_main_menu_bar()
+    {
+        return m_mainMenuBar;
+    }
 }

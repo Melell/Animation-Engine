@@ -16,6 +16,7 @@
 #include "Platform/FrameRateController.h"
 #include "Animation/Animator.h"
 #include "Animation/PiecewiseCurveMgr.h"
+#include "GUI/MainMenuBarGUI.h"		// TODO: Remove this in the future
 
 
 namespace cs460
@@ -90,6 +91,8 @@ namespace cs460
 
 			// Clear the frame buffer for the next frame
 			renderer.clear_fb();
+
+			MainMenuBarGUI::get_main_menu_bar_gui().load_scene();
 
 			// End the measurement and store a new dt
 			frc.end_frame();

@@ -143,9 +143,42 @@ namespace cs460
 	AABB MeshRenderable::get_world_bounding_volume() const
 	{
 		const glm::mat4& modelMtx = get_owner()->m_worldTr.get_model_mtx();
-		const glm::vec4& worldMin = modelMtx * glm::vec4(m_localBv.m_min, 1.0f);
-		const glm::vec4& worldMax = modelMtx * glm::vec4(m_localBv.m_max, 1.0f);
-		return { glm::vec3(worldMin), glm::vec3(worldMax) };
+		const glm::vec3& worldMin = glm::vec3(modelMtx * glm::vec4(m_localBv.m_min, 1.0f));
+		const glm::vec3& worldMax = glm::vec3(modelMtx * glm::vec4(m_localBv.m_max, 1.0f));
+		const glm::vec3& worldDiagonal = worldMax - worldMin;
+
+		// Recompute the aabb after transforming to world
+		glm::vec3 worldBvCorners[8];
+		worldBvCorners[0] = worldMin;
+		worldBvCorners[1] = worldMin + glm::vec3(worldDiagonal.x, 0.0f, 0.0f);
+		worldBvCorners[2] = worldMin + glm::vec3(0.0f, worldDiagonal.y, 0.0f);
+		worldBvCorners[3] = worldMin + glm::vec3(worldDiagonal.x, worldDiagonal.y, 0.0f);
+		worldBvCorners[4] = worldMin + glm::vec3(0.0f, 0.0f, worldDiagonal.z);
+		worldBvCorners[5] = worldMin + glm::vec3(worldDiagonal.x, 0.0f, worldDiagonal.z);
+		worldBvCorners[6] = worldMin + glm::vec3(0.0f, worldDiagonal.y, worldDiagonal.z);
+		worldBvCorners[7] = worldMax;
+
+		glm::vec3 finalMin{FLT_MAX, FLT_MAX, FLT_MAX };
+		glm::vec3 finalMax{FLT_MIN, FLT_MIN, FLT_MIN };
+		for (int i = 0; i < 8; ++i)
+		{
+			if (worldBvCorners[i].x < finalMin.x)
+				finalMin.x = worldBvCorners[i].x;
+			else if (worldBvCorners[i].x > finalMax.x)
+				finalMax.x = worldBvCorners[i].x;
+
+			if (worldBvCorners[i].y < finalMin.y)
+				finalMin.y = worldBvCorners[i].y;
+			else if (worldBvCorners[i].y > finalMax.y)
+				finalMax.y = worldBvCorners[i].y;
+
+			if (worldBvCorners[i].z < finalMin.z)
+				finalMin.z = worldBvCorners[i].z;
+			else if (worldBvCorners[i].z > finalMax.z)
+				finalMax.z = worldBvCorners[i].z;
+		}
+
+		return { finalMin, finalMax };
 	}
 
 

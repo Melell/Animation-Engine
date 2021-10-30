@@ -61,11 +61,11 @@ namespace cs460
 				m_boundingVolume.m_min.z = currentMin.z;
 
 			// Update the max position
-			if (currentMax.x < m_boundingVolume.m_max.x)
+			if (currentMax.x > m_boundingVolume.m_max.x)
 				m_boundingVolume.m_max.x = currentMax.x;
-			if (currentMax.y < m_boundingVolume.m_max.y)
+			if (currentMax.y > m_boundingVolume.m_max.y)
 				m_boundingVolume.m_max.y = currentMax.y;
-			if (currentMax.z < m_boundingVolume.m_max.z)
+			if (currentMax.z > m_boundingVolume.m_max.z)
 				m_boundingVolume.m_max.z = currentMax.z;
 		}
 	}

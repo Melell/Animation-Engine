@@ -26,10 +26,22 @@ namespace cs460
 		// Animate the properties of this animation
 		void update_properties();
 
-		// Setter and getter for the index of the animation
 		void change_animation(int idx, const std::string& animName);
+
+		// Getters for the index of the animation and name
 		int get_anim_idx() const;
 		std::string get_anim_name() const;
+
+		// Useful getters and setters
+		float get_anim_timer() const;
+		float get_anim_duration() const;
+		float get_anim_time_scale() const;
+		bool get_anim_looping() const;
+		bool get_anim_paused() const;
+
+		void set_anim_time_scale(float newTimeScale);
+		void set_anim_looping(bool isLooping);
+		void set_anim_paused(bool isPaused);
 
 	private:
 

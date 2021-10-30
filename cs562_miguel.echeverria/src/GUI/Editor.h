@@ -35,6 +35,9 @@ namespace cs460
 		void close();			// Terminate imgui
 
 		EditorState& get_state();
+
+		// TODO: Remove this in the future
+		MainMenuBarGUI& get_main_menu_bar();
 	
 	private:
 	

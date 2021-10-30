@@ -185,4 +185,40 @@ namespace cs460
 	{
 		return m_previewName;
 	}
+
+
+	// Useful getters and setters
+	float AnimationReference::get_anim_timer() const
+	{
+		return m_animTimer;
+	}
+	float AnimationReference::get_anim_duration() const
+	{
+		return m_duration;
+	}
+	float AnimationReference::get_anim_time_scale() const
+	{
+		return m_timeScale;
+	}
+	bool AnimationReference::get_anim_looping() const
+	{
+		return m_looping;
+	}
+	bool AnimationReference::get_anim_paused() const
+	{
+		return m_paused;
+	}
+
+	void AnimationReference::set_anim_time_scale(float newTimeScale)
+	{
+		m_timeScale = newTimeScale;
+	}
+	void AnimationReference::set_anim_looping(bool isLooping)
+	{
+		m_looping = isLooping;
+	}
+	void AnimationReference::set_anim_paused(bool isPaused)
+	{
+		m_paused = isPaused;
+	}
 }

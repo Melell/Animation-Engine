@@ -12,6 +12,18 @@
 
 namespace cs460
 {
+	enum class SCENE_TO_LOAD
+	{
+		NONE,
+		EMPTY,
+		LINEAR,
+		HERMITE,
+		CATMULL_ROM,
+		BEZIER,
+		SKINNED_ANIMATION
+	};
+
+
 	class MainMenuBarGUI
 	{
 	public:
@@ -20,7 +32,21 @@ namespace cs460
 
 		void update();
 
+		// TODO: Remove this when serialization is implemented
+		static MainMenuBarGUI& get_main_menu_bar_gui();
+
+		void load_scene();
+
+
 	private:
+		SCENE_TO_LOAD m_sceneToLoad = SCENE_TO_LOAD::NONE;
+
+		void load_empty_scene();
+		void load_linear_curve_scene();
+		void load_hermite_curve_scene();
+		void load_catmull_rom_curve_scene();
+		void load_bezier_curve_scene();
+		void load_skinned_animation_scene();
 
 		MainMenuBarGUI();
 	};

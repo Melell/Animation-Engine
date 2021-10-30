@@ -29,6 +29,8 @@ namespace cs460
 		ModelInstance();
 		virtual ~ModelInstance();
 
+		void change_model(const fs::path& filePath);
+
 		// Create all the nodes/components from the internal Model resources
 		void generate_nodes();
 		void generate_components();

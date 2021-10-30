@@ -2,33 +2,18 @@ Name: Miguel Echeverria
 Login: miguel.echeverria
 
 Additional Notes: Extra credits implemented
-(ASSIGNMENT 1)
 - Normal mapping: Hold down N to see scene without normal mapping
 - Loading of models through navigation: Models can be loaded by adding a component "ModelInstance" to a node.
 ModelInstance components allow choosing which model to load (not sure if this meets the requirements)
-- Object creation/deletion: You can right click any node in the scene graph, and click on "Add New Node" to
-create a new node and add it as the child of the selected one.
-- Transform editing with gizmo
-
-(ASSIGNMENT 2)
-- Cube Map: You can select a skybox in the renderer config gui window in the bottom-left.
-
 
 Known Bugs:
-- GLTf nodes without names appear in the scene hierarchy without a name (blank space), but they can still be
-selected
+- GLTf nodes without names appear in the scene hierarchy without a name (blank space)
 - Ctrl + Shift + R to reload resources not implemented
-- Be sure to load animation demo last, since going back to another demo is broken. Some of the animations
-are not deleted properly for some reason.
 
-Time of implementation: About 8-10 days (not at all times).
-Time of testing: Not sure.
+Time of implementation: About 9-10 days (not at all times).
+Time of testing: Hard to say, but at least a couple hours dedicated specifically for testing everything.
 
 IMPORTANT USAGE NOTES:
-
-DEMOS:
-- Refer to the top-left of the gui to load the different demos prepared for assignment 2. IMPORTANT: Test the
-animation demo last!
 
 Gui usage:
 - Top-left window: Scene hierarchy. Right click any node to display options (create child, change name, delete node).
@@ -40,15 +25,8 @@ When a gltf model is selected in "ModelInstance", it will generate the correspon
 that contain a mesh, will have a "MeshRenderable" component. Just beware that some models' nodes don't have names.
 (Please note that no components can be added to the root node)
 
-- When a model instance is selected, this will also automatically add Joint components, a SkeletonRoot component, and a SkinReference
-component. This represent the joints of the skeleton, the skeleton root defined in gltf, and the node containing the mesh that referenced
-the skin, respectively.
-
-- When a model is loaded through the ModelInstance component, this node will also have an animation component, which allows you
-to select different animations, and tweak certain values (if they have animations).
-
 - Botom-left window: Camera controls and configuration.
-- Bottom-right window: Light properties. Can also change the skybox or disable/enable it.
+- Bottom-right window: Light properties.
 
 Camera controls:
 - First person camera, as specified in the handout

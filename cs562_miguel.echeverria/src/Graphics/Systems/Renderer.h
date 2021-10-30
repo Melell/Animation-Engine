@@ -45,10 +45,9 @@ namespace cs460
 		Window& get_window();
 		Skybox* get_skybox();
 
-		// Debug draws the bounding volumes of the meshrenderables in the scene
-		void debug_draw_bvs() const;
+		void debug_draw_bvs() const;			// Debug draws the bounding volumes of the meshrenderables in the scene
 
-		int m_bvDrawMode = 2;	// 0 = Draw none. 1 = Draw the bv of the selected node. 2 = Draw all the bvs
+		bool m_drawAnyBv = true;				// False if no bounding volume is to be drawn
 
 	private:
 

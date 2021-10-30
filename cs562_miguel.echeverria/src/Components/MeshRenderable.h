@@ -38,10 +38,13 @@ namespace cs460
 
 		AABB get_world_bounding_volume() const;					// Get the world bounding volume of this mesh as an aabb
 
+		bool get_draw_bounding_volume() const;					// Get wether the bounding volume of this mesh is being rendered
+
 	private:
 
 		int m_meshIdx = -1;
 		AABB m_localBv;
+		bool m_drawBv = true;
 
 		void on_gui() override;
 	};

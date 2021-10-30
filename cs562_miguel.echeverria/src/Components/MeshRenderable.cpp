@@ -188,6 +188,13 @@ namespace cs460
 	}
 
 
+	// Get wether the bounding volume of this mesh is being rendered
+	bool MeshRenderable::get_draw_bounding_volume() const
+	{
+		return m_drawBv;
+	}
+
+
 	void MeshRenderable::on_gui()
 	{
 		Model* modelResource = get_owner()->get_model();
@@ -197,6 +204,8 @@ namespace cs460
 
 			Mesh& mesh = modelResource->m_meshes[m_meshIdx];
 			ImGui::Text("Primitive Count: %i", mesh.m_primitives.size());
+
+			ImGui::Checkbox("Draw Bounding Volume", &m_drawBv);
 		}
 	}
 }

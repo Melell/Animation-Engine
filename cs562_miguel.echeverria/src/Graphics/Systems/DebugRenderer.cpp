@@ -23,6 +23,23 @@
 
 namespace cs460
 {
+	glm::vec4 DebugRenderer::s_bvsColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glm::vec4 DebugRenderer::s_boneColor;
+	glm::vec4 DebugRenderer::s_jointColor;
+	float DebugRenderer::s_jointSize;
+
+	glm::vec4 DebugRenderer::s_curveColor;
+	glm::vec4 DebugRenderer::s_curvePointColor;
+	float DebugRenderer::s_curvePointSize;
+	glm::vec4 DebugRenderer::s_tangentLineColor;
+	glm::vec4 DebugRenderer::s_tangentEndpointColor;
+	float DebugRenderer::s_tangentEndpointSize;	
+	glm::vec4 DebugRenderer::s_controlPointLineColor;
+	glm::vec4 DebugRenderer::s_controlPointColor;
+	float DebugRenderer::s_controlPointSize;
+
+
 	// TODO: Make this more efficient by saving the meshes
 
 	void DebugRenderer::draw_point(const glm::vec3& position, const glm::vec4& color, float pointSize)

@@ -18,7 +18,8 @@
 #include "Components/CurveTangent.h"		// Remove in future
 #include "Components/CurveControlPoint.h"	// Remove in future
 #include "Components/ModelInstance.h"		// Remove in future
-#include "Components/AnimationReference.h"
+#include "Components/AnimationReference.h"	// Remove in future
+#include "Graphics/Systems/DebugRenderer.h"
 #include <imgui/imgui.h>
 
 
@@ -67,13 +68,28 @@ namespace cs460
 
 			if (ImGui::BeginMenu("Debug Drawing"))
 			{
+				Renderer& renderer = Renderer::get_instance();
+
 				if (ImGui::BeginMenu("Bounding Volumes"))
 				{
-					Renderer& renderer = Renderer::get_instance();
-					ImGui::RadioButton("None", &renderer.m_bvDrawMode, 0);
-					ImGui::RadioButton("Selected", &renderer.m_bvDrawMode, 1);
-					ImGui::RadioButton("All", &renderer.m_bvDrawMode, 2);
+					ImGui::Checkbox("Enable Drawing", &renderer.m_drawAnyBv);
 
+					//ImGui::ColorButton("Color Button", ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+					//static glm::vec4 color;
+					//ImGui::ColorPicker4("Color Picker", glm::value_ptr(color));
+					ImGui::ColorEdit4("BVs Color", glm::value_ptr(DebugRenderer::s_bvsColor));
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Skeletons"))
+				{
+					//ImGui::Checkbox("Enable Drawing")
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Curves"))
+				{
 					ImGui::EndMenu();
 				}
 

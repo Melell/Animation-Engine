@@ -155,7 +155,7 @@ namespace cs460
 
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(0.8f, -0.8f, 3.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
 	}
 
 	void MainMenuBarGUI::load_hermite_curve_scene()
@@ -235,7 +235,7 @@ namespace cs460
 
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(-5.5f, 0.5f, 0.4f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.8f, 0.0f, 0.1f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.8f, 0.0f, 0.1f) * 25.0f);
 	}
 
 	void MainMenuBarGUI::load_catmull_rom_curve_scene()
@@ -272,7 +272,7 @@ namespace cs460
 
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(4.0f, 0.2f, 3.2f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(-1.0f, -0.2f, -1.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(-1.0f, -0.2f, -1.0f) * 25.0f);
 	}
 
 	void MainMenuBarGUI::load_bezier_curve_scene()
@@ -338,7 +338,7 @@ namespace cs460
 
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(-2.2f, 1.2f, 2.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(1.0f, -0.3f, -1.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(1.0f, -0.3f, -1.0f) * 25.0f);
 	}
 
 	void MainMenuBarGUI::load_skinned_animation_scene()
@@ -407,6 +407,6 @@ namespace cs460
 
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(2.206f, 1.0f, 7.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
 	}
 }

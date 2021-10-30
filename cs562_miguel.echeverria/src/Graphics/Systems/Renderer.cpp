@@ -84,11 +84,11 @@ namespace cs460
 		// Debug draw all skeletons
 		glDisable(GL_DEPTH_TEST);
 		DebugRenderer::draw_all_skeletons({ 0.25f, 1.0f, 0.25f, 1.0f }, { 0.8f, 0.4f, 0.0f, 1.0f });
+		PiecewiseCurveMgr::get_instance().debug_draw();
+		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
 		glEnable(GL_CULL_FACE);
-		PiecewiseCurveMgr::get_instance().debug_draw();
-		glEnable(GL_DEPTH_TEST);
 	}
 
 	void Renderer::close()

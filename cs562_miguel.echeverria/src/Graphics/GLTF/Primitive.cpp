@@ -68,15 +68,7 @@ namespace cs460
 
 			// If we are setting up the position attribute, save min and max for bv drawing
 			if (attArrayIdx == 0)
-			{
-				m_minPos.x = (float)attAccessor.minValues[0];
-				m_minPos.y = (float)attAccessor.minValues[1];
-				m_minPos.z = (float)attAccessor.minValues[2];
-
-				m_maxPos.x = (float)attAccessor.maxValues[0];
-				m_maxPos.y = (float)attAccessor.maxValues[1];
-				m_maxPos.z = (float)attAccessor.maxValues[2];
-			}
+				get_bounding_values(attAccessor);
 
 
 			// If we haven't created the buffer and uploaded the data yet, do it (this
@@ -274,6 +266,19 @@ namespace cs460
 			return -1;
 
 		return attArrayIdx;
+	}
+
+
+	// Get the position attibutes' min and max values from its accessor and store those values in m_minPos and m_maxPos
+	void Primitive::get_bounding_values(const tinygltf::Accessor& posAccessor)
+	{
+		m_minPos.x = (float)posAccessor.minValues[0];
+		m_minPos.y = (float)posAccessor.minValues[1];
+		m_minPos.z = (float)posAccessor.minValues[2];
+
+		m_maxPos.x = (float)posAccessor.maxValues[0];
+		m_maxPos.y = (float)posAccessor.maxValues[1];
+		m_maxPos.z = (float)posAccessor.maxValues[2];
 	}
 
 

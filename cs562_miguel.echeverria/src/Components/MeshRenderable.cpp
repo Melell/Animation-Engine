@@ -17,6 +17,7 @@
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
 #include "SkinReference.h"
+#include "Graphics/Systems/DebugRenderer.h"
 #include <imgui/imgui.h>
 #include <GLFW/glfw3.h>
 
@@ -142,36 +143,41 @@ namespace cs460
 	// Get the world bounding volume of this mesh as an aabb
 	AABB MeshRenderable::get_world_bounding_volume() const
 	{
+		// Compute all the corners of the aabb in local space
+		const glm::vec3& localDiagonal = m_localBv.m_max - m_localBv.m_min;
+		glm::vec3 localBvCorners[8];
+		localBvCorners[0] = m_localBv.m_min;
+		localBvCorners[1] = m_localBv.m_min + glm::vec3(localDiagonal.x, 0.0f, 0.0f);
+		localBvCorners[2] = m_localBv.m_min + glm::vec3(0.0f, localDiagonal.y, 0.0f);
+		localBvCorners[3] = m_localBv.m_min + glm::vec3(localDiagonal.x, localDiagonal.y, 0.0f);
+		localBvCorners[4] = m_localBv.m_min + glm::vec3(0.0f, 0.0f, localDiagonal.z);
+		localBvCorners[5] = m_localBv.m_min + glm::vec3(localDiagonal.x, 0.0f, localDiagonal.z);
+		localBvCorners[6] = m_localBv.m_min + glm::vec3(0.0f, localDiagonal.y, localDiagonal.z);
+		localBvCorners[7] = m_localBv.m_max;
+
+
+		// Get all the corners of the aabb in world space
 		const glm::mat4& modelMtx = get_owner()->m_worldTr.get_model_mtx();
-		const glm::vec3& worldMin = glm::vec3(modelMtx * glm::vec4(m_localBv.m_min, 1.0f));
-		const glm::vec3& worldMax = glm::vec3(modelMtx * glm::vec4(m_localBv.m_max, 1.0f));
-		const glm::vec3& worldDiagonal = worldMax - worldMin;
-
-		// Recompute the aabb after transforming to world
 		glm::vec3 worldBvCorners[8];
-		worldBvCorners[0] = worldMin;
-		worldBvCorners[1] = worldMin + glm::vec3(worldDiagonal.x, 0.0f, 0.0f);
-		worldBvCorners[2] = worldMin + glm::vec3(0.0f, worldDiagonal.y, 0.0f);
-		worldBvCorners[3] = worldMin + glm::vec3(worldDiagonal.x, worldDiagonal.y, 0.0f);
-		worldBvCorners[4] = worldMin + glm::vec3(0.0f, 0.0f, worldDiagonal.z);
-		worldBvCorners[5] = worldMin + glm::vec3(worldDiagonal.x, 0.0f, worldDiagonal.z);
-		worldBvCorners[6] = worldMin + glm::vec3(0.0f, worldDiagonal.y, worldDiagonal.z);
-		worldBvCorners[7] = worldMax;
+		for (int i = 0; i < 8; ++i)
+			worldBvCorners[i] = glm::vec3(modelMtx * glm::vec4(localBvCorners[i], 1.0f));
 
+
+		// Make the bounding volume axis aligned again
 		glm::vec3 finalMin{FLT_MAX, FLT_MAX, FLT_MAX };
-		glm::vec3 finalMax{FLT_MIN, FLT_MIN, FLT_MIN };
+		glm::vec3 finalMax{-FLT_MAX, -FLT_MAX, -FLT_MAX };
 		for (int i = 0; i < 8; ++i)
 		{
 			if (worldBvCorners[i].x < finalMin.x)
 				finalMin.x = worldBvCorners[i].x;
 			else if (worldBvCorners[i].x > finalMax.x)
 				finalMax.x = worldBvCorners[i].x;
-
+		
 			if (worldBvCorners[i].y < finalMin.y)
 				finalMin.y = worldBvCorners[i].y;
 			else if (worldBvCorners[i].y > finalMax.y)
 				finalMax.y = worldBvCorners[i].y;
-
+		
 			if (worldBvCorners[i].z < finalMin.z)
 				finalMin.z = worldBvCorners[i].z;
 			else if (worldBvCorners[i].z > finalMax.z)

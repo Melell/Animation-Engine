@@ -120,15 +120,15 @@ namespace cs460
 		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
 		
 		// Compute model to world from the given aabb data
-		glm::vec3 halfDiagonal = 0.5f * (aabb.m_max - aabb.m_min);
-		glm::vec3 pos = aabb.m_min + halfDiagonal;
+		glm::vec3 diagonal = aabb.m_max - aabb.m_min;
+		glm::vec3 pos = aabb.m_min + diagonal * 0.5f;
 
 		glm::mat4 m2w = glm::translate(glm::mat4(1.0f), pos);
-		m2w = glm::scale(m2w, halfDiagonal);
+		m2w = glm::scale(m2w, diagonal);
 
 		shader->set_uniform("modelToWorld", m2w);
 
-		// Get the already created cube (range [-1, 1])
+		// Get the already created cube (range [-0.5f, 0.5f])
 		Cube& cube = resourceMgr.get_cube();
 		cube.bind();
 

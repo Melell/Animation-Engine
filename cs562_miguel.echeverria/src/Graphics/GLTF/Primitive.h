@@ -76,8 +76,8 @@ namespace cs460
 		bool m_usesEbo = false;
 
 		// For mesh bv computation
-		glm::vec3 m_minPos{ FLT_MAX, FLT_MAX, FLT_MAX };
-		glm::vec3 m_maxPos{ FLT_MIN, FLT_MIN, FLT_MIN };
+		glm::vec3 m_minPos{  FLT_MAX,  FLT_MAX,  FLT_MAX };
+		glm::vec3 m_maxPos{ -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
 
 		// Save the necessary variables that are needed for drawing, and load
@@ -86,6 +86,9 @@ namespace cs460
 
 		// Get the vertex attribute index that corresponds to the given attribute name.
 		int get_attribute_index(const std::string& attributeName);
+
+		// Get the position attibutes' min and max values from its accessor and store those values in m_minPos and m_maxPos
+		void get_bounding_values(const tinygltf::Accessor& posAccessor);
 
 		// Create and upload the data of the vbo with the given index, if it hasn't been already created.
 		void setup_vbo(const tinygltf::Model& model, const tinygltf::Accessor& accessor, const tinygltf::BufferView& bufferView);

@@ -17,7 +17,7 @@ namespace cs460
 	Mesh::Mesh()
 	{
 		m_boundingVolume.m_min = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-		m_boundingVolume.m_max = glm::vec3(FLT_MIN, FLT_MIN, FLT_MIN);
+		m_boundingVolume.m_max = glm::vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 	}
 
 

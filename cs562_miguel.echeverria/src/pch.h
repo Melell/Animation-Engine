@@ -23,6 +23,10 @@ namespace fs = std::filesystem;
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+// IMGUI/IMGUIZMO
+#include <imgui/imgui.h>
+#include <imgui/ImGuizmo.h>
+
 // Project files
 #include "Utilities/DebugCallbacks.h"
 #include "Utilities/Screenshot.h"

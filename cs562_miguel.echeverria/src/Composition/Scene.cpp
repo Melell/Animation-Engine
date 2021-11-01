@@ -10,9 +10,8 @@
 #include "pch.h"
 #include "Scene.h"
 #include "SceneNode.h"
-#include "Graphics/Systems/Renderer.h"
-#include "GUI/Editor.h"
-#include <GLFW/glfw3.h>		// Input
+#include "GUI/EditorState.h"
+#include "Platform/InputMgr.h"
 
 
 namespace cs460
@@ -43,13 +42,14 @@ namespace cs460
 		if (m_root == nullptr)
 			return;
 		
+		InputMgr& inputMgr = InputMgr::get_instance();
 
-		// TODO: Put this in another place
-		if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&
-			glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_R) == GLFW_PRESS)
+		// TODO: Maybe this should go in another place
+		if ((inputMgr.is_key_down(KEYS::key_leftControl) && inputMgr.is_key_pressed(KEYS::key_r)) ||
+			(inputMgr.is_key_down(KEYS::key_r) && inputMgr.is_key_pressed(KEYS::key_leftControl)))
 		{
 			clear();
-			Editor::get_instance().get_state().m_selectedNode = m_root;
+			EditorState::get_main_editor_state().m_selectedNode = m_root;
 			return;
 		}
 

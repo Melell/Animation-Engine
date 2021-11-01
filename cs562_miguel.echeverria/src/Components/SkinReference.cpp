@@ -12,7 +12,6 @@
 #include "Animation/Animator.h"
 #include "Graphics/GLTF/Model.h"
 #include "Composition/SceneNode.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

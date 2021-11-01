@@ -12,9 +12,7 @@
 #include "Composition/Scene.h"
 #include "EditorState.h"
 #include "Composition/SceneNode.h"
-#include "Graphics/Systems/Renderer.h"
-#include <GLFW/glfw3.h>
-#include <imgui/ImGuizmo.h>
+#include "Platform/InputMgr.h"
 
 
 namespace cs460
@@ -27,15 +25,31 @@ namespace cs460
 	void Gizmos::update()
 	{
         Scene& scene = Scene::get_instance();
-        Renderer& renderer = Renderer::get_instance();
         EditorState& state = EditorState::get_main_editor_state();
+        InputMgr& inputMgr = InputMgr::get_instance();
 
-        if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_1) == GLFW_PRESS)
+        if (inputMgr.is_key_pressed(KEYS::key_1))
+        {
             state.m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_2) == GLFW_PRESS)
+            m_noOperation = false;
+        }
+        else if (inputMgr.is_key_pressed(KEYS::key_2))
+        {
             state.m_gizmoOperation = ImGuizmo::OPERATION::ROTATE;
-        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_3) == GLFW_PRESS)
+            m_noOperation = false;
+        }
+        else if (inputMgr.is_key_pressed(KEYS::key_3))
+        {
             state.m_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+            m_noOperation = false;
+        }
+        else if (inputMgr.is_key_pressed(KEYS::key_4))
+            m_noOperation = true;
+
+
+        // Don't do the gizmos logic if the no operation mode is selected
+        if (m_noOperation)
+            return;
 
         ImGuizmo::AllowAxisFlip(false);
 

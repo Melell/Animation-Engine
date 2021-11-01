@@ -9,9 +9,8 @@
 
 #include "pch.h"
 #include "ComponentsGUI.h"
-#include "Editor.h"
+#include "EditorState.h"
 #include "Composition/SceneNode.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460
@@ -28,7 +27,7 @@ namespace cs460
 			return;
 		}
 
-		EditorState& state = Editor::get_instance().get_state();
+		EditorState& state = EditorState::get_main_editor_state();
 
 		// Only draw the gui if an object is selected
 		if (state.m_selectedNode)

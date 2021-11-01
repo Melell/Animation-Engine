@@ -12,7 +12,6 @@
 #include "Joint.h"
 #include "Composition/SceneNode.h"
 #include "Graphics/GLTF/Model.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

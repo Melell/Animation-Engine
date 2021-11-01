@@ -20,7 +20,6 @@
 #include "Components/SkeletonRoot.h"
 #include "Components/Joint.h"
 #include "Components/PiecewiseCurve.h"
-#include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
 

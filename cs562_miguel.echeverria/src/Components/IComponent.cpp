@@ -11,7 +11,6 @@
 #include "IComponent.h"
 #include "Composition/SceneNode.h"
 #include "Utilities/Rtti.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

@@ -22,6 +22,8 @@ namespace cs460
 
 	private:
 
+		bool m_noOperation = false;
+
 		Gizmos();
 	};
 }

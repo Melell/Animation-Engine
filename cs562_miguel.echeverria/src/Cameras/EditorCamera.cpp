@@ -12,8 +12,9 @@
 #include "pch.h"
 #include "EditorCamera.h"
 #include "Platform/FrameRateController.h"
-#include "Graphics/Systems/Renderer.h"
-#include <GLFW/glfw3.h>
+#include "Platform/InputMgr.h"
+#include "Graphics/Systems/Renderer.h"	// TODO: Remove this
+#include <GLFW/glfw3.h>					// TODO: Remove this
 
 
 namespace cs460
@@ -84,22 +85,21 @@ namespace cs460
 	// Actual logic for the editor camera goes here
 	void EditorCamera::camera_controls()
 	{
-		// In the future I will do my own input system
-
 		FrameRateController& frc = FrameRateController::get_instance();
+		InputMgr& inputMgr = InputMgr::get_instance();
 		Renderer& renderer = Renderer::get_instance();
 		GLFWwindow* window = renderer.get_window().get_handle();
 
 		glm::vec3 displacement;
 
 		// Lateral movement
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_d))
 		{
 			displacement = get_right_vec() * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
 			set_target(get_target() + displacement);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		else if (inputMgr.is_key_down(KEYS::key_a))
 		{
 			displacement = -get_right_vec() * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
@@ -107,13 +107,13 @@ namespace cs460
 		}
 
 		// Movement along view vec
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_w))
 		{
 			displacement = get_view_vec() * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
 			set_target(get_target() + displacement);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		else if (inputMgr.is_key_down(KEYS::key_s))
 		{
 			displacement = -get_view_vec() * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
@@ -122,13 +122,13 @@ namespace cs460
 
 		// Movement along global up/down
 		glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_e))
 		{
 			displacement = globalUp * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
 			set_target(get_target() + displacement);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		else if (inputMgr.is_key_down(KEYS::key_q))
 		{
 			displacement = -globalUp * m_movementSpeed * frc.get_dt_float();
 			set_position(get_position() + displacement);
@@ -136,16 +136,17 @@ namespace cs460
 		}
 
 		// Movement of the view vector itself (tilting camera around with keyboard)
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_right))
 			set_target(get_target() + get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_left))
 			set_target(get_target() - get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_up))
 			set_target(get_target() + get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		if (inputMgr.is_key_down(KEYS::key_down))
 			set_target(get_target() - get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 
-		if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+		// Reset the camera
+		if (inputMgr.is_key_pressed(KEYS::key_v))
 		{
 			set_position(glm::vec3(0.0f, 0.0f, 25.0f));
 			set_target(glm::vec3(0.0f, 0.0f, 0.0f));

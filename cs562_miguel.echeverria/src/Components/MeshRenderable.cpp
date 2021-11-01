@@ -17,9 +17,7 @@
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
 #include "SkinReference.h"
-#include "Graphics/Systems/DebugRenderer.h"
-#include <imgui/imgui.h>
-#include <GLFW/glfw3.h>
+#include "Platform/InputMgr.h"
 
 
 namespace cs460
@@ -44,15 +42,16 @@ namespace cs460
 			return;
 
 		Scene& scene = Scene::get_instance();
+		InputMgr& inputMgr = InputMgr::get_instance();
 
 		// Get all the primitives of the mesh this component is referencing
 		Mesh& mesh = modelResource->m_meshes[m_meshIdx];
 		std::vector<Primitive>& primitives = mesh.m_primitives;
 		for (int i = 0; i < primitives.size(); ++i)
 		{
-			// TODO: This is kind of hardcoded, will improve organization in the future
+			// Should this go here?
 			bool useNormalMap = true;
-			if (glfwGetKey(Renderer::get_instance().get_window().get_handle(), GLFW_KEY_N) == GLFW_PRESS)
+			if (inputMgr.is_key_down(KEYS::key_n))
 				useNormalMap = !useNormalMap;
 
 

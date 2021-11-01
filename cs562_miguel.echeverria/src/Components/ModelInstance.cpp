@@ -15,7 +15,6 @@
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
 #include "Components/AnimationReference.h"
-#include <imgui/imgui.h>
 #include <gltf/tiny_gltf.h>
 
 

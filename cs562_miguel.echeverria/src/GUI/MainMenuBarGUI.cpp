@@ -20,7 +20,6 @@
 #include "Components/ModelInstance.h"		// Remove in future
 #include "Components/AnimationReference.h"	// Remove in future
 #include "Graphics/Systems/DebugRenderer.h"
-#include <imgui/imgui.h>
 
 
 

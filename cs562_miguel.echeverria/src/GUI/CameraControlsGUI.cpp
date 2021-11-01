@@ -10,7 +10,6 @@
 #include "pch.h"
 #include "CameraControlsGUI.h"
 #include "Composition/Scene.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

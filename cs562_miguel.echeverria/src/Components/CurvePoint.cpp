@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "CurvePoint.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

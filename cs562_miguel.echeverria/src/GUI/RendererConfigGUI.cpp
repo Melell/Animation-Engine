@@ -13,7 +13,6 @@
 #include "Graphics/Systems/Renderer.h"
 #include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

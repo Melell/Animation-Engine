@@ -9,7 +9,7 @@
 
 #include "pch.h"
 #include "FrameRateController.h"
-#include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h>			// Time
 
 
 namespace cs460

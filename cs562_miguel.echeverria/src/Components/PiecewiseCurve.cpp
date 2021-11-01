@@ -18,7 +18,6 @@
 #include "Math/Geometry/Geometry.h"
 #include "Components/CurveTangent.h"
 #include "Components/CurveControlPoint.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

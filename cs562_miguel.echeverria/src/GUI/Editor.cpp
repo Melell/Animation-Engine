@@ -10,11 +10,11 @@
 #include "pch.h"
 #include "Editor.h"
 #include "Graphics/Systems/Renderer.h"
-#include <imgui/imgui.h>
+// imgui.h already included in pch.h, otherwise, it would need to be included heres
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
-// TODO: Remove all glfw includes that are included just for input, once the input system is implemented
+
 
 namespace cs460
 {

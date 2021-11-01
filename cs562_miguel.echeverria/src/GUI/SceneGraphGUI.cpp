@@ -11,8 +11,7 @@
 #include "SceneGraphGUI.h"
 #include "Composition/Scene.h"
 #include "Composition/SceneNode.h"
-#include "Editor.h"
-#include <imgui/imgui.h>
+#include "EditorState.h"
 
 
 namespace cs460
@@ -48,7 +47,7 @@ namespace cs460
 		if (node == nullptr)
 			return;
 
-		EditorState& state = Editor::get_instance().get_state();
+		EditorState& state = EditorState::get_main_editor_state();
 
 		// Base flags: Open on arrow or double click, and let the hit box span the whole width of the window
 		ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -98,7 +97,7 @@ namespace cs460
 	// Displays a popup with special options like creating a new node (called when a node is right clicked)
 	void SceneGraphGUI::node_popup()
 	{
-		EditorState& state = Editor::get_instance().get_state();
+		EditorState& state = EditorState::get_main_editor_state();
 		bool name_popup_active = false;
 
 		if (ImGui::BeginPopup("Right Click Popup"))
@@ -121,7 +120,7 @@ namespace cs460
 	// Displays a popup modal for setting the name of the new node
 	void SceneGraphGUI::new_node_name_popup()
 	{
-		EditorState& state = Editor::get_instance().get_state();
+		EditorState& state = EditorState::get_main_editor_state();
 
 		// Always center this window when appearing
 		ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -167,7 +166,7 @@ namespace cs460
 
 	void SceneGraphGUI::delete_node()
 	{
-		EditorState& state = Editor::get_instance().get_state();
+		EditorState& state = EditorState::get_main_editor_state();
 		Scene& scene = Scene::get_instance();
 
 		// TODO: Because we don't set the last parameter, there are problems when deleting childs

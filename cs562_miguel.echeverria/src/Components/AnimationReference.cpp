@@ -18,7 +18,6 @@
 #include "Components/ModelInstance.h"
 #include "Math/Interpolation/InterpolationFunctions.h"
 #include "Platform/FrameRateController.h"
-#include <imgui/imgui.h>
 
 
 namespace cs460

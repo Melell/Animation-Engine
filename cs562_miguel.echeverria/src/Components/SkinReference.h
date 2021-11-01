@@ -26,10 +26,12 @@ namespace cs460
 		int get_skin_idx() const;
 
 		std::vector<glm::mat4>& get_joint_matrices();
+		bool get_draw_skeleton() const;
 
 	private:
 		int m_skinIdx = -1;
 		std::vector<glm::mat4> m_jointMatrices;
+		bool m_drawSkeleton = true;
 
 		void on_gui() override;
 	};

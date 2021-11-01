@@ -28,13 +28,13 @@ namespace cs460
 		static void draw_point(const glm::vec3& position, const glm::vec4& color, float pointSize);
 		static void draw_segment(const Segment& segment, const glm::vec4& color);
 		static void draw_aabb(const AABB& aabb, const glm::vec4& color, bool wireframe = false);
-		static void draw_aabb(const glm::mat4& m2w, const glm::vec4& color, bool wireframe = false);	// Not tested
+		static void draw_aabb(const glm::mat4& m2w, const glm::vec4& color, bool wireframe = false);
 
-		static void draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color);
+		static void draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color, float size);
 
-		static void draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor);
-		static void draw_joint(const glm::vec3& worldPos, const glm::vec4& color);
-		static void draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx);
+		static void draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor, float jointSize);
+		static void draw_joint(const glm::vec3& worldPos, const glm::vec4& color, float jointSize);
+		static void draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, float joinSize, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx);
 
 
 		// The following variables are here for convenience, but in the future they would probably better
@@ -44,18 +44,24 @@ namespace cs460
 
 		static glm::vec4 s_bvsColor;				// BV
 
+		static bool s_enableSkeletonDrawing;		// Skeleton
 		static glm::vec4 s_boneColor;				// Skeleton
 		static glm::vec4 s_jointColor;				// Skeleton
 		static float s_jointSize;					// Skeleton
 
-		static glm::vec4 s_curveColor;				// Curve
-		static glm::vec4 s_curvePointColor;			// Curve
-		static float s_curvePointSize;				// Curve
-		static glm::vec4 s_tangentLineColor;		// Curve
-		static glm::vec4 s_tangentEndpointColor;	// Curve
-		static float s_tangentEndpointSize;			// Curve
-		static glm::vec4 s_controlPointLineColor;	// Curve
-		static glm::vec4 s_controlPointColor;		// Curve
-		static float s_controlPointSize;			// Curve
+
+		static bool s_enableMovingObjectDrawing;	// Curve (moving object)
+		static glm::vec4 s_movingObjectColor;		// Curve (moving object)
+		static float s_movingObjectSize;			// Curve (moving object)
+
+		static bool s_enableCurveDrawing;			// Curve (curve and curve points)
+		static glm::vec4 s_curveColor;				// Curve (curve and curve points)
+		static glm::vec4 s_curvePointColor;			// Curve (curve and curve points)
+		static float s_curvePointSize;				// Curve (curve and curve points)
+
+		static bool s_enableTangentDrawing;			// Curve (tangents/control points)
+		static glm::vec4 s_tangentLineColor;		// Curve (tangents/control points)
+		static glm::vec4 s_tangentEndpointColor;	// Curve (tangents/control points)
+		static float s_tangentEndpointSize;			// Curve (tangents/control points)
 	};
 }

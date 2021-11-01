@@ -84,12 +84,37 @@ namespace cs460
 
 				if (ImGui::BeginMenu("Skeletons"))
 				{
-					//ImGui::Checkbox("Enable Drawing")
+					ImGui::Checkbox("Enable Drawing", &DebugRenderer::s_enableSkeletonDrawing);
+					ImGui::ColorEdit4("Bone Color", glm::value_ptr(DebugRenderer::s_boneColor));
+					ImGui::ColorEdit4("Joint Color", glm::value_ptr(DebugRenderer::s_jointColor));
+					ImGui::DragFloat("Joint Size", &DebugRenderer::s_jointSize, 0.005f, 0.01f, 2.0f, "%.3f");
 					ImGui::EndMenu();
 				}
 
 				if (ImGui::BeginMenu("Curves"))
 				{
+					ImGui::Text("Moving Object");
+					ImGui::Checkbox("Enable Drawing##0", &DebugRenderer::s_enableMovingObjectDrawing);
+					ImGui::ColorEdit4("Moving Object Color", glm::value_ptr(DebugRenderer::s_movingObjectColor));
+					ImGui::DragFloat("Moving Object Size", &DebugRenderer::s_movingObjectSize, 0.01f, 0.01f, 5.0f, "%.3f");
+
+					ImGui::Separator();
+
+					ImGui::Text("Curve / Curve Points");
+					ImGui::Checkbox("Enable Drawing##1", &DebugRenderer::s_enableCurveDrawing);
+					ImGui::ColorEdit4("Curve Color", glm::value_ptr(DebugRenderer::s_curveColor));
+					ImGui::ColorEdit4("Curve Points Color", glm::value_ptr(DebugRenderer::s_curvePointColor));
+					ImGui::DragFloat("Curve Points Size", &DebugRenderer::s_curvePointSize, 0.01f, 0.01f, 5.0f, "%.3f");
+
+					ImGui::Separator();
+
+					ImGui::Text("Curve Tangents / Control Points");
+					ImGui::Checkbox("Enable Drawing##2", &DebugRenderer::s_enableTangentDrawing);
+					ImGui::ColorEdit4("Lines Color", glm::value_ptr(DebugRenderer::s_tangentLineColor));
+					ImGui::ColorEdit4("Endpoints Color", glm::value_ptr(DebugRenderer::s_tangentEndpointColor));
+					ImGui::DragFloat("Endpoints Size", &DebugRenderer::s_tangentEndpointSize, 0.01f, 0.01f, 5.0f, "%.3f");
+
+
 					ImGui::EndMenu();
 				}
 

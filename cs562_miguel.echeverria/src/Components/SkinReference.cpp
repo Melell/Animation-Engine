@@ -48,6 +48,11 @@ namespace cs460
 		return m_jointMatrices;
 	}
 
+	bool SkinReference::get_draw_skeleton() const
+	{
+		return m_drawSkeleton;
+	}
+
 
 	void SkinReference::on_gui()
 	{
@@ -58,6 +63,8 @@ namespace cs460
 
 			Skin& skin = modelResource->m_skins[m_skinIdx];
 			ImGui::Text("Joint count: %i", skin.m_joints.size());
+
+			ImGui::Checkbox("Draw Skeleton", &m_drawSkeleton);
 		}
 	}
 }

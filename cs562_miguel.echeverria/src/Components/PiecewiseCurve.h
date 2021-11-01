@@ -46,6 +46,9 @@ namespace cs460
 		void change_curve_type(CURVE_TYPE newType);
 		void change_finish_mode(FINISH_MODE newMode);
 
+		bool m_drawMovingObject = true;
+		bool m_drawCurve = true;
+
 	private:
 		// Animation control variables
 		glm::vec3 m_currentPos{0.0f, 0.0f, 0.0f};
@@ -63,11 +66,6 @@ namespace cs460
 		// Time-value vectors (the point data, updated every frame from the children)
 		std::vector<float> m_timeValues;
 		std::vector<float> m_propertyValues;
-
-		glm::vec4 m_pointColor{ 1.0f, 0.4f, 0.0f, 1.0f };		// Orange-ish
-		glm::vec4 m_curveColor{ 1.0f, 1.0f, 1.0f, 1.0f };		// White
-		glm::vec4 m_tangEndpointColor{0.0f, 1.0f, 0.0f, 1.0f};	// Equivalent to control point in bezier (green)
-		glm::vec4 m_tangLineColor{1.0f, 0.0f, 0.0f, 1.0f};		// Equivalent to the vector from the point to the control point in bezier (white)
 
 
 		void on_gui() override;

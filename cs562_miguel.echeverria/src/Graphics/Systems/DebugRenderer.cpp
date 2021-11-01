@@ -25,19 +25,26 @@ namespace cs460
 {
 	glm::vec4 DebugRenderer::s_bvsColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	glm::vec4 DebugRenderer::s_boneColor;
-	glm::vec4 DebugRenderer::s_jointColor;
-	float DebugRenderer::s_jointSize;
 
-	glm::vec4 DebugRenderer::s_curveColor;
-	glm::vec4 DebugRenderer::s_curvePointColor;
-	float DebugRenderer::s_curvePointSize;
-	glm::vec4 DebugRenderer::s_tangentLineColor;
-	glm::vec4 DebugRenderer::s_tangentEndpointColor;
-	float DebugRenderer::s_tangentEndpointSize;	
-	glm::vec4 DebugRenderer::s_controlPointLineColor;
-	glm::vec4 DebugRenderer::s_controlPointColor;
-	float DebugRenderer::s_controlPointSize;
+	bool DebugRenderer::s_enableSkeletonDrawing = true;
+	glm::vec4 DebugRenderer::s_boneColor{ 0.25f, 1.0f, 0.25f, 1.0f };
+	glm::vec4 DebugRenderer::s_jointColor{ 0.8f, 0.4f, 0.0f, 1.0f };
+	float DebugRenderer::s_jointSize = 0.025f;
+
+
+	bool DebugRenderer::s_enableMovingObjectDrawing = true;
+	glm::vec4 DebugRenderer::s_movingObjectColor{ 0.1f, 0.9f, 0.4f, 1.0f };
+	float DebugRenderer::s_movingObjectSize = 0.4f;
+
+	bool DebugRenderer::s_enableCurveDrawing = true;
+	glm::vec4 DebugRenderer::s_curveColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+	glm::vec4 DebugRenderer::s_curvePointColor{ 1.0f, 0.4f, 0.0f, 1.0f };
+	float DebugRenderer::s_curvePointSize = 0.2f;
+
+	bool DebugRenderer::s_enableTangentDrawing = true;
+	glm::vec4 DebugRenderer::s_tangentLineColor{ 1.0f, 0.0f, 0.0f, 1.0f };
+	glm::vec4 DebugRenderer::s_tangentEndpointColor{ 0.0f, 1.0f, 0.0f, 1.0f };
+	float DebugRenderer::s_tangentEndpointSize = 0.2f;
 
 
 	// TODO: Make this more efficient by saving the meshes
@@ -175,7 +182,7 @@ namespace cs460
 		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
 		shader->set_uniform("modelToWorld", m2w);
 
-		// Get the already created cube (range [-1, 1])
+		// Get the already created cube (range [-0.5, 0.5])
 		Cube& cube = resourceMgr.get_cube();
 		cube.bind();
 
@@ -191,11 +198,12 @@ namespace cs460
 	}
 
 
-	void DebugRenderer::draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color)
+	void DebugRenderer::draw_curve_node(const glm::vec3& worldPos, const glm::vec4& color, float size)
 	{
 		// Prepare the aabb of specific size
 		AABB box;
-		glm::vec3 halfDiagonal(0.1f, 0.1f, 0.1f);
+		float halfSize = size * 0.5f;
+		glm::vec3 halfDiagonal(halfSize, halfSize, halfSize);
 		box.m_min = worldPos - halfDiagonal;
 		box.m_max = worldPos + halfDiagonal;
 
@@ -204,16 +212,22 @@ namespace cs460
 	}
 
 
-	void DebugRenderer::draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor)
+	void DebugRenderer::draw_all_skeletons(const glm::vec4& boneColor, const glm::vec4& jointColor, float jointSize)
 	{
+		if (!s_enableSkeletonDrawing)
+			return;
+
 		Animator& animator = Animator::get_instance();
 		Scene& scene = Scene::get_instance();
 
 		// Iterate through each skin reference component to draw the skins one by one
 		for (int i = 0; i < animator.m_skinReferences.size(); ++i)
 		{
-			// Get some necessary variables to later get the skin
 			SkinReference* skinRef = animator.m_skinReferences[i];
+			if (!skinRef->get_draw_skeleton())
+				continue;
+
+			// Get some necessary variables to later get the skin
 			Model* sourceModel = skinRef->get_owner()->get_model();
 			int skinIdx = skinRef->get_skin_idx();
 
@@ -226,7 +240,7 @@ namespace cs460
 			Skin& skin = sourceModel->m_skins[skinIdx];
 			if (std::find(skin.m_joints.begin(), skin.m_joints.end(), skin.m_commonRootIdx) != skin.m_joints.end())
 			{
-				draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, skin.m_commonRootIdx);
+				draw_skeleton_hierarchy(boneColor, jointColor, jointSize, sourceModel, skin, modelInstNodes, skin.m_commonRootIdx);
 			}
 			// Otherwise, draw the skeleton hierarchies taking each  of the children of the root as the root of the hierarchy to draw
 			else
@@ -235,16 +249,16 @@ namespace cs460
 				for (int j = 0; j < rootNode.m_childrenIndices.size(); ++j)
 				{
 					int childIdx = rootNode.m_childrenIndices[i];
-					draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, childIdx);
+					draw_skeleton_hierarchy(boneColor, jointColor, jointSize, sourceModel, skin, modelInstNodes, childIdx);
 				}
 			}
 		}
 	}
 
 
-	void DebugRenderer::draw_joint(const glm::vec3& worldPos, const glm::vec4& color)
+	void DebugRenderer::draw_joint(const glm::vec3& worldPos, const glm::vec4& color, float jointSize)
 	{
-		glm::vec3 diagonal{ 0.025f, 0.025f, 0.025f };
+		glm::vec3 diagonal{ jointSize, jointSize, jointSize };
 		glm::vec3 halfDiagonal = 0.5f * diagonal;
 		AABB jointBox;
 		jointBox.m_min = worldPos - halfDiagonal;
@@ -254,11 +268,11 @@ namespace cs460
 	}
 
 
-	void DebugRenderer::draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx)
+	void DebugRenderer::draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, float jointSize, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx)
 	{
 		// Draw the joint of the root
 		SceneNode* rootNode = modelInstNodes[rootIdx];
-		draw_joint(rootNode->m_worldTr.m_position, jointColor);
+		draw_joint(rootNode->m_worldTr.m_position, jointColor, jointSize);
 
 		// Draw the hierarchy of each of the children
 		GLTFNode& gltfNode = sourceModel->m_nodes[rootIdx];
@@ -272,7 +286,7 @@ namespace cs460
 			seg.m_end = childNode->m_worldTr.m_position;
 
 			draw_segment(seg, boneColor);
-			draw_skeleton_hierarchy(boneColor, jointColor, sourceModel, skin, modelInstNodes, gltfNode.m_childrenIndices[i]);
+			draw_skeleton_hierarchy(boneColor, jointColor, jointSize, sourceModel, skin, modelInstNodes, gltfNode.m_childrenIndices[i]);
 		}
 	}
 }

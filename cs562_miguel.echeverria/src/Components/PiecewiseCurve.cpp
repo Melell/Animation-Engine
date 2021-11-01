@@ -58,20 +58,23 @@ namespace cs460
 
 	void PiecewiseCurve::debug_draw()
 	{
-		if (m_curveType == CURVE_TYPE::LINEAR)
-			debug_draw_linear();
-		else if (m_curveType == CURVE_TYPE::HERMITE || m_curveType == CURVE_TYPE::BEZIER || m_curveType == CURVE_TYPE::CATMULL_ROM)
+		// This will call debug_draw_linear when curve is linear
+		if (m_drawCurve)
 			debug_draw_cubic_spline(m_curveType);
 
+		// Don't draw moving object if specified
+		if (!DebugRenderer::s_enableMovingObjectDrawing || !m_drawMovingObject)
+			return;
 
 		// Draw the object moving along the curve
 		if (m_totalDuration > 0.0f)
 		{
-			glm::vec3 halfDiagonal(0.2f, 0.2f, 0.2f);
+			float halfSize = DebugRenderer::s_movingObjectSize * 0.5f;
+			glm::vec3 halfDiagonal(halfSize, halfSize, halfSize);
 			AABB box;
 			box.m_min = m_currentPos - halfDiagonal;
 			box.m_max = m_currentPos + halfDiagonal;
-			DebugRenderer::draw_aabb(box, { 0.1f, 0.9f, 0.4f, 1.0f });
+			DebugRenderer::draw_aabb(box, DebugRenderer::s_movingObjectColor);
 		}
 	}
 
@@ -183,6 +186,10 @@ namespace cs460
 		ImGui::SameLine();
 		ImGui::RadioButton("Ping-Pong", &finishMode, 2);
 		m_finishMode = (FINISH_MODE)finishMode;
+
+		ImGui::Checkbox("Draw Moving Object", &m_drawMovingObject);
+		ImGui::SameLine();
+		ImGui::Checkbox("Draw Curve", &m_drawCurve);
 	}
 
 
@@ -306,6 +313,9 @@ namespace cs460
 
 	void PiecewiseCurve::debug_draw_linear()
 	{
+		if (!DebugRenderer::s_enableCurveDrawing)
+			return;
+
 		glm::vec3 prevPos(0.0f, 0.0f, 0.0f);
 		bool first = true;
 		for (SceneNode* child : get_owner()->get_children())
@@ -317,7 +327,7 @@ namespace cs460
 			const glm::vec3& currPos = child->m_worldTr.m_position;
 
 			// Draw the point as an aabb
-			DebugRenderer::draw_curve_node(currPos, m_pointColor);
+			DebugRenderer::draw_curve_node(currPos, DebugRenderer::s_curvePointColor, DebugRenderer::s_curvePointSize);
 
 			// Draw the line between the previous point and this one (not on the first one)
 			if (!first)
@@ -325,7 +335,7 @@ namespace cs460
 				Segment seg;
 				seg.m_start = prevPos;
 				seg.m_end = currPos;
-				DebugRenderer::draw_segment(seg, m_curveColor);
+				DebugRenderer::draw_segment(seg, DebugRenderer::s_curveColor);
 			}
 
 			// Update the previous position
@@ -352,16 +362,17 @@ namespace cs460
 				continue;
 
 			// Draw the point as an aabb
-			DebugRenderer::draw_curve_node(child->m_worldTr.m_position, m_pointColor);
+			if (DebugRenderer::s_enableCurveDrawing)
+				DebugRenderer::draw_curve_node(child->m_worldTr.m_position, DebugRenderer::s_curvePointColor, DebugRenderer::s_curvePointSize);
 
 			// Debug draw the tangents/control_points of the current point
-			if (type == CURVE_TYPE::HERMITE || type == CURVE_TYPE::BEZIER)
+			if (DebugRenderer::s_enableTangentDrawing && (type == CURVE_TYPE::HERMITE || type == CURVE_TYPE::BEZIER))
 				debug_draw_tangents(child);
 		}
 
 
 		// Don't draw the curve if there is zero, or one point
-		if (m_timeValues.size() < 2)
+		if (m_timeValues.size() < 2 || !DebugRenderer::s_enableCurveDrawing)
 			return;
 
 
@@ -392,7 +403,7 @@ namespace cs460
 			Segment seg;
 			seg.m_start = prevPos;
 			seg.m_end = currentPos;
-			DebugRenderer::draw_segment(seg, m_curveColor);
+			DebugRenderer::draw_segment(seg, DebugRenderer::s_curveColor);
 
 			// Update the previous position
 			prevPos = currentPos;
@@ -407,14 +418,14 @@ namespace cs460
 				continue;
 
 			// Draw the tangent endpoint
-			DebugRenderer::draw_curve_node(child->m_worldTr.m_position, m_tangEndpointColor);
+			DebugRenderer::draw_curve_node(child->m_worldTr.m_position, DebugRenderer::s_tangentEndpointColor, DebugRenderer::s_tangentEndpointSize);
 
 
 			// Draw the line from the point to the tangent endpoint
 			Segment seg;
 			seg.m_start = pointNode->m_worldTr.m_position;
 			seg.m_end = child->m_worldTr.m_position;
-			DebugRenderer::draw_segment(seg, m_tangLineColor);
+			DebugRenderer::draw_segment(seg, DebugRenderer::s_tangentLineColor);
 		}
 	}
 }

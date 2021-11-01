@@ -14,6 +14,9 @@
 #include "MainMenuBarGUI.h"
 #include "SceneGraphGUI.h"
 #include "ComponentsGUI.h"
+#include "RendererConfigGUI.h"
+#include "CameraControlsGUI.h"
+#include "Gizmos.h"
 
 
 namespace cs460
@@ -45,6 +48,9 @@ namespace cs460
 		MainMenuBarGUI m_mainMenuBar;
 		SceneGraphGUI m_sceneGraphGui;
 		ComponentsGUI m_componentEditor;
+		RendererConfigGUI m_rendererConfigGui;
+		CameraControlsGUI m_cameraControlsGui;
+		Gizmos m_gizmos;
 
 		Editor();
 		Editor(const Editor&) = delete;

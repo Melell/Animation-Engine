@@ -16,6 +16,7 @@
 #include "Platform/FrameRateController.h"
 #include "Animation/Animator.h"
 #include "Animation/PiecewiseCurveMgr.h"
+#include "Platform/InputMgr.h"
 #include "GUI/MainMenuBarGUI.h"		// TODO: Remove this in the future
 
 
@@ -29,6 +30,12 @@ namespace cs460
 		if (!renderer.initialize())
 			return false;
 
+		// Initialize the input system (set key, mouse etc callbacks)
+		InputMgr& inputMgr = InputMgr::get_instance();
+		if (!inputMgr.initialize())
+			return false;
+
+		// Initialize the animation system
 		Animator& animator = Animator::get_instance();
 		if (!animator.initialize())
 			return false;
@@ -61,6 +68,7 @@ namespace cs460
 		Scene& scene = Scene::get_instance();
 		FrameRateController& frc = FrameRateController::get_instance();
 		PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
+		InputMgr& inputMgr = InputMgr::get_instance();
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())
@@ -86,6 +94,9 @@ namespace cs460
 			// Render the gui
 			editor.render();
 
+			// Update the input system (needs to be called just before polling for events)
+			inputMgr.update();
+
 			// Swap buffers, clear the back buffer and poll for events
 			renderer.get_window().update();
 
@@ -106,7 +117,8 @@ namespace cs460
 		Scene::get_instance().close();					// Release the memory of all the scene nodes
 		Editor::get_instance().close();					// Terminate imgui
 		Animator::get_instance().close();				// Terminate the animation system
-		Renderer::get_instance().close();				// Buffer cleanup
+		InputMgr::get_instance().close();
+		Renderer::get_instance().close();
 		Renderer::get_instance().get_window().close();	// Terminate glfw
 	}
 }

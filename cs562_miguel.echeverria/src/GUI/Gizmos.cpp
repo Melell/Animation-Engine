@@ -1,0 +1,98 @@
+/**
+* @file Gizmos.cpp
+* @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
+* @date 2020/01/11
+* @brief Logic of the editor gizmos, using ImGuizmo library.
+*
+* @copyright Copyright (C) 2020 DigiPen Institute of Technology .
+*/
+
+#include "pch.h"
+#include "Gizmos.h"
+#include "Composition/Scene.h"
+#include "EditorState.h"
+#include "Composition/SceneNode.h"
+#include "Graphics/Systems/Renderer.h"
+#include <GLFW/glfw3.h>
+#include <imgui/ImGuizmo.h>
+
+
+namespace cs460
+{
+	Gizmos::Gizmos()
+	{
+	}
+
+
+	void Gizmos::update()
+	{
+        Scene& scene = Scene::get_instance();
+        Renderer& renderer = Renderer::get_instance();
+        EditorState& state = EditorState::get_main_editor_state();
+
+        if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_1) == GLFW_PRESS)
+            state.m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_2) == GLFW_PRESS)
+            state.m_gizmoOperation = ImGuizmo::OPERATION::ROTATE;
+        else if (glfwGetKey(renderer.get_window().get_handle(), GLFW_KEY_3) == GLFW_PRESS)
+            state.m_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+
+        ImGuizmo::AllowAxisFlip(false);
+
+
+        // Gizmo's drawing
+        const float* viewMtx = glm::value_ptr(scene.get_camera().get_view_mtx());
+        const float* projMtx = glm::value_ptr(scene.get_camera().get_projection_mtx());
+        glm::mat4 modelMtx;
+
+        if (state.m_selectedNode)
+        {
+            modelMtx = state.m_selectedNode->m_worldTr.get_model_mtx();
+
+            // Set perspective projection
+            ImGuizmo::SetOrthographic(false);
+            //ImGuizmo::SetDrawlist();
+
+            ImGuiIO& io = ImGui::GetIO();
+            ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+            ImGuizmo::Manipulate(viewMtx, projMtx, state.m_gizmoOperation, state.m_gizmoMode, glm::value_ptr(modelMtx));
+            //ImGuizmo::DrawGrid(viewMtx, projMtx, glm::value_ptr(modelMtx), 10.0f);
+
+            // Update the position/orientation/scale only when modified
+            if (ImGuizmo::IsUsing())
+            {
+                // Take the world position, orientation and scale from the matrix passed to manipulate
+                glm::vec3 childWorldPos = modelMtx[3];
+                glm::vec3 childWorldScale = glm::vec3(glm::length(modelMtx[0]), glm::length(modelMtx[1]), glm::length(modelMtx[2]));
+                glm::mat3 orientationMtx;
+                orientationMtx[0] = glm::normalize(modelMtx[0]);
+                orientationMtx[1] = glm::normalize(modelMtx[1]);
+                orientationMtx[2] = glm::normalize(modelMtx[2]);
+                glm::quat childWorldOrientation = glm::quat_cast(orientationMtx);
+
+                SceneNode* parent = state.m_selectedNode->get_parent();
+                // If there is no parent, the world transform is the local transform
+                if (parent == nullptr)
+                {
+                    state.m_selectedNode->m_localTr.m_position = childWorldPos;
+                    state.m_selectedNode->m_localTr.m_scale = childWorldScale;
+                    state.m_selectedNode->m_localTr.m_orientation = childWorldOrientation;
+                }
+                // Otherwise, do inverse concatenation to obtain the local transform of the selected object from its world transform
+                else
+                {
+                    float invScaleX = parent->m_worldTr.m_scale.x > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.x) : 0.0f;
+                    float invScaleY = parent->m_worldTr.m_scale.y > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.y) : 0.0f;
+                    float invScaleZ = parent->m_worldTr.m_scale.z > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.z) : 0.0f;
+                    glm::vec3 invScale = glm::vec3(invScaleX, invScaleY, invScaleZ);
+
+                    glm::quat invRotation = glm::inverse(parent->m_worldTr.m_orientation);
+
+                    state.m_selectedNode->m_localTr.m_scale = invScale * childWorldScale;
+                    state.m_selectedNode->m_localTr.m_orientation = invRotation * childWorldOrientation;
+                    state.m_selectedNode->m_localTr.m_position = invScale * (invRotation * (childWorldPos - parent->m_worldTr.m_position));
+                }
+            }
+        }
+	}
+}

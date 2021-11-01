@@ -1,3 +1,12 @@
+/**
+* @file PiecewiseCurveMgr.cpp
+* @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
+* @date 2020/15/10
+* @brief Updates and draws all the piecewise curve components.
+*
+* @copyright Copyright (C) 2020 DigiPen Institute of Technology .
+*/
+
 #include "pch.h"
 #include "PiecewiseCurveMgr.h"
 #include "Components/PiecewiseCurve.h"

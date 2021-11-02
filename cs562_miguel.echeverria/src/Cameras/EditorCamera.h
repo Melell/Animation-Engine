@@ -12,8 +12,6 @@
 
 #include "PerspectiveCamera.h"
 
-struct GLFWwindow;
-
 
 namespace cs460
 {
@@ -61,9 +59,9 @@ namespace cs460
 		void update_view_mtx();
 
 		// Record the mouse x and y screen coordinates.
-		void record_cursor_position(GLFWwindow* window);
+		void record_cursor_position();
 
 		// Gets the cursor position in screen coordinates as a float
-		void get_cursor_pos(GLFWwindow* window, float& xPos, float& yPos);
+		void get_cursor_pos(float& xPos, float& yPos);
 	};
 }

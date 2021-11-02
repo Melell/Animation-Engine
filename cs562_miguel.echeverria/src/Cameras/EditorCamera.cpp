@@ -13,8 +13,7 @@
 #include "EditorCamera.h"
 #include "Platform/FrameRateController.h"
 #include "Platform/InputMgr.h"
-#include "Graphics/Systems/Renderer.h"	// TODO: Remove this
-#include <GLFW/glfw3.h>					// TODO: Remove this
+#include "Graphics/Systems/Renderer.h"		// For getting window width and height
 
 
 namespace cs460
@@ -86,9 +85,8 @@ namespace cs460
 	void EditorCamera::camera_controls()
 	{
 		FrameRateController& frc = FrameRateController::get_instance();
-		InputMgr& inputMgr = InputMgr::get_instance();
 		Renderer& renderer = Renderer::get_instance();
-		GLFWwindow* window = renderer.get_window().get_handle();
+		InputMgr& inputMgr = InputMgr::get_instance();
 
 		glm::vec3 displacement;
 
@@ -151,19 +149,19 @@ namespace cs460
 			set_position(glm::vec3(0.0f, 0.0f, 25.0f));
 			set_target(glm::vec3(0.0f, 0.0f, 0.0f));
 		}
-
+		
 
 		// Only allow mouse panning when right click is held
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		if (inputMgr.is_mouse_button_down(MOUSE::button_right))
 		{
 			// Record the initial position of the cursor for the panning (only once)
 			if (!m_initialPosRecorded)
-				record_cursor_position(window);
+				record_cursor_position();
 
 			// Not ideal way to do it
 			// Movement of the view vector itself (panning around with mouse)
 			float xCursorPos, yCursorPos;
-			get_cursor_pos(window, xCursorPos, yCursorPos);
+			get_cursor_pos(xCursorPos, yCursorPos);
 			const glm::vec3& rightVec = get_right_vec();
 			const glm::vec3& upVec = get_up_vec();
 			float rightDisplacement = ((xCursorPos - m_initialCursorPosX) / renderer.get_window().get_width()) * m_mouseTiltSpeed;
@@ -172,7 +170,7 @@ namespace cs460
 
 			set_target(get_target() + totalDisplacement);
 
-			record_cursor_position(window);
+			record_cursor_position();
 		}
 		else
 			m_initialPosRecorded = false;
@@ -184,19 +182,18 @@ namespace cs460
 	}
 
 	// Record the mouse x and y screen coordinates.
-	void EditorCamera::record_cursor_position(GLFWwindow* window)
+	void EditorCamera::record_cursor_position()
 	{
-		get_cursor_pos(window, m_initialCursorPosX, m_initialCursorPosY);
+		get_cursor_pos(m_initialCursorPosX, m_initialCursorPosY);
 		m_initialPosRecorded = true;
 		//std::cout << "POSITION = (" << m_initialCursorPosX << ", " << m_initialCursorPosY << ")\n";
 	}
 
 	// Gets the cursor position in screen coordinates as a float
-	void EditorCamera::get_cursor_pos(GLFWwindow* window, float& xPos, float& yPos)
+	void EditorCamera::get_cursor_pos(float& xPos, float& yPos)
 	{
-		double posX, posY;
-		glfwGetCursorPos(window, &posX, &posY);
-		xPos = static_cast<float>(posX);
-		yPos = static_cast<float>(posY);
+		const glm::vec2& cursorPos = InputMgr::get_instance().get_mouse_position();
+		xPos = static_cast<float>(cursorPos.x);
+		yPos = static_cast<float>(cursorPos.y);
 	}
 }

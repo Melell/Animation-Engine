@@ -52,6 +52,12 @@ namespace cs460
 		CameraControlsGUI m_cameraControlsGui;
 		Gizmos m_gizmos;
 
+
+		// Set custom styles (taken from internet)
+		void set_custom_style1();
+		void set_custom_style2();
+		void set_custom_style3();
+
 		Editor();
 		Editor(const Editor&) = delete;
 		Editor& operator=(const Editor&) = delete;

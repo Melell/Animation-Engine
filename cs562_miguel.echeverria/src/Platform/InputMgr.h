@@ -99,6 +99,20 @@ namespace cs460
 	const unsigned NUMBER_OF_KEYS = 65;
 
 
+
+    using MouseButtonId = const unsigned;
+    namespace MOUSE
+    {
+        // GLFW: : 0 - 2
+        MouseButtonId button_left = 0;
+        MouseButtonId button_right = 1;
+        MouseButtonId button_middle = 2;
+    }
+
+    const unsigned NUMBER_OF_MOUSE_BUTTONS = 3;
+
+
+
 	class InputMgr
 	{
 	public:
@@ -109,19 +123,52 @@ namespace cs460
         void update();                        // Update previous and current arrays
         void close();                         // Does nothing for now
 
-        bool is_key_pressed(KeyId key);       // True the first time the given key is pressed
-        bool is_key_released(KeyId key);      // True the first time the given key is released
-        bool is_key_down(KeyId key);          // True while the given key is pressed continuously (down)
-        bool is_key_up(KeyId key);            // True while the given key is not being touched (up)
 
-        void set_key_status(KeyId key, bool isPressed); // Sets the value for key of the current isPressed vector
+        // ------------------------------------------------------ KEYBOARD ------------------------------------------------------
+        bool is_key_pressed(KeyId key) const;                               // True the first time the given key is pressed
+        bool is_key_released(KeyId key) const;                              // True the first time the given key is released
+        bool is_key_down(KeyId key) const;                                  // True while the given key is pressed continuously (down)
+        bool is_key_up(KeyId key) const;                                    // True while the given key is not being touched (up)
+        bool is_any_key_pressed() const;                                    // True if any key has been pressed or is down this frame
+
+        void set_key_status(KeyId key, bool isPressed);                     // Sets the value for key of the current key isPressed vector
 
         // Converts the glfw key index to its corresponding index in the range of indices in KEYS namespace
-        bool get_glfw_key_index(unsigned int glfwKey, unsigned int* idx);
+        bool get_glfw_key_index(unsigned int glfwKey, unsigned int* idx) const;
+        // ------------------------------------------------------ KEYBOARD ------------------------------------------------------
+
+
+        // ------------------------------------------------------- MOUSE --------------------------------------------------------
+        bool is_mouse_button_pressed(MouseButtonId button) const;           // True the first time the given mouse button is pressed
+        bool is_mouse_button_released(MouseButtonId button) const;          // True the first time the given mouse button is released
+        bool is_mouse_button_down(MouseButtonId button) const;              // True while the given mouse button is pressed continuously (down)
+        bool is_mouse_button_up(MouseButtonId button) const;                // True while the given mouse button is not being touched (up)
+        bool is_any_mouse_button_pressed() const;                           // True if any mouse button has been pressed (not down) this frame
+
+        void set_mouse_button_status(MouseButtonId button, bool isPressed); // Sets the value for button of the current mouse button isPressed vector
+
+        glm::vec2 get_mouse_position() const;                               // Returns the current mouse position in window coordinates
+        glm::vec2 get_mouse_direction() const;                              // Returns the not normalized direction of movement of the cursor this frame
+        float get_vertical_scroll() const;                                  // Returns the wheel scroll factor
+        bool is_scrolling() const;                                          // Returns true if the mouse scroll wheel is being used
+        // ------------------------------------------------------- MOUSE --------------------------------------------------------
+
+
+        void set_mouse_position(const glm::vec2& newPos);
+        void set_vertical_scroll(float newScroll);
 
 	private:
 		bool m_currKeyIsPressed[NUMBER_OF_KEYS];
 		bool m_prevKeyIsPressed[NUMBER_OF_KEYS];
+        bool m_anyKeyPressed = false;
+
+        bool m_currMouseIsPressed[NUMBER_OF_MOUSE_BUTTONS];
+        bool m_prevMouseIsPressed[NUMBER_OF_MOUSE_BUTTONS];
+        bool m_anyMouseButtonPressed = false;
+
+        glm::vec2 m_currMousePos;
+        glm::vec2 m_prevMousePos;
+        float m_verticalScroll;
 
 
         InputMgr();

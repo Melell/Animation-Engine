@@ -15,6 +15,7 @@
 #include "Math/Geometry/Geometry.h"
 #include "Components/MeshRenderable.h"
 #include "EditorState.h"
+#include "Animation/PiecewiseCurveMgr.h"
 
 
 namespace cs460
@@ -31,25 +32,44 @@ namespace cs460
 		// If user left-clicked
 		if (inputMgr.is_mouse_button_pressed(MOUSE::button_left))
 		{
-			// Get a normalized ray in world space from the camera position with the direction given by the mouse click
-			const glm::vec3& worldRayDir = viewport_to_world_normalized_ray(inputMgr.get_mouse_position());
-
 			Renderer& renderer = Renderer::get_instance();
 			Scene& scene = Scene::get_instance();
 			EditorCamera& cam = scene.get_camera();
+			PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
+
+
+			// Get a normalized ray in world space from the camera position with the direction given by the mouse click
+			const glm::vec3& worldRayDir = viewport_to_world_normalized_ray(inputMgr.get_mouse_position());
+
 
 			// Check with this ray against the bv of all meshes
 			Ray worldRay;
 			worldRay.m_origin = cam.get_position();
 			worldRay.m_dir = worldRayDir;
-			MeshRenderable* pickedMesh = renderer.world_ray_vs_meshes(worldRay);
+			float meshTime = 0.0f;
+			MeshRenderable* pickedMesh = renderer.ray_vs_meshes(worldRay, &meshTime);
 
-			// Update the currently selected object
+
+			// Check with this ray against the bv of all curve elements (points/tangents/control points)
+			float curveElementTime = 0.0f;
+			IComponent* pickedCurveElement = curveMgr.ray_vs_curve_elements(worldRay, &curveElementTime);
+
+
 			EditorState& editorState = EditorState::get_main_editor_state();
 
-			if (pickedMesh)
-				editorState.m_selectedNode = pickedMesh->get_owner();
-			else if (!ImGuizmo::IsUsing() && !ImGui::GetIO().WantCaptureMouse)	// Only update if not using gizmos or not hovering over imgui window
+			// Update the currently selected object (min t of intersection between possibly selected mesh and curve element)
+			if (pickedMesh || pickedCurveElement)
+			{
+				if (pickedMesh && pickedCurveElement)
+					editorState.m_selectedNode = meshTime <= curveElementTime ? pickedMesh->get_owner() : pickedCurveElement->get_owner();
+				else if (pickedMesh)
+					editorState.m_selectedNode = pickedMesh->get_owner();
+				else
+					editorState.m_selectedNode = pickedCurveElement->get_owner();
+			}
+
+			// Only set to null if not using gizmos or not hovering over imgui window
+			else if (!ImGuizmo::IsUsing() && !ImGui::GetIO().WantCaptureMouse)
 				editorState.m_selectedNode = nullptr;
 		}
 	}

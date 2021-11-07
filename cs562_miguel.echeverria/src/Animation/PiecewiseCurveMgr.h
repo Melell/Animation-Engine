@@ -13,6 +13,8 @@
 namespace cs460
 {
 	class PiecewiseCurve;
+	struct Ray;
+	class IComponent;
 
 
 	class PiecewiseCurveMgr
@@ -27,6 +29,11 @@ namespace cs460
 
 		void add_piecewise_curve(PiecewiseCurve* curve);
 		void remove_piecewise_curve(PiecewiseCurve* curve);
+
+		// Returns the closest curve point/tangent/control point that intersects the given world space ray.
+		// Returns nullptr if none were intersected (or false positive. Also, returns the minimum time of
+		// intersection in minTime.
+		IComponent* ray_vs_curve_elements(const Ray& ray, float* minTime);
 
 	private:
 		std::vector<PiecewiseCurve*> m_curves;

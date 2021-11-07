@@ -158,11 +158,11 @@ namespace cs460
 
 
 	// Return the closest mesh renderable component whose bounding volume was intersected by the given ray in world space.
-	// Returns nullptr if none were intersected.
-	MeshRenderable* Renderer::world_ray_vs_meshes(const Ray& worldRay)
+	// Returns nullptr if none were intersected. Also, returns the closest time of intersection in t.
+	MeshRenderable* Renderer::ray_vs_meshes(const Ray& worldRay, float* minTime)
 	{
 		MeshRenderable* closestIntersectedMesh = nullptr;
-		float minT = FLT_MAX;
+		*minTime = FLT_MAX;
 
 		// For each mesh, check ray vs aabb (bv)
 		for (auto currMesh : m_renderables)
@@ -171,8 +171,11 @@ namespace cs460
 
 			// If mesh intersected (not false positive, and it is
 			// closer than the current one, change picked mesh
-			if (t >= 0.0f && t < minT)
+			if (t >= 0.0f && t < *minTime)
+			{
 				closestIntersectedMesh = currMesh;	
+				*minTime = t;
+			}
 		}
 
 		return closestIntersectedMesh;

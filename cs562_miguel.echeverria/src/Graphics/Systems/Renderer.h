@@ -47,8 +47,8 @@ namespace cs460
 		Skybox* get_skybox();
 
 		// Return the closest mesh renderable component whose bounding volume was intersected by the given ray in world space.
-		// Returns nullptr if none were intersected.
-		MeshRenderable* world_ray_vs_meshes(const Ray& worldRay);
+		// Returns nullptr if none were intersected. Also, returns the closest time of intersection in t.
+		MeshRenderable* ray_vs_meshes(const Ray& worldRay, float* minTime);
 		
 		void debug_draw_bvs() const;			// Debug draws the bounding volumes of the meshrenderables in the scene
 

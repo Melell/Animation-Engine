@@ -10,6 +10,8 @@
 #include "pch.h"
 #include "Window.h"
 #include "Graphics/Systems/Renderer.h"
+#include "GUI/EditorState.h"
+#include "Composition/SceneNode.h"
 #include <GLFW/glfw3.h>
 
 
@@ -56,6 +58,8 @@ namespace cs460
 
 		glfwSetWindowAspectRatio(m_handle, 16, 9);
 		glfwSetFramebufferSizeCallback(m_handle, &on_framebuffer_resize);
+
+		glfwSetDropCallback(m_handle, &on_files_dropped);
 
 		return true;
 	}
@@ -135,7 +139,6 @@ namespace cs460
 		glfwGetFramebufferSize(m_handle, outWidth, outHeight);
 	}
 
-
 	void Window::set_window_hints()
 	{
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -151,5 +154,40 @@ namespace cs460
 	void on_framebuffer_resize(GLFWwindow* window, int newWidth, int newHeight)
 	{
 		Renderer::get_instance().set_viewport(0, 0, newWidth, newHeight);
+	}
+
+
+	// Drag and drop callback (receives the paths to the files dropped)
+	void on_files_dropped(GLFWwindow* window, int count, const char** paths)
+	{
+		Scene& scene = Scene::get_instance();
+		EditorState& editorState = EditorState::get_main_editor_state();
+		SceneNode* parent = editorState.m_selectedNode == nullptr ? scene.get_root() : editorState.m_selectedNode;
+		SceneNode* lastCreatedNode = nullptr;
+
+		// For every given path
+		for (int i = 0; i < count; i++)
+		{
+			fs::path path(paths[i]);
+
+			// If its a directory, iterate over its contents
+			if (fs::is_directory(path))
+			{
+				for (const fs::directory_entry& currDir : fs::recursive_directory_iterator(path))
+				{
+					// GLTF file found, add it as child of currently selected node
+					if (currDir.path().extension().generic_string() == ".gltf")
+						lastCreatedNode = parent->create_child_with_model(currDir.path().filename().generic_string(), currDir.path());
+				}
+			}
+			// Otherwise, if we found a gltf file, add it as a child of the currently selected node
+			else if (path.extension().generic_string() == ".gltf")
+				lastCreatedNode = parent->create_child_with_model(path.filename().generic_string(), path);
+		}
+
+
+		// Set the selected node as the last one that was created
+		if (lastCreatedNode != nullptr)
+			editorState.m_selectedNode = lastCreatedNode;
 	}
 }

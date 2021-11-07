@@ -42,12 +42,14 @@ namespace cs460
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    
+
+
         // Setup Dear ImGui style
         //ImGui::StyleColorsDark();
         set_custom_style1();
         //set_custom_style2();
         //set_custom_style3();
+
     
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(Renderer::get_instance().get_window().get_handle(), true);
@@ -79,7 +81,7 @@ namespace cs460
 
 
         // Show the demo window for reference
-        //ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
     }
 
 

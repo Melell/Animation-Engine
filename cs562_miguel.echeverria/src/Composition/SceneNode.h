@@ -37,7 +37,6 @@ namespace cs460
 		SceneNode(const std::string& name = "Unnamed");
 		~SceneNode();
 
-		std::string m_name;			// "Gameobject" name
 		TransformData m_localTr;	// Local transform (with respect to parent)
 		TransformData m_worldTr;	// World transform (with respect world origin)
 
@@ -50,6 +49,10 @@ namespace cs460
 
 		// Create a new node and add it as this node's child
 		SceneNode* create_child(const std::string& name);
+
+		// Create a new node with a model instance component and add it as this node's child.
+		// The model instance component will load/get the model at the given path.
+		SceneNode* create_child_with_model(const std::string& name, const fs::path& modelPath);
 
 		// Generates all the data for this scenenode from a Model resource (except the necessary components)
 		void from_node_resource(Model* sourceModel, int nodeIdx, ModelInstance* rootModelInst);
@@ -84,12 +87,24 @@ namespace cs460
 		void set_model_source(Model* newModel);
 		void set_model_root_node(SceneNode* modelRootNode);
 
+		// Getter for the unique id of this scene node
+		unsigned get_unique_id() const;
+
+		// Setter and getter for the name
+		void change_name(const std::string& newName);
+		std::string get_name() const;
+
 	private:
+		std::string m_name;						// "Gameobject" name
 		SceneNode* m_parent;
 		std::vector<SceneNode*> m_children;
 		std::vector<IComponent*> m_components;
 		SceneNode* m_modelRootNode;				// The root node of the model's hierarchy (null if it doesn't belong to a model)
 		Model* m_sourceModel;					// The gltf model resource this node belongs to (null if doesn't belong to any model)
+		unsigned m_UID;
+
+		static unsigned s_UIDGenerator;
+
 
 		void show_transforms_gui();
 

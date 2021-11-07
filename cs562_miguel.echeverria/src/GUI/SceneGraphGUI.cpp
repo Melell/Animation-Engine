@@ -62,7 +62,11 @@ namespace cs460
 		if (node->get_children().empty())
 			nodeFlags |= ImGuiTreeNodeFlags_Leaf;
 
-		bool nodeOpen = ImGui::TreeNodeEx(node->m_name.c_str(), nodeFlags);
+		const std::string& name = node->get_name();
+		unsigned uid = node->get_unique_id();
+		const std::string& finalName = name + "##" + std::to_string(uid);
+
+		bool nodeOpen = ImGui::TreeNodeEx(finalName.c_str(), nodeFlags);
 		bool itemLeftClicked = ImGui::IsItemClicked(ImGuiMouseButton_::ImGuiMouseButton_Left);
 		bool itemRightClicked = ImGui::IsItemClicked(ImGuiMouseButton_::ImGuiMouseButton_Right);
 
@@ -142,7 +146,7 @@ namespace cs460
 				}
 				if (m_newname_popup_active)
 				{
-					state.m_selectedNode->m_name = state.m_textBuffer;
+					state.m_selectedNode->change_name(state.m_textBuffer);
 					m_newname_popup_active = false;
 				}
 

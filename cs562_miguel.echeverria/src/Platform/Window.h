@@ -34,13 +34,19 @@ namespace cs460
 
 		GLFWwindow* get_handle() const;				// Get the glfw handle of the window
 
+		// Window dimensions getters
 		int get_window_width() const;
 		int get_window_height() const;
 		void get_window_dimensions(int* outWidth, int* outHeight) const;
 
+		// Framebuffer dimensions getters
 		int get_framebuffer_width() const;
 		int get_framebuffer_height() const;
 		void get_framebuffer_dimensions(int* outWidth, int* outHeight) const;
+
+
+		
+		
 
 	private:
 
@@ -55,4 +61,5 @@ namespace cs460
 
 
 	void on_framebuffer_resize(GLFWwindow* window, int newWidth, int newHeight);
+	void on_files_dropped(GLFWwindow* window, int count, const char** paths);	// Drag and drop callback (receives the paths to the files dropped)
 }

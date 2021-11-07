@@ -91,7 +91,7 @@ namespace cs460
 		glm::vec3 displacement;
 
 		// Only move the camera with keyboard, if we are not using the keyboard in imgui
-		if (!ImGui::GetIO().WantCaptureMouse)
+		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
 			// Lateral movement
 			if (inputMgr.is_key_down(KEYS::key_d))

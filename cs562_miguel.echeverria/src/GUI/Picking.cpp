@@ -57,20 +57,23 @@ namespace cs460
 
 			EditorState& editorState = EditorState::get_main_editor_state();
 
-			// Update the currently selected object (min t of intersection between possibly selected mesh and curve element)
-			if (pickedMesh || pickedCurveElement)
-			{
-				if (pickedMesh && pickedCurveElement)
-					editorState.m_selectedNode = meshTime <= curveElementTime ? pickedMesh->get_owner() : pickedCurveElement->get_owner();
-				else if (pickedMesh)
-					editorState.m_selectedNode = pickedMesh->get_owner();
-				else
-					editorState.m_selectedNode = pickedCurveElement->get_owner();
-			}
 
-			// Only set to null if not using gizmos or not hovering over imgui window
-			else if (!ImGuizmo::IsUsing() && !ImGui::GetIO().WantCaptureMouse)
-				editorState.m_selectedNode = nullptr;
+			// Only update if not using gizmos, or not hovering an imgui window
+			if (!ImGuizmo::IsUsing() && !ImGui::GetIO().WantCaptureMouse)
+			{
+				// Update the currently selected object (min t of intersection between possibly selected mesh and curve element)
+				if (pickedMesh || pickedCurveElement)
+				{
+					if (pickedMesh && pickedCurveElement)
+						editorState.m_selectedNode = meshTime <= curveElementTime ? pickedMesh->get_owner() : pickedCurveElement->get_owner();
+					else if (pickedMesh)
+						editorState.m_selectedNode = pickedMesh->get_owner();
+					else
+						editorState.m_selectedNode = pickedCurveElement->get_owner();
+				}
+				else
+					editorState.m_selectedNode = nullptr;
+			}
 		}
 	}
 

@@ -24,27 +24,33 @@ namespace cs460
 
 	void Gizmos::update()
 	{
+        ImGuiIO& io = ImGui::GetIO();
         Scene& scene = Scene::get_instance();
         EditorState& state = EditorState::get_main_editor_state();
         InputMgr& inputMgr = InputMgr::get_instance();
 
-        if (inputMgr.is_key_pressed(KEYS::key_1))
+
+        // Only allow to change gizmo mode if imgui has not keyboard focus
+        if (!io.WantCaptureKeyboard)
         {
-            state.m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
-            m_noOperation = false;
+            if (inputMgr.is_key_pressed(KEYS::key_1))
+            {
+                state.m_gizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+                m_noOperation = false;
+            }
+            else if (inputMgr.is_key_pressed(KEYS::key_2))
+            {
+                state.m_gizmoOperation = ImGuizmo::OPERATION::ROTATE;
+                m_noOperation = false;
+            }
+            else if (inputMgr.is_key_pressed(KEYS::key_3))
+            {
+                state.m_gizmoOperation = ImGuizmo::OPERATION::SCALE;
+                m_noOperation = false;
+            }
+            else if (inputMgr.is_key_pressed(KEYS::key_4))
+                m_noOperation = true;
         }
-        else if (inputMgr.is_key_pressed(KEYS::key_2))
-        {
-            state.m_gizmoOperation = ImGuizmo::OPERATION::ROTATE;
-            m_noOperation = false;
-        }
-        else if (inputMgr.is_key_pressed(KEYS::key_3))
-        {
-            state.m_gizmoOperation = ImGuizmo::OPERATION::SCALE;
-            m_noOperation = false;
-        }
-        else if (inputMgr.is_key_pressed(KEYS::key_4))
-            m_noOperation = true;
 
 
         // Don't do the gizmos logic if the no operation mode is selected

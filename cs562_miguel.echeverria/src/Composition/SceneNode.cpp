@@ -25,19 +25,24 @@
 
 namespace cs460
 {
+	unsigned SceneNode::s_UIDGenerator = 0;
+
+
 	SceneNode::SceneNode(const std::string& name)
-		:	m_name(name),
-			m_parent(nullptr),
+		:	m_parent(nullptr),
 			m_modelRootNode(nullptr),
 			m_sourceModel(nullptr)
 	{
-
+		m_UID = s_UIDGenerator++;
+		change_name(name);
 	}
+
 	SceneNode::~SceneNode()
 	{
 		// Clear in case there are still components
 		delete_all_components();
 	}
+
 
 	// Free all the children of this node
 	void SceneNode::delete_all_children()
@@ -67,6 +72,16 @@ namespace cs460
 		newNode->m_parent = this;
 		m_children.push_back(newNode);
 		return newNode;
+	}
+
+	// Create a new node with a model instance component and add it as this node's child.
+	// The model instance component will load/get the model at the given path.
+	SceneNode* SceneNode::create_child_with_model(const std::string& name, const fs::path& modelPath)
+	{
+		SceneNode* child = create_child(name);
+		ModelInstance* modelInst = child->add_component<ModelInstance>();
+		modelInst->change_model(modelPath);
+		return child;
 	}
 
 
@@ -194,6 +209,26 @@ namespace cs460
 	void SceneNode::set_model_root_node(SceneNode* modelRootNode)
 	{
 		m_modelRootNode = modelRootNode;
+	}
+
+
+	// Getter for the unique id of this scene node
+	unsigned SceneNode::get_unique_id() const
+	{
+		return m_UID;
+	}
+
+	// Setter and getter for the name
+	void SceneNode::change_name(const std::string& newName)
+	{
+		m_name = newName;
+
+		if (newName.empty())
+			m_name = "Unnamed" + std::to_string(m_UID);
+	}
+	std::string SceneNode::get_name() const
+	{
+		return m_name;
 	}
 
 

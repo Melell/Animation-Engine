@@ -10,7 +10,7 @@
 #include "pch.h"
 #include "Editor.h"
 #include "Graphics/Systems/Renderer.h"
-// imgui.h already included in pch.h, otherwise, it would need to be included heres
+// imgui.h already included in pch.h, otherwise, it would need to be included here
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
@@ -69,6 +69,7 @@ namespace cs460
 
 
         // Update all the elements of the main editor
+        m_picking.update();                 // Picking needs to be done firstly
         m_componentEditor.update();
         m_mainMenuBar.update();
         m_sceneGraphGui.update();

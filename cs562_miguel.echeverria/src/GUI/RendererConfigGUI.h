@@ -23,5 +23,7 @@ namespace cs460
 	private:
 
 		RendererConfigGUI();
+		RendererConfigGUI(const RendererConfigGUI&) = delete;
+		RendererConfigGUI& operator=(const RendererConfigGUI&) = delete;
 	};
 }

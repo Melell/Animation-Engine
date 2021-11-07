@@ -23,5 +23,7 @@ namespace cs460
 	private:
 
 		ComponentsGUI();
+		ComponentsGUI(const ComponentsGUI&) = delete;
+		ComponentsGUI& operator=(const ComponentsGUI&) = delete;
 	};
 }

@@ -378,7 +378,7 @@ namespace cs460
 		// Draw the actual curve (a line per each timestep)
 		FrameRateController& frc = FrameRateController::get_instance();
 		float dt = frc.get_dt_float();
-		glm::vec3 prevPos;
+		glm::vec3 prevPos{0.0f, 0.0f, 0.0f};
 		if (type == CURVE_TYPE::HERMITE)
 			prevPos = piecewise_hermite(m_timeValues, m_propertyValues, 0.0f);
 		else if (type == CURVE_TYPE::BEZIER)
@@ -389,7 +389,7 @@ namespace cs460
 		for (float timer = dt; timer < m_totalDuration; timer += dt)
 		{
 			// Compute the current point in the spline according to the given type
-			glm::vec3 currentPos;
+			glm::vec3 currentPos{ 0.0f, 0.0f, 0.0f };
 			
 			if (type == CURVE_TYPE::HERMITE)
 				currentPos = piecewise_hermite(m_timeValues, m_propertyValues, timer);

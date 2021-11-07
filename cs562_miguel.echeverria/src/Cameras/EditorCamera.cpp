@@ -90,90 +90,98 @@ namespace cs460
 
 		glm::vec3 displacement;
 
-		// Lateral movement
-		if (inputMgr.is_key_down(KEYS::key_d))
+		// Only move the camera with keyboard, if we are not using the keyboard in imgui
+		if (!ImGui::GetIO().WantCaptureMouse)
 		{
-			displacement = get_right_vec() * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
-		else if (inputMgr.is_key_down(KEYS::key_a))
-		{
-			displacement = -get_right_vec() * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
+			// Lateral movement
+			if (inputMgr.is_key_down(KEYS::key_d))
+			{
+				displacement = get_right_vec() * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
+			else if (inputMgr.is_key_down(KEYS::key_a))
+			{
+				displacement = -get_right_vec() * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
 
-		// Movement along view vec
-		if (inputMgr.is_key_down(KEYS::key_w))
-		{
-			displacement = get_view_vec() * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
-		else if (inputMgr.is_key_down(KEYS::key_s))
-		{
-			displacement = -get_view_vec() * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
+			// Movement along view vec
+			if (inputMgr.is_key_down(KEYS::key_w))
+			{
+				displacement = get_view_vec() * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
+			else if (inputMgr.is_key_down(KEYS::key_s))
+			{
+				displacement = -get_view_vec() * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
 
-		// Movement along global up/down
-		glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		if (inputMgr.is_key_down(KEYS::key_e))
-		{
-			displacement = globalUp * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
-		else if (inputMgr.is_key_down(KEYS::key_q))
-		{
-			displacement = -globalUp * m_movementSpeed * frc.get_dt_float();
-			set_position(get_position() + displacement);
-			set_target(get_target() + displacement);
-		}
+			// Movement along global up/down
+			glm::vec3 globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
+			if (inputMgr.is_key_down(KEYS::key_e))
+			{
+				displacement = globalUp * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
+			else if (inputMgr.is_key_down(KEYS::key_q))
+			{
+				displacement = -globalUp * m_movementSpeed * frc.get_dt_float();
+				set_position(get_position() + displacement);
+				set_target(get_target() + displacement);
+			}
 
-		// Movement of the view vector itself (tilting camera around with keyboard)
-		if (inputMgr.is_key_down(KEYS::key_right))
-			set_target(get_target() + get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (inputMgr.is_key_down(KEYS::key_left))
-			set_target(get_target() - get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (inputMgr.is_key_down(KEYS::key_up))
-			set_target(get_target() + get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
-		if (inputMgr.is_key_down(KEYS::key_down))
-			set_target(get_target() - get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
+			// Movement of the view vector itself (tilting camera around with keyboard)
+			if (inputMgr.is_key_down(KEYS::key_right))
+				set_target(get_target() + get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
+			if (inputMgr.is_key_down(KEYS::key_left))
+				set_target(get_target() - get_right_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
+			if (inputMgr.is_key_down(KEYS::key_up))
+				set_target(get_target() + get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
+			if (inputMgr.is_key_down(KEYS::key_down))
+				set_target(get_target() - get_up_vec() * m_keyboardTiltSpeed * frc.get_dt_float());
 
-		// Reset the camera
-		if (inputMgr.is_key_pressed(KEYS::key_v))
-		{
-			set_position(glm::vec3(0.0f, 0.0f, 25.0f));
-			set_target(glm::vec3(0.0f, 0.0f, 0.0f));
+			// Reset the camera
+			if (inputMgr.is_key_pressed(KEYS::key_v))
+			{
+				set_position(glm::vec3(0.0f, 0.0f, 25.0f));
+				set_target(glm::vec3(0.0f, 0.0f, 0.0f));
+			}
 		}
 		
 
-		// Only allow mouse panning when right click is held
-		if (inputMgr.is_mouse_button_down(MOUSE::button_right))
+		// Only use mouse for moving camera around if imgui is not using mouse
+		if (!ImGui::GetIO().WantCaptureMouse)
 		{
-			// Record the initial position of the cursor for the panning (only once)
-			if (!m_initialPosRecorded)
+			// Only allow mouse panning when right click is held
+			if (inputMgr.is_mouse_button_down(MOUSE::button_right))
+			{
+				// Record the initial position of the cursor for the panning (only once)
+				if (!m_initialPosRecorded)
+					record_cursor_position();
+
+				// Not ideal way to do it
+				// Movement of the view vector itself (panning around with mouse)
+				float xCursorPos, yCursorPos;
+				get_cursor_pos(xCursorPos, yCursorPos);
+				const glm::vec3& rightVec = get_right_vec();
+				const glm::vec3& upVec = get_up_vec();
+				float rightDisplacement = ((xCursorPos - m_initialCursorPosX) / renderer.get_window().get_window_width()) * m_mouseTiltSpeed;
+				float upDisplacement = (-(yCursorPos - m_initialCursorPosY) / renderer.get_window().get_window_height()) * m_mouseTiltSpeed;	// Make up for	GLFW positive downwards y axis
+				const glm::vec3& totalDisplacement = rightDisplacement * rightVec + upDisplacement * upVec;
+
+				set_target(get_target() + totalDisplacement);
+
 				record_cursor_position();
-
-			// Not ideal way to do it
-			// Movement of the view vector itself (panning around with mouse)
-			float xCursorPos, yCursorPos;
-			get_cursor_pos(xCursorPos, yCursorPos);
-			const glm::vec3& rightVec = get_right_vec();
-			const glm::vec3& upVec = get_up_vec();
-			float rightDisplacement = ((xCursorPos - m_initialCursorPosX) / renderer.get_window().get_width()) * m_mouseTiltSpeed;
-			float upDisplacement = (-(yCursorPos - m_initialCursorPosY) / renderer.get_window().get_height()) * m_mouseTiltSpeed;	// Make up for GLFW positive downwards y axis
-			const glm::vec3& totalDisplacement = rightDisplacement * rightVec + upDisplacement * upVec;
-
-			set_target(get_target() + totalDisplacement);
-
-			record_cursor_position();
+			}
+			else
+				m_initialPosRecorded = false;
 		}
-		else
-			m_initialPosRecorded = false;
 	}
 
 	void EditorCamera::update_view_mtx()

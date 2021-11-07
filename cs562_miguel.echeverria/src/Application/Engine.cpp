@@ -69,6 +69,7 @@ namespace cs460
 		FrameRateController& frc = FrameRateController::get_instance();
 		PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
 		InputMgr& inputMgr = InputMgr::get_instance();
+
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())

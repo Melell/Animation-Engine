@@ -11,7 +11,7 @@
 #include "MainMenuBarGUI.h"
 #include "Graphics/Systems/Renderer.h"
 #include "Composition/Scene.h"				// For loading scenes manually (remove in the future)
-#include "Editor.h"							// Remove this in the future
+#include "Editor.h"							// TODO: Remove this in the future
 #include "Composition/SceneNode.h"			// For loading scenes manually (remove in the future)
 #include "Components/PiecewiseCurve.h"		// Remove in future
 #include "Components/CurvePoint.h"			// Remove in future

@@ -49,5 +49,7 @@ namespace cs460
 		void load_skinned_animation_scene();
 
 		MainMenuBarGUI();
+		MainMenuBarGUI(const MainMenuBarGUI&) = delete;
+		MainMenuBarGUI& operator=(const MainMenuBarGUI&) = delete;
 	};
 }

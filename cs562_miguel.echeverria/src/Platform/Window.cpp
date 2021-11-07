@@ -19,9 +19,7 @@ namespace cs460
 	const int INITIAL_WINDOW_HEIGHT = 720;
 
 	Window::Window()
-		:	m_handle(nullptr),
-			m_width(INITIAL_WINDOW_WIDTH),
-			m_height(INITIAL_WINDOW_HEIGHT)
+		:	m_handle(nullptr)
 	{
 	}
 
@@ -46,7 +44,7 @@ namespace cs460
 		set_window_hints();
 
 		// Create a windowed mode window and its OpenGL context
-		m_handle = glfwCreateWindow(m_width, m_height, "CS460 - Miguel Echeverria", nullptr, nullptr);
+		m_handle = glfwCreateWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "CS460 - Miguel Echeverria", nullptr, nullptr);
 		if (!m_handle)
 		{
 			glfwTerminate();
@@ -103,13 +101,38 @@ namespace cs460
 		return m_handle;
 	}
 
-	int Window::get_width() const
+	int Window::get_window_width() const
 	{
-		return m_width;
+		int width, height;
+		glfwGetWindowSize(m_handle, &width, &height);
+		return width;
 	}
-	int Window::get_height() const
+	int Window::get_window_height() const
 	{
-		return m_height;
+		int width, height;
+		glfwGetWindowSize(m_handle, &width, &height);
+		return height;
+	}
+	void Window::get_window_dimensions(int* outWidth, int* outHeight) const
+	{
+		glfwGetWindowSize(m_handle, outWidth, outHeight);
+	}
+
+	int Window::get_framebuffer_width() const
+	{
+		int width, height;
+		glfwGetFramebufferSize(m_handle, &width, &height);
+		return width;
+	}
+	int Window::get_framebuffer_height() const
+	{
+		int width, height;
+		glfwGetFramebufferSize(m_handle, &width, &height);
+		return height;
+	}
+	void Window::get_framebuffer_dimensions(int* outWidth, int* outHeight) const
+	{
+		glfwGetFramebufferSize(m_handle, outWidth, outHeight);
 	}
 
 

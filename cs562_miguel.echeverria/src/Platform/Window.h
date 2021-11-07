@@ -33,14 +33,18 @@ namespace cs460
 		void set_window_should_close(int value);	// Set the glfw flag that indicates that the window is requested to be closed
 
 		GLFWwindow* get_handle() const;				// Get the glfw handle of the window
-		int get_width() const;
-		int get_height() const;
+
+		int get_window_width() const;
+		int get_window_height() const;
+		void get_window_dimensions(int* outWidth, int* outHeight) const;
+
+		int get_framebuffer_width() const;
+		int get_framebuffer_height() const;
+		void get_framebuffer_dimensions(int* outWidth, int* outHeight) const;
 
 	private:
 
 		GLFWwindow* m_handle;
-		int m_width;
-		int m_height;
 
 		void set_window_hints();	// Set window options before it is created
 

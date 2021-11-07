@@ -64,7 +64,7 @@ namespace cs460
     void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
     {
         InputMgr& inputMgr = InputMgr::get_instance();
-        inputMgr.set_vertical_scroll(yOffset);
+        inputMgr.set_vertical_scroll((float)yOffset);
     }
 
     // ------------------------ CALLBACK FUNCTIONS ----------------------------

@@ -19,6 +19,13 @@ namespace cs460
 	};
 
 
+	struct Ray
+	{
+		glm::vec3 m_origin{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_dir{ 1.0f, 0.0f, 0.0f };
+	};
+
+
 	struct Triangle
 	{
 		glm::vec3 m_v1{ 0.0f,  0.5f, 0.0f};

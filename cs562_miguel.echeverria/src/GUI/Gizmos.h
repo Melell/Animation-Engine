@@ -25,5 +25,7 @@ namespace cs460
 		bool m_noOperation = false;
 
 		Gizmos();
+		Gizmos(const Gizmos&) = delete;
+		Gizmos& operator=(const Gizmos&) = delete;
 	};
 }

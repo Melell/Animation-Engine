@@ -163,9 +163,11 @@
     <ClCompile Include="src\GUI\EditorState.cpp" />
     <ClCompile Include="src\GUI\Gizmos.cpp" />
     <ClCompile Include="src\GUI\MainMenuBarGUI.cpp" />
+    <ClCompile Include="src\GUI\Picking.cpp" />
     <ClCompile Include="src\GUI\RendererConfigGUI.cpp" />
     <ClCompile Include="src\GUI\SceneGraphGUI.cpp" />
     <ClCompile Include="src\Math\Geometry\Geometry.cpp" />
+    <ClCompile Include="src\Math\Geometry\IntersectionTests.cpp" />
     <ClCompile Include="src\Math\Interpolation\InterpolationFunctions.cpp" />
     <ClCompile Include="src\Platform\FrameRateController.cpp" />
     <ClCompile Include="src\Platform\InputMgr.cpp" />
@@ -189,7 +191,6 @@
     <ClCompile Include="src\Composition\TransformData.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\gltf\tiny_gltf.h" />
     <ClInclude Include="include\imgui\ImGuizmo.h" />
     <ClInclude Include="include\imgui\imconfig.h" />
     <ClInclude Include="include\imgui\imgui.h" />
@@ -237,9 +238,11 @@
     <ClInclude Include="src\GUI\EditorState.h" />
     <ClInclude Include="src\GUI\Gizmos.h" />
     <ClInclude Include="src\GUI\MainMenuBarGUI.h" />
+    <ClInclude Include="src\GUI\Picking.h" />
     <ClInclude Include="src\GUI\RendererConfigGUI.h" />
     <ClInclude Include="src\GUI\SceneGraphGUI.h" />
     <ClInclude Include="src\Math\Geometry\Geometry.h" />
+    <ClInclude Include="src\Math\Geometry\IntersectionTests.h" />
     <ClInclude Include="src\Math\Interpolation\InterpolationFunctions.h" />
     <ClInclude Include="src\Platform\FrameRateController.h" />
     <ClInclude Include="src\Platform\InputMgr.h" />

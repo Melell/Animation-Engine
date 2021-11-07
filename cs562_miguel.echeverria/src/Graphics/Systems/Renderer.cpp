@@ -18,6 +18,8 @@
 #include "DebugRenderer.h"
 #include "GUI/EditorState.h"
 #include "Animation/PiecewiseCurveMgr.h"
+#include "Math/Geometry/Geometry.h"
+#include "Math/Geometry/IntersectionTests.h"
 #include <GL/glew.h>
 
 
@@ -152,6 +154,28 @@ namespace cs460
 	Skybox* Renderer::get_skybox()
 	{
 		return m_skybox;
+	}
+
+
+	// Return the closest mesh renderable component whose bounding volume was intersected by the given ray in world space.
+	// Returns nullptr if none were intersected.
+	MeshRenderable* Renderer::world_ray_vs_meshes(const Ray& worldRay)
+	{
+		MeshRenderable* closestIntersectedMesh = nullptr;
+		float minT = FLT_MAX;
+
+		// For each mesh, check ray vs aabb (bv)
+		for (auto currMesh : m_renderables)
+		{
+			float t = ray_vs_aabb(worldRay, currMesh->get_world_bounding_volume());
+
+			// If mesh intersected (not false positive, and it is
+			// closer than the current one, change picked mesh
+			if (t >= 0.0f && t < minT)
+				closestIntersectedMesh = currMesh;	
+		}
+
+		return closestIntersectedMesh;
 	}
 
 

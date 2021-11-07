@@ -17,6 +17,7 @@
 #include "RendererConfigGUI.h"
 #include "CameraControlsGUI.h"
 #include "Gizmos.h"
+#include "Picking.h"
 
 
 namespace cs460
@@ -51,6 +52,7 @@ namespace cs460
 		RendererConfigGUI m_rendererConfigGui;
 		CameraControlsGUI m_cameraControlsGui;
 		Gizmos m_gizmos;
+		Picking m_picking;
 
 
 		// Set custom styles (taken from internet)

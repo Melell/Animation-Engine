@@ -35,5 +35,7 @@ namespace cs460
 		bool m_newname_popup_active = false;
 
 		SceneGraphGUI();
+		SceneGraphGUI(const SceneGraphGUI&) = delete;
+		SceneGraphGUI& operator=(const SceneGraphGUI&) = delete;
 	};
 }

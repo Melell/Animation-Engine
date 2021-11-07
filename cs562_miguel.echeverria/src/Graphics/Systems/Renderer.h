@@ -16,6 +16,7 @@ namespace cs460
 {
 	class MeshRenderable;
 	class Skybox;
+	struct Ray;
 
 
 	class Renderer
@@ -45,6 +46,10 @@ namespace cs460
 		Window& get_window();
 		Skybox* get_skybox();
 
+		// Return the closest mesh renderable component whose bounding volume was intersected by the given ray in world space.
+		// Returns nullptr if none were intersected.
+		MeshRenderable* world_ray_vs_meshes(const Ray& worldRay);
+		
 		void debug_draw_bvs() const;			// Debug draws the bounding volumes of the meshrenderables in the scene
 
 		bool m_drawAnyBv = true;				// False if no bounding volume is to be drawn

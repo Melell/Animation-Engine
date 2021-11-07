@@ -23,5 +23,7 @@ namespace cs460
 	private:
 
 		CameraControlsGUI();
+		CameraControlsGUI(const CameraControlsGUI&) = delete;
+		CameraControlsGUI& operator=(const CameraControlsGUI&) = delete;
 	};
 }

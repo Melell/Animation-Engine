@@ -188,14 +188,24 @@ namespace cs460
 		if (!m_drawAnyBv)
 			return;
 
-		// Draw the ones of all the nodes with a mesh
-		for (auto currMesh : m_renderables)
+		// Currently only draw the bv of the selected node
+		EditorState& editorState = EditorState::get_main_editor_state();
+		if (editorState.m_selectedNode != nullptr)
 		{
-			if (!currMesh->get_draw_bounding_volume())
-				continue;
-
-			DebugRenderer::draw_aabb(currMesh->get_world_bounding_volume(), DebugRenderer::s_bvsColor, true);
+			MeshRenderable* mesh = editorState.m_selectedNode->get_component<MeshRenderable>();
+			if (mesh != nullptr && mesh->get_draw_bounding_volume())
+				DebugRenderer::draw_aabb(mesh->get_world_bounding_volume(), DebugRenderer::s_bvsColor, true);
 		}
+
+
+		// Draw the ones of all the nodes with a mesh
+		//for (auto currMesh : m_renderables)
+		//{
+		//	if (!currMesh->get_draw_bounding_volume())
+		//		continue;
+		//
+		//	DebugRenderer::draw_aabb(currMesh->get_world_bounding_volume(), DebugRenderer::s_bvsColor, true);
+		//}
 	}
 
 

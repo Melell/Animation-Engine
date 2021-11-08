@@ -198,18 +198,14 @@ namespace cs460
 		times.clear();
 		values.clear();
 
-		m_totalDuration = 0.0f;
+
+		// Count the number of points and create the properties vector
 		m_pointCount = 0;
 		for (SceneNode* child : get_owner()->get_children())
 		{
 			CurvePoint* pointComp = child->get_component<CurvePoint>();
 			if (pointComp == nullptr)
 				continue;
-			
-
-			// Get the time
-			float time = pointComp->get_time();
-			times.push_back(time);
 
 
 			// Get the in and out tangents if we are in hermite or bezier
@@ -244,9 +240,32 @@ namespace cs460
 			}
 
 
-			// Update the total duration and the number of points
-			m_totalDuration = time;
+			// Update the number of points
 			++m_pointCount;
+		}
+
+
+		// Nothing else to do if curve is empty
+		if (m_pointCount == 0)
+			return;
+
+		
+		// Add the first time manually, and check if there are more points
+		times.push_back(0.0f);
+		if (m_pointCount == 1)
+			return;
+
+		// Create the times for the rest of points
+		float timeStep = 1.0f / (m_pointCount - 1);
+		float currTime = timeStep;
+		for (unsigned i = 1; i < m_pointCount; ++i)
+		{
+			// Clamp it just in case
+			if (currTime > 1.0f)
+				currTime = 1.0f;
+
+			times.push_back(currTime);
+			currTime += timeStep;
 		}
 	}
 

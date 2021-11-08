@@ -22,6 +22,11 @@ namespace cs460
 		BEZIER = 3
 	};
 
+	struct ArcLengthEntry
+	{
+		float m_param;		// Range [0, 1]
+		float m_arcLength;	// Arclength from the beginning of the curve to the point sampled with m_param
+	};
 
 
 	class PiecewiseCurve : public IComponent
@@ -54,10 +59,10 @@ namespace cs460
 		glm::vec3 m_currentPos{0.0f, 0.0f, 0.0f};
 		CURVE_TYPE m_curveType = CURVE_TYPE::LINEAR;
 		unsigned m_pointCount = 0;
-		unsigned m_tangentCount = 0;
-		unsigned m_controlPointCount = 0;
+		unsigned m_tangentCount = 0;			// Mainly used for tangent naming, so doesn't need to account for those deleted
+		unsigned m_controlPointCount = 0;		// Mainly used for control point naming, so doesn't need to account for those deleted
 		float m_timer = 0.0f;
-		float m_totalDuration = 0.0f;
+		const float m_totalDuration = 1.0f;
 		float m_timeScale = 1.0f;
 		float m_direction = 1.0f;
 		FINISH_MODE m_finishMode = FINISH_MODE::RESTART;
@@ -66,6 +71,10 @@ namespace cs460
 		// Time-value vectors (the point data, updated every frame from the children)
 		std::vector<float> m_timeValues;
 		std::vector<float> m_propertyValues;
+
+
+		// Arc-length parametrization table
+		std::vector<ArcLengthEntry> m_arcLengthTable;
 
 
 		void on_gui() override;

@@ -39,6 +39,10 @@ namespace cs460
 		void update();
 		void debug_draw();
 
+		// Builds the arc length table using forward differencing, or adaptive forward differencing.
+		void build_arc_length_table(bool useAdaptive);
+		void clear_arc_length_table();
+
 		glm::vec3 interpolate_position(float tn, CURVE_TYPE type);
 		float get_tn_from_arc_length(float arcLength);
 		float get_arc_length_from_tn(float tn);
@@ -79,9 +83,13 @@ namespace cs460
 
 		// Arc-length parametrization table
 		std::vector<ArcLengthEntry> m_arcLengthTable;
+		int m_numberOfSamples = 2;
+		bool m_useAdaptive = false;
+		bool m_showTable = true;		// For the gui
 
 
 		void on_gui() override;
+		void arc_length_table_on_gui();
 
 		void gather_children_data(std::vector<float>& times, std::vector<float>& values);			// Get the vectors of time, and their respective values
 		void search_for_tangents(glm::vec3& inTangent, glm::vec3& outTangent, SceneNode* pointNode);	// Return in inTangent and outTangent the tangent data for pointNode (assuming hermite)
@@ -92,9 +100,15 @@ namespace cs460
 		void debug_draw_cubic_spline(CURVE_TYPE type);
 		void debug_draw_tangents(SceneNode* pointNode);
 
+
 		// Performs binary search on the arc lengths of the table, and returns the lower
 		// and upper indices for the interpolation in low and high. Also returns -1 if
 		// arcLength was not found in the table, and its index in the table if it was found.
 		int binary_search_arc_length(float arcLength, int& low, int& high);
+
+		// Helper functions to build the arc length table using either uniform
+		// forward differencing, or adaptive forward differencing.
+		void build_table_uniform();
+		void build_table_adaptive();
 	};
 }

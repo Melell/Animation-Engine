@@ -42,7 +42,7 @@ namespace cs460
 		if (m_paused)
 			return;
 
-		// Nothing to update unless there are at least 2 points
+		// Nothing to update if there are less than 2 points
 		if (m_timeValues.size() < 2)
 			return;
 
@@ -78,8 +78,33 @@ namespace cs460
 	}
 
 
+	// Builds the arc length table using forward differencing, or adaptive forward differencing.
+	void PiecewiseCurve::build_arc_length_table(bool useAdaptive)
+	{
+		if (useAdaptive)
+			build_table_adaptive();
+		else
+			build_table_uniform();
+	}
+
+	void PiecewiseCurve::clear_arc_length_table()
+	{
+		m_arcLengthTable.clear();
+	}
+
+
 	glm::vec3 PiecewiseCurve::interpolate_position(float tn, CURVE_TYPE type)
 	{
+		// Handle corner cases
+		size_t numberOfPoints = m_timeValues.size();
+		if (numberOfPoints == 0)
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+
+		if (numberOfPoints == 1 && (type == CURVE_TYPE::LINEAR || type == CURVE_TYPE::CATMULL_ROM))
+			return glm::make_vec3(m_propertyValues.data());
+		else if (numberOfPoints == 1)
+			return glm::make_vec3(m_propertyValues.data() + 3);
+
 		// Interpolate the position in the curve (based on curve type)
 		if (type == CURVE_TYPE::LINEAR)
 			return piecewise_lerp(m_timeValues, m_propertyValues, tn);
@@ -137,7 +162,7 @@ namespace cs460
 		float timeStep = 1.0f / (tableSize - 1);
 
 		// Calculate the lower and upper table indices that corresponds to realTn
-		unsigned lowerTableIdx = glm::floor(realTn / timeStep);
+		unsigned lowerTableIdx = (unsigned)glm::floor(realTn / timeStep);
 		unsigned upperTableIdx = lowerTableIdx + 1;
 
 		// Corner case: We are exactly in the last point
@@ -253,6 +278,80 @@ namespace cs460
 		ImGui::Checkbox("Draw Moving Object", &m_drawMovingObject);
 		ImGui::SameLine();
 		ImGui::Checkbox("Draw Curve", &m_drawCurve);
+
+		ImGui::Separator();
+
+		ImGui::Text("ARC-LENGTH TABLE");
+
+		// Minimum of 2 samples per curve
+		if (ImGui::DragInt("Table Samples", &m_numberOfSamples))
+		{
+			m_numberOfSamples = m_numberOfSamples < 2 ? 2 : m_numberOfSamples;
+		}
+
+		ImGui::Text("Table Type:");
+		int buttonVal = m_useAdaptive;
+		ImGui::RadioButton("Uniform", &buttonVal, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Adaptive", &buttonVal, 1);
+		m_useAdaptive = buttonVal;
+
+		if (ImGui::Button("Build Table"))
+		{
+			build_arc_length_table(m_useAdaptive);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Clear Table"))
+		{
+			clear_arc_length_table();
+		}
+		ImGui::SameLine();
+		ImGui::Checkbox("Show Table", &m_showTable);
+
+		// Display the table
+		arc_length_table_on_gui();
+	}
+
+	void PiecewiseCurve::arc_length_table_on_gui()
+	{
+		ImGuiTableFlags tableFlags = ImGuiTableFlags_::ImGuiTableFlags_RowBg |
+									 ImGuiTableFlags_::ImGuiTableFlags_Borders |
+									 ImGuiTableFlags_::ImGuiTableFlags_Resizable |
+									 ImGuiTableFlags_::ImGuiTableFlags_SizingFixedFit |
+									 ImGuiTableFlags_::ImGuiTableFlags_NoHostExtendX |
+									 ImGuiTableFlags_::ImGuiTableFlags_Reorderable/* |
+									 ImGuiTableFlags_::ImGuiTableFlags_ScrollY |
+									 ImGuiTableFlags_::ImGuiTableFlags_ScrollX*/;
+
+		
+		float x = 0.0f;
+		float y = 0.0f;//ImGui::GetTextLineHeightWithSpacing() * 8.0f;
+		if (ImGui::BeginTable("Arc Length Table", 3, tableFlags, ImVec2(x, y)))
+		{
+			ImGui::TableSetupColumn("Index");
+			ImGui::TableSetupColumn("Parameter");
+			ImGui::TableSetupColumn("Arc Length");
+			ImGui::TableHeadersRow();
+
+			if (m_showTable)
+			{
+				for (int i = 0; i < m_arcLengthTable.size(); ++i)
+				{
+					ImGui::TableNextRow();
+
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("%i", i);
+
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("%f", m_arcLengthTable[i].m_param);
+
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("%f", m_arcLengthTable[i].m_arcLength);
+				}
+			}
+
+			ImGui::EndTable();
+		}
 	}
 
 
@@ -524,7 +623,7 @@ namespace cs460
 
 		if (low <= high)
 		{
-			int middle = low + glm::floor((high - low) / 2.0f);
+			int middle = low + (int)glm::floor((high - low) / 2.0f);
 			float middleArcLength = m_arcLengthTable[middle].m_arcLength;
 
 			// Case: we have found the exact element
@@ -543,5 +642,36 @@ namespace cs460
 
 		// Exact element not found
 		return -1;
+	}
+
+
+	// Helper functions to build the arc length table using uniform forward differencing
+	void PiecewiseCurve::build_table_uniform()
+	{
+		m_arcLengthTable.resize(m_numberOfSamples);
+
+		// Manully set the first element
+		m_arcLengthTable[0].m_param = 0.0f;
+		m_arcLengthTable[0].m_arcLength = 0.0f;
+
+		// Fill the rest of the table
+		float timeStep = 1.0f / (m_numberOfSamples - 1);
+		float tn = timeStep;
+		for (int i = 1; i < m_numberOfSamples; ++i)
+		{
+			float accumulatedArcLength = m_arcLengthTable[i - 1].m_arcLength;
+			const glm::vec3& prevPos = interpolate_position(tn - timeStep, m_curveType);
+			const glm::vec3& currPos = interpolate_position(tn, m_curveType);
+			float currArcLength = glm::length(currPos - prevPos);
+			m_arcLengthTable[i].m_arcLength = accumulatedArcLength + currArcLength;
+			m_arcLengthTable[i].m_param = tn;
+			tn += timeStep;
+		}
+	}
+
+	// Helper functions to build the arc length table using adaptive forward differencing
+	void PiecewiseCurve::build_table_adaptive()
+	{
+
 	}
 }

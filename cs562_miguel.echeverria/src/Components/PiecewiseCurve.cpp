@@ -78,19 +78,64 @@ namespace cs460
 	}
 
 
-	glm::vec3 PiecewiseCurve::interpolate_position(float time, CURVE_TYPE type)
+	glm::vec3 PiecewiseCurve::interpolate_position(float tn, CURVE_TYPE type)
 	{
 		// Interpolate the position in the curve (based on curve type)
 		if (type == CURVE_TYPE::LINEAR)
-			return piecewise_lerp(m_timeValues, m_propertyValues, time);
+			return piecewise_lerp(m_timeValues, m_propertyValues, tn);
 		else if (type == CURVE_TYPE::HERMITE)
-			return piecewise_hermite(m_timeValues, m_propertyValues, time);
+			return piecewise_hermite(m_timeValues, m_propertyValues, tn);
 		else if (type == CURVE_TYPE::CATMULL_ROM)
-			return piecewise_catmull_rom(m_timeValues, m_propertyValues, time);
+			return piecewise_catmull_rom(m_timeValues, m_propertyValues, tn);
 		else if (type == CURVE_TYPE::BEZIER)
-			return piecewise_bezier(m_timeValues, m_propertyValues, time);
+			return piecewise_bezier(m_timeValues, m_propertyValues, tn);
 
 		return m_currentPos;
+	}
+
+	float PiecewiseCurve::get_tn_from_arc_length(float arcLength)
+	{
+		size_t tableSize = m_arcLengthTable.size();
+		if (m_arcLengthTable.size() <= 1)
+			return 0.0f;
+
+		int low = 0;
+		int high = tableSize - 1;
+		binary_search_arc_length(arcLength, low, high);
+		
+	}
+
+	float PiecewiseCurve::get_arc_length_from_tn(float tn)
+	{
+		size_t tableSize = m_arcLengthTable.size();
+		if (tableSize <= 1)
+			return 0.0f;
+
+		// Clamp just in case it wasn't already in range [0, 1]
+		float realTn = glm::clamp(tn, 0.0f, 1.0f);
+
+		// Compute the timestep between each element
+		float timeStep = 1.0f / (tableSize - 1);
+
+		// Calculate the lower and upper table indices that corresponds to realTn
+		unsigned lowerTableIdx = glm::floor(realTn / timeStep);
+		unsigned upperTableIdx = lowerTableIdx + 1;
+
+		// Corner case: We are exactly in the last point
+		if (upperTableIdx >= tableSize)
+			return m_arcLengthTable[lowerTableIdx].m_arcLength;
+
+		// Otherwise, do linear interpolation to get a more accurate arc length
+		float minTime = m_arcLengthTable[lowerTableIdx].m_param;
+		float maxTime = m_arcLengthTable[upperTableIdx].m_param;
+		float intervalDuration = maxTime - minTime;
+		float currentTime = tn - minTime;
+		float lerpTn = currentTime / intervalDuration;
+
+		float minArcLength = m_arcLengthTable[lowerTableIdx].m_arcLength;
+		float maxArcLength = m_arcLengthTable[upperTableIdx].m_arcLength;
+
+		return glm::mix(minArcLength, maxArcLength, lerpTn);
 	}
 
 
@@ -445,5 +490,38 @@ namespace cs460
 			seg.m_end = child->m_worldTr.m_position;
 			DebugRenderer::draw_segment(seg, DebugRenderer::s_tangentLineColor);
 		}
+	}
+
+
+	// Performs binary search on the arc lengths of the table, and returns the lower
+	// and upper indices for the interpolation in low and high.
+	bool PiecewiseCurve::binary_search_arc_length(float arcLength, int& low, int& high)
+	{
+		// Is arclength > than the middle arc length?
+		// Yes: Move low to current middle + 1 and leave high the same
+		// No:  Move high to current middle - 1 and leave low the same
+		// Repeat until number of difference of elements between current first and last <= 1
+
+		if (low <= high)
+		{
+			int middle = low + glm::floor((high - low) / 2.0f);
+			float middleArcLength = m_arcLengthTable[middle].m_arcLength;
+
+			// Case: we have found the exact element
+			if (glm::epsilonEqual(middleArcLength, arcLength, FLT_EPSILON))
+				return true;
+
+			// Update low or high depending on result of comparison
+			if (arcLength < middleArcLength)
+				high = middle - 1;
+			else
+				low = middle + 1;
+
+			// Recurse to the next region of the array
+			return binary_search_arc_length(arcLength, low, high);
+		}
+
+		// Exact element not found
+		return false;
 	}
 }

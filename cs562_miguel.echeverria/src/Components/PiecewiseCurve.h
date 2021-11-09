@@ -39,7 +39,9 @@ namespace cs460
 		void update();
 		void debug_draw();
 
-		glm::vec3 interpolate_position(float time, CURVE_TYPE type);
+		glm::vec3 interpolate_position(float tn, CURVE_TYPE type);
+		float get_tn_from_arc_length(float arcLength);
+		float get_arc_length_from_tn(float tn);
 
 		enum class FINISH_MODE
 		{
@@ -58,9 +60,11 @@ namespace cs460
 		// Animation control variables
 		glm::vec3 m_currentPos{0.0f, 0.0f, 0.0f};
 		CURVE_TYPE m_curveType = CURVE_TYPE::LINEAR;
+
 		unsigned m_pointCount = 0;
 		unsigned m_tangentCount = 0;			// Mainly used for tangent naming, so doesn't need to account for those deleted
 		unsigned m_controlPointCount = 0;		// Mainly used for control point naming, so doesn't need to account for those deleted
+
 		float m_timer = 0.0f;
 		const float m_totalDuration = 1.0f;
 		float m_timeScale = 1.0f;
@@ -87,5 +91,9 @@ namespace cs460
 		void debug_draw_linear();
 		void debug_draw_cubic_spline(CURVE_TYPE type);
 		void debug_draw_tangents(SceneNode* pointNode);
+
+		// Performs binary search on the arc lengths of the table, and returns the lower
+		// and upper indices for the interpolation in low and high.
+		bool binary_search_arc_length(float arcLength, int& low, int& high);
 	};
 }

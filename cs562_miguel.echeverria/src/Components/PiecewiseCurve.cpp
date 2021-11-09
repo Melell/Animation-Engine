@@ -101,8 +101,27 @@ namespace cs460
 
 		int low = 0;
 		int high = tableSize - 1;
-		binary_search_arc_length(arcLength, low, high);
+		int arcLengthIdx = binary_search_arc_length(arcLength, low, high);
 		
+		// If exact arclength was found, return its parameter from the table
+		if (arcLengthIdx >= 0)
+			return m_arcLengthTable[arcLengthIdx].m_param;
+
+		// Otherwise, linearly interpolate between the lower and upper parameters
+
+		// Handle out of bounds cases
+		if (high < 0)
+			return 0.0f;
+		if (low >= tableSize)
+			return m_arcLengthTable.back().m_param;
+
+		// Linear interpolation to get the final parameter
+		int startIdx = high < low ? high : low;
+		int endIdx = high < low ? low : high;
+		float currentArcLength = arcLength - m_arcLengthTable[startIdx].m_arcLength;
+		float intervalArcLength = m_arcLengthTable[endIdx].m_arcLength - m_arcLengthTable[startIdx].m_arcLength;
+		float tn = currentArcLength / intervalArcLength;
+		return glm::mix(m_arcLengthTable[startIdx].m_param, m_arcLengthTable[endIdx].m_param, tn);
 	}
 
 	float PiecewiseCurve::get_arc_length_from_tn(float tn)
@@ -494,8 +513,9 @@ namespace cs460
 
 
 	// Performs binary search on the arc lengths of the table, and returns the lower
-	// and upper indices for the interpolation in low and high.
-	bool PiecewiseCurve::binary_search_arc_length(float arcLength, int& low, int& high)
+	// and upper indices for the interpolation in low and high. Also returns -1 if
+	// arcLength was not found in the table, and its index in the table if it was found.
+	int PiecewiseCurve::binary_search_arc_length(float arcLength, int& low, int& high)
 	{
 		// Is arclength > than the middle arc length?
 		// Yes: Move low to current middle + 1 and leave high the same
@@ -509,7 +529,7 @@ namespace cs460
 
 			// Case: we have found the exact element
 			if (glm::epsilonEqual(middleArcLength, arcLength, FLT_EPSILON))
-				return true;
+				return middle;
 
 			// Update low or high depending on result of comparison
 			if (arcLength < middleArcLength)
@@ -522,6 +542,6 @@ namespace cs460
 		}
 
 		// Exact element not found
-		return false;
+		return -1;
 	}
 }

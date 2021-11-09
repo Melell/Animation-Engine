@@ -93,7 +93,8 @@ namespace cs460
 		void debug_draw_tangents(SceneNode* pointNode);
 
 		// Performs binary search on the arc lengths of the table, and returns the lower
-		// and upper indices for the interpolation in low and high.
-		bool binary_search_arc_length(float arcLength, int& low, int& high);
+		// and upper indices for the interpolation in low and high. Also returns -1 if
+		// arcLength was not found in the table, and its index in the table if it was found.
+		int binary_search_arc_length(float arcLength, int& low, int& high);
 	};
 }

@@ -110,5 +110,6 @@ namespace cs460
 		// forward differencing, or adaptive forward differencing.
 		void build_table_uniform();
 		void build_table_adaptive();
+		void adaptive_recursive(std::list<std::pair<float, float>>& segments, float tolerance);
 	};
 }

@@ -283,11 +283,7 @@ namespace cs460
 
 		ImGui::Text("ARC-LENGTH TABLE");
 
-		// Minimum of 2 samples per curve
-		if (ImGui::DragInt("Table Samples", &m_numberOfSamples))
-		{
-			m_numberOfSamples = m_numberOfSamples < 2 ? 2 : m_numberOfSamples;
-		}
+		
 
 		ImGui::Text("Table Type:");
 		int buttonVal = m_useAdaptive;
@@ -295,6 +291,12 @@ namespace cs460
 		ImGui::SameLine();
 		ImGui::RadioButton("Adaptive", &buttonVal, 1);
 		m_useAdaptive = buttonVal;
+
+		// Can only change number of samples in forward (Minimum of 2 samples per curve)
+		if (!m_useAdaptive)
+			if (ImGui::DragInt("Table Samples", &m_numberOfSamples))
+				m_numberOfSamples = m_numberOfSamples < 2 ? 2 : m_numberOfSamples;
+
 
 		if (ImGui::Button("Build Table"))
 		{
@@ -672,6 +674,65 @@ namespace cs460
 	// Helper functions to build the arc length table using adaptive forward differencing
 	void PiecewiseCurve::build_table_adaptive()
 	{
+		const float tolerance = 0.05f;
 
+		clear_arc_length_table();
+
+		// The segments to test in the algorithm (each holds the start parameter and end parameters)
+		std::list<std::pair<float, float>> segments;
+		
+		// Initializing the table and segments with the first point and first segment (start to end) respectively
+		m_arcLengthTable.push_back({ 0.0f, 0.0f });
+		segments.push_back({ 0.0f, 1.0f });
+
+		while (!segments.empty())
+		{
+			
+		}
+	}
+
+	void PiecewiseCurve::adaptive_recursive(std::list<std::pair<float, float>>& segments, float tolerance)
+	{
+		if (segments.empty())
+			return;
+
+		// Get the start and end parameters of the current segment to evaluate
+		std::pair<float, float>& segmentPair = segments.front();
+		segments.pop_front();
+
+		// Compute the start, end and mid points of the current segment
+		const glm::vec3& startPos = interpolate_position(segmentPair.first, m_curveType);
+		const glm::vec3& endPos = interpolate_position(segmentPair.second, m_curveType);
+		float midParam = 0.5f * (segmentPair.first + segmentPair.second);
+		const glm::vec3& midPoint = interpolate_position(midParam, m_curveType);
+
+		// Compute the total length
+		const glm::vec3& totalSegment = endPos - startPos;
+		float totalLength = glm::length(totalSegment);
+
+		// Compute the combined length of each of the half segments
+		const glm::vec3& firstSegment = midPoint - startPos;
+		float firstLength = glm::length(firstSegment);
+		const glm::vec3& secondSegment = endPos - midPoint;
+		float secondLength = glm::length(secondSegment);
+		float combinedLength = firstLength + secondLength;
+
+		// Compare the two lengths
+		float difference = glm::abs(combinedLength - totalLength);
+
+		// Acceptable error, add total length as table entry (length to start is already on table)
+		if (difference <= tolerance)
+		{
+			ArcLengthEntry entry;
+			entry.m_param = segmentPair.second;
+			entry.m_arcLength = get_arc_length_from_tn(segmentPair.first) + totalLength;
+			m_arcLengthTable.push_back(entry);
+		}
+		// Not acceptable error, subdivide and perform the algorithm again
+		else
+		{
+			segments.push_back({ segmentPair.first, midParam });
+			segments.push_back({ midParam, segmentPair.second });
+		}
 	}
 }

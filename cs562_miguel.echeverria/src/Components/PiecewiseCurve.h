@@ -22,10 +22,17 @@ namespace cs460
 		BEZIER = 3
 	};
 
-	struct ArcLengthEntry
+	struct ArcLengthTableEntry
 	{
-		float m_param;		// Range [0, 1]
-		float m_arcLength;	// Arclength from the beginning of the curve to the point sampled with m_param
+		float m_param = 0.0f;		// Range [0, 1]
+		float m_arcLength = 0.0f;	// Arclength from the beginning of the curve to the point sampled with m_param
+	};
+
+	struct SubdivisionEntry
+	{
+		float m_start = 0.0f;			// Parameter of start of the segment in the curve
+		float m_end = 1.0f;				// Parameter of end of the segment in the curve
+		int m_subdivisionLevel = 0;		// The subdivision level we are in
 	};
 
 
@@ -46,6 +53,7 @@ namespace cs460
 		glm::vec3 interpolate_position(float tn, CURVE_TYPE type);
 		float get_tn_from_arc_length(float arcLength);
 		float get_arc_length_from_tn(float tn);
+		
 
 		enum class FINISH_MODE
 		{
@@ -69,8 +77,9 @@ namespace cs460
 		unsigned m_tangentCount = 0;			// Mainly used for tangent naming, so doesn't need to account for those deleted
 		unsigned m_controlPointCount = 0;		// Mainly used for control point naming, so doesn't need to account for those deleted
 
-		float m_timer = 0.0f;
-		const float m_totalDuration = 1.0f;
+		float m_distanceTravelled = 0.0f;
+		float m_totalDistance = 1.0f;
+		float m_speed = 5.0f;
 		float m_timeScale = 1.0f;
 		float m_direction = 1.0f;
 		FINISH_MODE m_finishMode = FINISH_MODE::RESTART;
@@ -82,10 +91,12 @@ namespace cs460
 
 
 		// Arc-length parametrization table
-		std::vector<ArcLengthEntry> m_arcLengthTable;
-		int m_numberOfSamples = 2;
+		std::vector<ArcLengthTableEntry> m_arcLengthTable;
+		int m_numberOfSamples = 2;			// For uniform forward differencing
+		int m_forcedSubdivisions = 2;		// Number of subdivisions to always do in adaptive, to avoid corner cases
+		float m_initialTolerance = 0.25f;	// Initial tolerance for adaptive method
 		bool m_useAdaptive = false;
-		bool m_showTable = true;		// For the gui
+		bool m_showTable = true;			// Show/hide the table on gui
 
 
 		void on_gui() override;
@@ -106,10 +117,16 @@ namespace cs460
 		// arcLength was not found in the table, and its index in the table if it was found.
 		int binary_search_arc_length(float arcLength, int& low, int& high);
 
+		// Does the same as binary_search_arc_length, but for a parameter. The code is not reused
+		// because the way the table data structure is organized doesn't allow me to do so.
+		int binary_search_parameter(float param, int& low, int& high);
+
 		// Helper functions to build the arc length table using either uniform
 		// forward differencing, or adaptive forward differencing.
 		void build_table_uniform();
 		void build_table_adaptive();
-		void adaptive_recursive(std::list<std::pair<float, float>>& segments, float tolerance);
+
+		float get_arc_length_from_tn_uniform(float tn);		// Since params are spaced out uniformally, the index of tn can be retreived directly
+		float get_arc_length_from_tn_adaptive(float tn);	// Since params are not spaced out uniformally, binary search needs to be made
 	};
 }

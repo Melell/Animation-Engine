@@ -47,10 +47,10 @@ namespace cs460
 			return;
 
 		// Interpolate the position in the curve (based on curve type)
-		m_currentPos = interpolate_position(m_timer, m_curveType);
+		m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
 
-		// Update the timer of the animation
-		m_timer += FrameRateController::get_instance().get_dt_float() * m_timeScale * m_direction;
+		// Update the distance travelled in the curve
+		m_distanceTravelled += m_speed * FrameRateController::get_instance().get_dt_float() * m_timeScale * m_direction;
 
 		check_timer_bounds();
 	}
@@ -66,7 +66,7 @@ namespace cs460
 			return;
 
 		// Draw the object moving along the curve
-		if (m_totalDuration > 0.0f)
+		if (m_totalDistance > 0.0f)
 		{
 			float halfSize = DebugRenderer::s_movingObjectSize * 0.5f;
 			glm::vec3 halfDiagonal(halfSize, halfSize, halfSize);
@@ -85,6 +85,9 @@ namespace cs460
 			build_table_adaptive();
 		else
 			build_table_uniform();
+
+		if (m_arcLengthTable.size() > 0)
+			m_totalDistance = m_arcLengthTable.back().m_arcLength;
 	}
 
 	void PiecewiseCurve::clear_arc_length_table()
@@ -121,11 +124,11 @@ namespace cs460
 	float PiecewiseCurve::get_tn_from_arc_length(float arcLength)
 	{
 		size_t tableSize = m_arcLengthTable.size();
-		if (m_arcLengthTable.size() <= 1)
+		if (tableSize <= 1)
 			return 0.0f;
 
 		int low = 0;
-		int high = tableSize - 1;
+		int high = (int)tableSize - 1;
 		int arcLengthIdx = binary_search_arc_length(arcLength, low, high);
 		
 		// If exact arclength was found, return its parameter from the table
@@ -151,35 +154,14 @@ namespace cs460
 
 	float PiecewiseCurve::get_arc_length_from_tn(float tn)
 	{
-		size_t tableSize = m_arcLengthTable.size();
-		if (tableSize <= 1)
-			return 0.0f;
+		float result = 0.0f;
 
-		// Clamp just in case it wasn't already in range [0, 1]
-		float realTn = glm::clamp(tn, 0.0f, 1.0f);
+		if (m_useAdaptive)
+			result = get_arc_length_from_tn_adaptive(tn);
+		else
+			result = get_arc_length_from_tn_uniform(tn);
 
-		// Compute the timestep between each element
-		float timeStep = 1.0f / (tableSize - 1);
-
-		// Calculate the lower and upper table indices that corresponds to realTn
-		unsigned lowerTableIdx = (unsigned)glm::floor(realTn / timeStep);
-		unsigned upperTableIdx = lowerTableIdx + 1;
-
-		// Corner case: We are exactly in the last point
-		if (upperTableIdx >= tableSize)
-			return m_arcLengthTable[lowerTableIdx].m_arcLength;
-
-		// Otherwise, do linear interpolation to get a more accurate arc length
-		float minTime = m_arcLengthTable[lowerTableIdx].m_param;
-		float maxTime = m_arcLengthTable[upperTableIdx].m_param;
-		float intervalDuration = maxTime - minTime;
-		float currentTime = tn - minTime;
-		float lerpTn = currentTime / intervalDuration;
-
-		float minArcLength = m_arcLengthTable[lowerTableIdx].m_arcLength;
-		float maxArcLength = m_arcLengthTable[upperTableIdx].m_arcLength;
-
-		return glm::mix(minArcLength, maxArcLength, lerpTn);
+		return result;
 	}
 
 
@@ -193,7 +175,7 @@ namespace cs460
 		m_pointCount = 0;
 		m_tangentCount = 0;
 		m_controlPointCount = 0;
-		m_timer = 0.0f;
+		m_distanceTravelled = 0.0f;
 		m_direction = 1.0f;
 
 		// Delete all the children curve points and tangents
@@ -203,7 +185,7 @@ namespace cs460
 	void PiecewiseCurve::change_finish_mode(FINISH_MODE newMode)
 	{
 		m_finishMode = newMode;
-		m_timer = 0.0f;
+		m_distanceTravelled = 0.0f;
 		m_direction = 1.0f;
 	}
 
@@ -211,7 +193,7 @@ namespace cs460
 	void PiecewiseCurve::on_gui()
 	{
 		// Curve type selection
-		ImGui::Text("Curve Type:");
+		ImGui::Text("CURVE CONFIG");
 		int curveType = (int)m_curveType;
 		ImGui::RadioButton("Linear", &curveType, 0);
 		ImGui::SameLine();
@@ -261,9 +243,11 @@ namespace cs460
 
 		ImGui::Separator();
 
+		ImGui::Text("CURVE FOLLOWING");
 		ImGui::Checkbox("Paused", &m_paused);
 
-		ImGui::SliderFloat("TimeScale", &m_timeScale, 0.1f, 5.0f, "%.2f");
+		ImGui::SliderFloat("Speed", &m_speed, 0.001f, 10.0f, "%.3f");
+		ImGui::SliderFloat("TimeScale", &m_timeScale, 0.01f, 5.0f, "%.2f");
 
 		// Finishing mode selection
 		ImGui::Text("Finish Mode:");
@@ -294,8 +278,18 @@ namespace cs460
 
 		// Can only change number of samples in forward (Minimum of 2 samples per curve)
 		if (!m_useAdaptive)
-			if (ImGui::DragInt("Table Samples", &m_numberOfSamples))
+		{
+			if (ImGui::SliderInt("Table Samples", &m_numberOfSamples, 2, 128))
 				m_numberOfSamples = m_numberOfSamples < 2 ? 2 : m_numberOfSamples;
+		}
+		else
+		{
+			if (ImGui::SliderInt("Forced Subdivisions", &m_forcedSubdivisions, 0, 6))
+				m_forcedSubdivisions = m_forcedSubdivisions < 0 ? 0 : m_forcedSubdivisions;
+
+			if (ImGui::SliderFloat("Initial Tolerance", &m_initialTolerance, 0.0f, 1.0f))//, 0.005f))
+				m_initialTolerance = m_initialTolerance < 0.0f ? 0.0f : m_initialTolerance;
+		}
 
 
 		if (ImGui::Button("Build Table"))
@@ -470,25 +464,25 @@ namespace cs460
 	void PiecewiseCurve::check_timer_bounds()
 	{
 		// Going forward and reached th end
-		if (m_timer > m_totalDuration)
+		if (m_distanceTravelled > m_totalDistance)
 		{
 			// Clamp the timer
 			if (m_finishMode == FINISH_MODE::STOP)
-				m_timer = m_totalDuration;
+				m_distanceTravelled = m_totalDistance;
 			// Restart the timer
 			else if (m_finishMode == FINISH_MODE::RESTART)
-				m_timer = 0.0f;
+				m_distanceTravelled = 0.0f;
 			// Go in the opposite direction
 			else if (m_finishMode == FINISH_MODE::PINPONG)
 			{
-				m_timer = m_totalDuration;
+				m_distanceTravelled = m_totalDistance;
 				m_direction = -1.0f;
 			}
 		}
 		// Going backwards and reached the beginning
-		else if (m_timer < 0.0f)
+		else if (m_distanceTravelled < 0.0f)
 		{
-			m_timer = 0.0f;
+			m_distanceTravelled = 0.0f;
 			m_direction = 1.0f;
 		}
 	}
@@ -561,7 +555,7 @@ namespace cs460
 
 		// Draw the actual curve (a line per each timestep)
 		FrameRateController& frc = FrameRateController::get_instance();
-		float dt = frc.get_dt_float();
+		float dt = frc.get_dt_float() * 0.5f;	// * 0.5f to add a little bit more precision
 		glm::vec3 prevPos{0.0f, 0.0f, 0.0f};
 		if (type == CURVE_TYPE::HERMITE)
 			prevPos = piecewise_hermite(m_timeValues, m_propertyValues, 0.0f);
@@ -570,17 +564,18 @@ namespace cs460
 		else if (type == CURVE_TYPE::CATMULL_ROM)
 			prevPos = piecewise_catmull_rom(m_timeValues, m_propertyValues, 0.0f);
 
-		for (float timer = dt; timer < m_totalDuration; timer += dt)
+
+		for (float dist = dt; dist < 1.0f/*m_totalDistance*/; dist += dt)
 		{
 			// Compute the current point in the spline according to the given type
 			glm::vec3 currentPos{ 0.0f, 0.0f, 0.0f };
 			
 			if (type == CURVE_TYPE::HERMITE)
-				currentPos = piecewise_hermite(m_timeValues, m_propertyValues, timer);
+				currentPos = piecewise_hermite(m_timeValues, m_propertyValues, dist);//get_tn_from_arc_length(dist));
 			else if (type == CURVE_TYPE::BEZIER)
-				currentPos = piecewise_bezier(m_timeValues, m_propertyValues, timer);
+				currentPos = piecewise_bezier(m_timeValues, m_propertyValues, dist);//get_tn_from_arc_length(dist));
 			else if (type == CURVE_TYPE::CATMULL_ROM)
-				currentPos = piecewise_catmull_rom(m_timeValues, m_propertyValues, timer);
+				currentPos = piecewise_catmull_rom(m_timeValues, m_propertyValues, dist);//get_tn_from_arc_length(dist));
 
 			// Draw the current line
 			Segment seg;
@@ -618,10 +613,11 @@ namespace cs460
 	// arcLength was not found in the table, and its index in the table if it was found.
 	int PiecewiseCurve::binary_search_arc_length(float arcLength, int& low, int& high)
 	{
-		// Is arclength > than the middle arc length?
-		// Yes: Move low to current middle + 1 and leave high the same
-		// No:  Move high to current middle - 1 and leave low the same
-		// Repeat until number of difference of elements between current first and last <= 1
+		// Is arclength the middle arc length?
+		// Is arclength < than the middle arc length?
+		// Yes: Move high to current middle - 1 and leave low the same
+		// No:  Move low to current middle + 1 and leave high the same
+		// Repeat until low > high
 
 		if (low <= high)
 		{
@@ -640,6 +636,35 @@ namespace cs460
 
 			// Recurse to the next region of the array
 			return binary_search_arc_length(arcLength, low, high);
+		}
+
+		// Exact element not found
+		return -1;
+	}
+
+	// Does the same as binary_search_arc_length, but for a parameter. The code is not reused
+	// because the way the table data structure is organized doesn't allow me to do so.
+	int PiecewiseCurve::binary_search_parameter(float param, int& low, int& high)
+	{
+		// Refer to binary_search_arc_length for a more detailed algorithm explanation
+
+		if (low <= high)
+		{
+			int middle = low + (int)glm::floor((high - low) / 2.0f);
+			float middleParam = m_arcLengthTable[middle].m_param;
+
+			// Case: we have found the exact element
+			if (glm::epsilonEqual(middleParam, param, FLT_EPSILON))
+				return middle;
+
+			// Update low or high depending on result of comparison
+			if (param < middleParam)
+				high = middle - 1;
+			else
+				low = middle + 1;
+
+			// Recurse to the next region of the array
+			return binary_search_parameter(param, low, high);
 		}
 
 		// Exact element not found
@@ -674,65 +699,133 @@ namespace cs460
 	// Helper functions to build the arc length table using adaptive forward differencing
 	void PiecewiseCurve::build_table_adaptive()
 	{
-		const float tolerance = 0.05f;
-
 		clear_arc_length_table();
 
 		// The segments to test in the algorithm (each holds the start parameter and end parameters)
-		std::list<std::pair<float, float>> segments;
+		std::list<SubdivisionEntry> segments;
 		
 		// Initializing the table and segments with the first point and first segment (start to end) respectively
 		m_arcLengthTable.push_back({ 0.0f, 0.0f });
-		segments.push_back({ 0.0f, 1.0f });
+		segments.push_back({ 0.0f, 1.0f, 0 });
+
 
 		while (!segments.empty())
 		{
-			
+			// Get the start and end parameters of the current segment to evaluate
+			SubdivisionEntry currentSegment = segments.front();
+			segments.pop_front();
+
+			// Compute the start, end and mid points of the current segment
+			const glm::vec3& startPos = interpolate_position(currentSegment.m_start, m_curveType);
+			const glm::vec3& endPos = interpolate_position(currentSegment.m_end, m_curveType);
+			float midParam = 0.5f * (currentSegment.m_start + currentSegment.m_end);
+			const glm::vec3& midPoint = interpolate_position(midParam, m_curveType);
+
+			// Compute the total length
+			const glm::vec3& totalSegment = endPos - startPos;
+			float totalLength = glm::length(totalSegment);
+
+			// Compute the combined length of each of the half segments
+			const glm::vec3& firstSegment = midPoint - startPos;
+			float firstLength = glm::length(firstSegment);
+			const glm::vec3& secondSegment = endPos - midPoint;
+			float secondLength = glm::length(secondSegment);
+			float combinedLength = firstLength + secondLength;
+
+			// Compare the two lengths
+			float difference = glm::abs(combinedLength - totalLength);
+
+			const float bias = 0.001f;	// Bias to avoid infinite loops if initial tolerance is 0
+			float currentTolerance = m_initialTolerance / glm::pow(2.0f, (float)currentSegment.m_subdivisionLevel) + bias;
+
+			// Acceptable error (and forced subdivisions have been completed), add
+			// total length as table entry (length to start is already on table)
+			if (difference <= currentTolerance && currentSegment.m_subdivisionLevel >= m_forcedSubdivisions)
+			{
+				ArcLengthTableEntry entry;
+				entry.m_param = currentSegment.m_end;
+				float prevArcLength = get_arc_length_from_tn_adaptive(currentSegment.m_start);
+				if (prevArcLength < 0.0f)
+					std::cout << "Negative arclength\n";
+				entry.m_arcLength = prevArcLength + totalLength;
+				m_arcLengthTable.push_back(entry);
+			}
+			// Not acceptable error, subdivide and perform the algorithm again
+			else
+			{
+				segments.push_front({ midParam, currentSegment.m_end, currentSegment.m_subdivisionLevel + 1 });
+				segments.push_front({ currentSegment.m_start, midParam, currentSegment.m_subdivisionLevel + 1 });
+			}
 		}
 	}
 
-	void PiecewiseCurve::adaptive_recursive(std::list<std::pair<float, float>>& segments, float tolerance)
+
+	// Since params are spaced out uniformally, the index of tn can be retreived directly
+	float PiecewiseCurve::get_arc_length_from_tn_uniform(float tn)
 	{
-		if (segments.empty())
-			return;
+		size_t tableSize = m_arcLengthTable.size();
+		if (tableSize <= 1)
+			return 0.0f;
 
-		// Get the start and end parameters of the current segment to evaluate
-		std::pair<float, float>& segmentPair = segments.front();
-		segments.pop_front();
+		// Clamp just in case it wasn't already in range [0, 1]
+		float realTn = glm::clamp(tn, 0.0f, 1.0f);
 
-		// Compute the start, end and mid points of the current segment
-		const glm::vec3& startPos = interpolate_position(segmentPair.first, m_curveType);
-		const glm::vec3& endPos = interpolate_position(segmentPair.second, m_curveType);
-		float midParam = 0.5f * (segmentPair.first + segmentPair.second);
-		const glm::vec3& midPoint = interpolate_position(midParam, m_curveType);
+		// Compute the timestep between each element
+		float timeStep = 1.0f / (tableSize - 1);
 
-		// Compute the total length
-		const glm::vec3& totalSegment = endPos - startPos;
-		float totalLength = glm::length(totalSegment);
+		// Calculate the lower and upper table indices that corresponds to realTn
+		unsigned lowerTableIdx = (unsigned)glm::floor(realTn / timeStep);
+		unsigned upperTableIdx = lowerTableIdx + 1;
 
-		// Compute the combined length of each of the half segments
-		const glm::vec3& firstSegment = midPoint - startPos;
-		float firstLength = glm::length(firstSegment);
-		const glm::vec3& secondSegment = endPos - midPoint;
-		float secondLength = glm::length(secondSegment);
-		float combinedLength = firstLength + secondLength;
+		// Corner case: We are exactly in the last point
+		if (upperTableIdx >= tableSize)
+			return m_arcLengthTable[lowerTableIdx].m_arcLength;
 
-		// Compare the two lengths
-		float difference = glm::abs(combinedLength - totalLength);
+		// Otherwise, do linear interpolation to get a more accurate arc length
+		float minTime = m_arcLengthTable[lowerTableIdx].m_param;
+		float maxTime = m_arcLengthTable[upperTableIdx].m_param;
+		float intervalDuration = maxTime - minTime;
+		float currentTime = tn - minTime;
+		float lerpTn = currentTime / intervalDuration;
 
-		// Acceptable error, add total length as table entry (length to start is already on table)
-		if (difference <= tolerance)
-		{
-			ArcLengthEntry entry;
-			entry.m_param = segmentPair.second;
-			entry.m_arcLength = get_arc_length_from_tn(segmentPair.first) + totalLength;
-			m_arcLengthTable.push_back(entry);
-		}
-		// Not acceptable error, subdivide and perform the algorithm again
-		else
-		{
-			segments.push_back({ segmentPair.first, midParam });
-			segments.push_back({ midParam, segmentPair.second });
-		}
+		float minArcLength = m_arcLengthTable[lowerTableIdx].m_arcLength;
+		float maxArcLength = m_arcLengthTable[upperTableIdx].m_arcLength;
+
+		return glm::mix(minArcLength, maxArcLength, lerpTn);
+	}
+
+	// Since params are not spaced out uniformally, binary search needs to be made
+	float PiecewiseCurve::get_arc_length_from_tn_adaptive(float tn)
+	{
+		size_t tableSize = m_arcLengthTable.size();
+		if (tableSize <= 1)
+			return 0.0f;
+
+		int low = 0;
+		int high = (int)tableSize - 1;
+		int paramIdx = binary_search_parameter(tn, low, high);
+
+		// If exact parameter was found, return its arc length from the table
+		if (paramIdx >= 0)
+			return m_arcLengthTable[paramIdx].m_arcLength;
+
+		// Otherwise, linearly interpolate between the lower and upper arc lengths
+
+		// Handle out of bounds cases
+		if (high < 0)
+			return 0.0f;
+		if (low >= tableSize)
+			return m_arcLengthTable.back().m_arcLength;
+
+		// Linear interpolation to get the final arc length
+		int startIdx = high < low ? high : low;
+		int endIdx = high < low ? low : high;
+		float currentTime = tn - m_arcLengthTable[startIdx].m_param;
+		float intervalDuration = m_arcLengthTable[endIdx].m_param - m_arcLengthTable[startIdx].m_param;
+		float lerpTn = currentTime / intervalDuration;
+		float result = glm::mix(m_arcLengthTable[startIdx].m_arcLength, m_arcLengthTable[endIdx].m_arcLength, lerpTn);
+		if (result < 0.0f)
+			std::cout << "Negative!!!\n";
+		return result;
 	}
 }

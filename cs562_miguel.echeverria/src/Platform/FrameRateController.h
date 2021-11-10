@@ -27,6 +27,10 @@ namespace cs460
 		float get_dt_float() const;
 		double get_dt() const;
 
+		// Getters for the estimated fps based on the current delta time
+		float get_fps_float() const;
+		double get_fps() const;
+
 	private:
 
 		double m_dt;

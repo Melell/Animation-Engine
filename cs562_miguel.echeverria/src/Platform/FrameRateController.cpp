@@ -51,4 +51,15 @@ namespace cs460
 	{
 		return m_dt;
 	}
+
+
+	// Getters for the estimated fps based on the current delta time
+	float FrameRateController::get_fps_float() const
+	{
+		return 1.0f / get_dt_float();
+	}
+	double FrameRateController::get_fps() const
+	{
+		return 1.0 / get_dt();
+	}
 }

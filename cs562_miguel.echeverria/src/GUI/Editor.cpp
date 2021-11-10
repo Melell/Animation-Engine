@@ -10,6 +10,7 @@
 #include "pch.h"
 #include "Editor.h"
 #include "Graphics/Systems/Renderer.h"
+#include "Platform/FrameRateController.h"
 // imgui.h already included in pch.h, otherwise, it would need to be included here
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -79,6 +80,28 @@ namespace cs460
         m_rendererConfigGui.update();
         m_gizmos.update();
 
+
+        ImVec4 good(0.0f, 1.0f, 0.0, 1.0f);
+        ImVec4 warning(1.0f, 1.0f, 0.0, 1.0f);
+        ImVec4 bad(1.0f, 0.0f, 0.0, 1.0f);
+        if (ImGui::Begin("Performance"))
+        {
+            ImVec4 color;
+            FrameRateController& frameRateController = FrameRateController::get_instance();
+            float fps = frameRateController.get_fps_float();
+            float dt = frameRateController.get_dt_float();
+            if (fps < 24.0f)
+                color = bad;
+            else if (fps > 30.0f)
+                color = good;
+            else
+                color = warning;
+
+            ImGui::TextColored(color, "FPS: %.1f", fps);
+            ImGui::TextColored(color, "DT: %.5f", dt);
+        }
+
+        ImGui::End();
 
         // Show the demo window for reference
         ImGui::ShowDemoWindow();

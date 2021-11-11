@@ -213,6 +213,9 @@
     <ClCompile Include="src\Math\Geometry\IntersectionTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Interpolation\EasingFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -411,6 +414,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Math\Geometry\IntersectionTests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Interpolation\EasingFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

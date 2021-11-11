@@ -168,6 +168,7 @@
     <ClCompile Include="src\GUI\SceneGraphGUI.cpp" />
     <ClCompile Include="src\Math\Geometry\Geometry.cpp" />
     <ClCompile Include="src\Math\Geometry\IntersectionTests.cpp" />
+    <ClCompile Include="src\Math\Interpolation\EasingFunctions.cpp" />
     <ClCompile Include="src\Math\Interpolation\InterpolationFunctions.cpp" />
     <ClCompile Include="src\Platform\FrameRateController.cpp" />
     <ClCompile Include="src\Platform\InputMgr.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="src\GUI\SceneGraphGUI.h" />
     <ClInclude Include="src\Math\Geometry\Geometry.h" />
     <ClInclude Include="src\Math\Geometry\IntersectionTests.h" />
+    <ClInclude Include="src\Math\Interpolation\EasingFunctions.h" />
     <ClInclude Include="src\Math\Interpolation\InterpolationFunctions.h" />
     <ClInclude Include="src\Platform\FrameRateController.h" />
     <ClInclude Include="src\Platform\InputMgr.h" />

@@ -50,6 +50,7 @@ namespace cs460
 		if (!scene.initialize())
 			return false;
 
+
 		// Load all the necessary resources beforehand (mainly shaders and skyboxes), and set the initial skybox
 		ResourceManager& resourceManager = ResourceManager::get_instance();
 		resourceManager.load_resources();

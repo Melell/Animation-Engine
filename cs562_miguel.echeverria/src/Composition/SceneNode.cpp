@@ -167,7 +167,8 @@ namespace cs460
 			}
 			if (ImGui::Selectable("PiecewiseCurve"))
 			{
-				add_component<PiecewiseCurve>();
+				PiecewiseCurve* curveComp = add_component<PiecewiseCurve>();
+				curveComp->initialize();
 			}
 
 			ImGui::EndPopup();

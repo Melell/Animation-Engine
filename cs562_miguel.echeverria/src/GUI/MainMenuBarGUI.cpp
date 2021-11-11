@@ -170,7 +170,7 @@ namespace cs460
 		
 		// Create the curve node with a PiecewiseCurve component
 		SceneNode* curveNode = root->create_child("LINEAR PIECEWISE CURVE");
-		curveNode->add_component<PiecewiseCurve>();
+		curveNode->add_component<PiecewiseCurve>()->initialize();
 	
 		// Create the curve point nodes
 		SceneNode* curvePoint0 = curveNode->create_child("Curve Point 0");
@@ -209,6 +209,7 @@ namespace cs460
 		// Create the curve node with a PiecewiseCurve component
 		SceneNode* curveNode = root->create_child("HERMITE PIECEWISE CURVE");
 		PiecewiseCurve* curveComp = curveNode->add_component<PiecewiseCurve>();
+		curveComp->initialize();
 		curveComp->change_curve_type(CURVE_TYPE::HERMITE);
 		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::PINPONG);
 
@@ -289,6 +290,7 @@ namespace cs460
 		// Create the curve node with a PiecewiseCurve component
 		SceneNode* curveNode = root->create_child("CATMULL-ROM PIECEWISE CURVE");
 		PiecewiseCurve* curveComp = curveNode->add_component<PiecewiseCurve>();
+		curveComp->initialize();
 		curveComp->change_curve_type(CURVE_TYPE::CATMULL_ROM);
 		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::PINPONG);
 
@@ -326,6 +328,7 @@ namespace cs460
 		// Create the curve node with a PiecewiseCurve component
 		SceneNode* curveNode = root->create_child("BEZIER PIECEWISE CURVE");
 		PiecewiseCurve* curveComp = curveNode->add_component<PiecewiseCurve>();
+		curveComp->initialize();
 		curveComp->change_curve_type(CURVE_TYPE::BEZIER);
 		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::RESTART);
 

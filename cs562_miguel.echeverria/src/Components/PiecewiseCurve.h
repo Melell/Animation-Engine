@@ -43,6 +43,7 @@ namespace cs460
 		PiecewiseCurve();
 		virtual ~PiecewiseCurve();
 
+		void initialize();
 		void update();
 		void debug_draw();
 
@@ -65,6 +66,8 @@ namespace cs460
 		void change_curve_type(CURVE_TYPE newType);
 		void change_finish_mode(FINISH_MODE newMode);
 
+		void reset_animation();
+
 		bool m_drawMovingObject = true;
 		bool m_drawCurve = true;
 
@@ -72,18 +75,25 @@ namespace cs460
 		// Animation control variables
 		glm::vec3 m_currentPos{0.0f, 0.0f, 0.0f};
 		CURVE_TYPE m_curveType = CURVE_TYPE::LINEAR;
+		SceneNode* m_nodeToMove = nullptr;
 
 		unsigned m_pointCount = 0;
 		unsigned m_tangentCount = 0;			// Mainly used for tangent naming, so doesn't need to account for those deleted
 		unsigned m_controlPointCount = 0;		// Mainly used for control point naming, so doesn't need to account for those deleted
 
-		float m_distanceTravelled = 0.0f;
-		float m_totalDistance = 1.0f;
-		float m_speed = 5.0f;
-		float m_timeScale = 1.0f;
-		float m_direction = 1.0f;
+		float m_currentTime = 0.0f;				// Use in ease-in/out
+		float m_totalDuration = 1.0f;			// Use in ease-in/out
+		float m_distanceTravelled = 0.0f;		// Used in both
+		float m_prevDistance = 0.0f;			// Use in ease-in/out
+		float m_totalDistance = 1.0f;			// Used in both
+		float m_speed = 5.0f;					// Used in constant speed
+		float m_timeScale = 1.0f;				// Used in both
+		float m_direction = 1.0f;				// Used in both
 		FINISH_MODE m_finishMode = FINISH_MODE::RESTART;
 		bool m_paused = false;
+		bool m_constantSpeed = true;
+		float m_accelerateEndTime = 0.2f;		// Used in ease in/out
+		float m_deccelerateStartTime = 0.8f;	// Used in ease in/out
 
 		// Time-value vectors (the point data, updated every frame from the children)
 		std::vector<float> m_timeValues;
@@ -105,6 +115,8 @@ namespace cs460
 		void gather_children_data(std::vector<float>& times, std::vector<float>& values);			// Get the vectors of time, and their respective values
 		void search_for_tangents(glm::vec3& inTangent, glm::vec3& outTangent, SceneNode* pointNode);	// Return in inTangent and outTangent the tangent data for pointNode (assuming hermite)
 		void search_for_control_points(glm::vec3& leftControlPoint, glm::vec3& rightControlPoint, SceneNode* pointNode);
+		void check_bounds();
+		void check_distance_bounds();
 		void check_timer_bounds();
 
 		void debug_draw_linear();

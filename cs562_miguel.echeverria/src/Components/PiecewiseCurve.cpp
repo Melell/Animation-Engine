@@ -18,6 +18,8 @@
 #include "Math/Geometry/Geometry.h"
 #include "Components/CurveTangent.h"
 #include "Components/CurveControlPoint.h"
+#include "Components/ModelInstance.h"
+#include "Math/Interpolation/EasingFunctions.h"
 
 
 namespace cs460
@@ -33,6 +35,18 @@ namespace cs460
 	}
 
 
+	void PiecewiseCurve::initialize()
+	{
+		// Create a node with a model whose position will be updated over time to follow the curve
+
+		//Scene& scene = Scene::get_instance();
+		//SceneNode* rootNode = scene.get_root();
+
+		//m_nodeToMove = rootNode->create_child("CurveCesiumMan");
+		//ModelInstance* modelInst = m_nodeToMove->add_component<ModelInstance>();
+		//modelInst->change_model("data/Models/rigged figure/CesiumMan.gltf");
+	}
+
 	void PiecewiseCurve::update()
 	{
 		// Gather data before pause check because other stuff depends on said data
@@ -42,17 +56,37 @@ namespace cs460
 		if (m_paused)
 			return;
 
-		// Nothing to update if there are less than 2 points
-		if (m_timeValues.size() < 2)
+		// Nothing to update if there are less than 2 points, or less than 2 entries in the arc length table
+		if (m_timeValues.size() < 2 || m_arcLengthTable.size() < 2)
 			return;
 
-		// Interpolate the position in the curve (based on curve type)
-		m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
+		float dt = FrameRateController::get_instance().get_dt_float();
 
-		// Update the distance travelled in the curve
-		m_distanceTravelled += m_speed * FrameRateController::get_instance().get_dt_float() * m_timeScale * m_direction;
+		// Interpolate the position in the curve (based on curve type and speed mode)
+		if (m_constantSpeed)
+		{
+			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
+			m_distanceTravelled += m_speed * dt * m_timeScale * m_direction;
+		}
+		else
+		{
+			m_prevDistance = m_distanceTravelled;
 
-		check_timer_bounds();
+			// Update the position of the object
+			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
+
+			// Compute the current speed
+			float normalizedTime = m_currentTime / m_totalDuration;
+			float normalizedDist = ease_in_out(normalizedTime, m_accelerateEndTime, m_deccelerateStartTime);
+			float currentDist = normalizedDist * m_totalDistance;
+			m_speed = glm::abs(currentDist - m_prevDistance) / dt;
+
+			// Update the distance travelled with the current speed and the timer to sample the easing curve
+			m_distanceTravelled += m_speed * dt * m_direction;
+			m_currentTime += dt * m_timeScale * m_direction;
+		}
+
+		check_bounds();
 	}
 
 	void PiecewiseCurve::debug_draw()
@@ -175,6 +209,7 @@ namespace cs460
 		m_pointCount = 0;
 		m_tangentCount = 0;
 		m_controlPointCount = 0;
+		m_prevDistance = 0.0f;
 		m_distanceTravelled = 0.0f;
 		m_direction = 1.0f;
 
@@ -185,8 +220,17 @@ namespace cs460
 	void PiecewiseCurve::change_finish_mode(FINISH_MODE newMode)
 	{
 		m_finishMode = newMode;
+		m_prevDistance = 0.0f;
 		m_distanceTravelled = 0.0f;
 		m_direction = 1.0f;
+	}
+
+
+	void PiecewiseCurve::reset_animation()
+	{
+		m_currentTime = 0.0f;
+		m_distanceTravelled = 0.0f;
+		m_prevDistance = 0.0f;
 	}
 
 
@@ -244,10 +288,45 @@ namespace cs460
 		ImGui::Separator();
 
 		ImGui::Text("CURVE FOLLOWING");
-		ImGui::Checkbox("Paused", &m_paused);
 
-		ImGui::SliderFloat("Speed", &m_speed, 0.001f, 10.0f, "%.3f");
-		ImGui::SliderFloat("TimeScale", &m_timeScale, 0.01f, 5.0f, "%.2f");
+		int speedMode = m_constantSpeed;
+		if (ImGui::RadioButton("Constant Speed", &speedMode, 1))
+			reset_animation();
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Ease In/Out", &speedMode, 0))
+			reset_animation();
+		m_constantSpeed = speedMode;
+		
+		if (m_constantSpeed)
+		{
+			ImGui::SliderFloat("Speed (m/s)", &m_speed, 0.01f, 10.0f, "%.2f");
+			ImGui::Text("Unscaled Duration (s): %.2f", m_totalDistance / m_speed);
+		}
+		else
+		{
+			if (ImGui::SliderFloat("Total Duration (s)", &m_totalDuration, 0.01f, 20.0f, "%.2f"))
+				reset_animation();
+
+			ImGui::Text("Scaled Speed (m/s): %.2f", m_speed);
+
+			if (ImGui::SliderFloat("t1", &m_accelerateEndTime, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp))
+			{
+				m_accelerateEndTime = m_accelerateEndTime > m_deccelerateStartTime ? m_deccelerateStartTime : m_accelerateEndTime;
+				reset_animation();
+			}
+			if (ImGui::SliderFloat("t2", &m_deccelerateStartTime, m_accelerateEndTime, 1.0f, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp))
+			{
+				m_deccelerateStartTime = m_deccelerateStartTime < m_accelerateEndTime ? m_accelerateEndTime : m_deccelerateStartTime;
+				reset_animation();
+			}
+		}
+		if (ImGui::SliderFloat("TimeScale", &m_timeScale, 0.01f, 5.0f, "%.2f"))
+		{
+			if (!m_constantSpeed)
+				reset_animation();
+		}
+
+		ImGui::Checkbox("Paused", &m_paused);
 
 		// Finishing mode selection
 		ImGui::Text("Finish Mode:");
@@ -326,7 +405,7 @@ namespace cs460
 		{
 			ImGui::TableSetupColumn("Index");
 			ImGui::TableSetupColumn("Parameter");
-			ImGui::TableSetupColumn("Arc Length");
+			ImGui::TableSetupColumn("Arc Length (m)");
 			ImGui::TableHeadersRow();
 
 			if (m_showTable)
@@ -461,9 +540,17 @@ namespace cs460
 	}
 
 
-	void PiecewiseCurve::check_timer_bounds()
+	void PiecewiseCurve::check_bounds()
 	{
-		// Going forward and reached th end
+		if (m_constantSpeed)
+			check_distance_bounds();
+		else
+			check_timer_bounds();
+	}
+	
+	void PiecewiseCurve::check_distance_bounds()
+	{
+		// Going forward and reached the end
 		if (m_distanceTravelled > m_totalDistance)
 		{
 			// Clamp the timer
@@ -482,6 +569,41 @@ namespace cs460
 		// Going backwards and reached the beginning
 		else if (m_distanceTravelled < 0.0f)
 		{
+			m_distanceTravelled = 0.0f;
+			m_direction = 1.0f;
+		}
+	}
+
+	void PiecewiseCurve::check_timer_bounds()
+	{
+		// Going forward and reached the end
+		if (m_currentTime > m_totalDuration)
+		{
+			// Clamp the timer
+			if (m_finishMode == FINISH_MODE::STOP)
+			{
+				m_currentTime = m_totalDuration;
+				m_distanceTravelled = m_totalDistance;
+			}
+			// Restart the timer
+			else if (m_finishMode == FINISH_MODE::RESTART)
+			{
+				m_currentTime = 0.0f;
+				m_distanceTravelled = 0.0f;
+				m_prevDistance = 0.0f;
+			}
+			// Go in the opposite direction
+			else if (m_finishMode == FINISH_MODE::PINPONG)
+			{
+				m_currentTime = m_totalDuration;
+				m_distanceTravelled = m_totalDistance;
+				m_direction = -1.0f;
+			}
+		}
+		// Going backwards and reached the beginning
+		else if (m_currentTime < 0.0f)
+		{
+			m_currentTime = 0.0f;
 			m_distanceTravelled = 0.0f;
 			m_direction = 1.0f;
 		}
@@ -745,8 +867,6 @@ namespace cs460
 				ArcLengthTableEntry entry;
 				entry.m_param = currentSegment.m_end;
 				float prevArcLength = get_arc_length_from_tn_adaptive(currentSegment.m_start);
-				if (prevArcLength < 0.0f)
-					std::cout << "Negative arclength\n";
 				entry.m_arcLength = prevArcLength + totalLength;
 				m_arcLengthTable.push_back(entry);
 			}
@@ -824,8 +944,6 @@ namespace cs460
 		float intervalDuration = m_arcLengthTable[endIdx].m_param - m_arcLengthTable[startIdx].m_param;
 		float lerpTn = currentTime / intervalDuration;
 		float result = glm::mix(m_arcLengthTable[startIdx].m_arcLength, m_arcLengthTable[endIdx].m_arcLength, lerpTn);
-		if (result < 0.0f)
-			std::cout << "Negative!!!\n";
 		return result;
 	}
 }

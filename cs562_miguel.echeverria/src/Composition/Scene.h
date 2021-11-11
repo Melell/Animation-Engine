@@ -39,7 +39,7 @@ namespace cs460
 		void close();
 
 		void clear();							// Delete all the nodes in the scene graph except the root
-		void delete_tree(SceneNode* node, bool clearParentChildren = true);		// Recursive function to free the memory of all the nodes in the given tree
+		void delete_tree(SceneNode* node);//, bool clearParentChildren = true);		// Recursive function to free the memory of all the nodes in the given tree
 
 		SceneNode* get_root() const;
 	

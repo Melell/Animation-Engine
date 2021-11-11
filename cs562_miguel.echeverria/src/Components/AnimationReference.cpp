@@ -29,6 +29,7 @@ namespace cs460
 
 	AnimationReference::~AnimationReference()
 	{
+		//std::cout << "ANIM REF DESTRUCTOR CALLED\n";
 		Animator::get_instance().remove_animation_ref(this);
 	}
 

@@ -87,9 +87,11 @@ namespace cs460
 			return;
 
 		// Delete all the children
-		const std::vector<SceneNode*>& children = m_root->get_children();
+		std::vector<SceneNode*>& children = m_root->m_children;
 		for (int i = 0; i < children.size(); ++i)
 			delete_tree(children[i]);
+
+		children.clear();
 	}
 
 	SceneNode* Scene::get_root() const
@@ -133,13 +135,13 @@ namespace cs460
 	}
 
 	// Recursive function to free the memory of all the nodes
-	void Scene::delete_tree(SceneNode* node, bool clearParentChildren)
+	void Scene::delete_tree(SceneNode* node)//, bool clearParentChildren)
 	{
 		SceneNode* parent = node->get_parent();
 		delete_tree_internal(node);
 
-		if (parent != nullptr && clearParentChildren)
-			parent->m_children.clear();
+		//if (parent != nullptr)// && clearParentChildren)
+		//	parent->m_children.clear();
 	}
 
 	void Scene::delete_tree_internal(SceneNode* node)

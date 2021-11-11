@@ -20,6 +20,7 @@
 #include "Components/CurveControlPoint.h"
 #include "Components/ModelInstance.h"
 #include "Math/Interpolation/EasingFunctions.h"
+#include "Components/AnimationReference.h"
 
 
 namespace cs460
@@ -39,12 +40,15 @@ namespace cs460
 	{
 		// Create a node with a model whose position will be updated over time to follow the curve
 
-		//Scene& scene = Scene::get_instance();
-		//SceneNode* rootNode = scene.get_root();
+		Scene& scene = Scene::get_instance();
+		SceneNode* rootNode = scene.get_root();
 
-		//m_nodeToMove = rootNode->create_child("CurveCesiumMan");
-		//ModelInstance* modelInst = m_nodeToMove->add_component<ModelInstance>();
-		//modelInst->change_model("data/Models/rigged figure/CesiumMan.gltf");
+		m_nodeToMove = rootNode->create_child("CurveCesiumMan");
+		ModelInstance* modelInst = m_nodeToMove->add_component<ModelInstance>();
+		modelInst->change_model("data/Models/rigged figure/CesiumMan.gltf");
+		m_nodeToMove->m_localTr.m_scale = glm::vec3(0.5f, 0.5f, 0.5f);
+		AnimationReference* animComp = m_nodeToMove->get_component<AnimationReference>();
+		animComp->change_animation(0, "");
 	}
 
 	void PiecewiseCurve::update()
@@ -85,6 +89,8 @@ namespace cs460
 			m_distanceTravelled += m_speed * dt * m_direction;
 			m_currentTime += dt * m_timeScale * m_direction;
 		}
+
+		m_nodeToMove->m_localTr.m_position = m_currentPos;
 
 		check_bounds();
 	}

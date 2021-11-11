@@ -20,7 +20,8 @@ namespace cs460
 		HERMITE,
 		CATMULL_ROM,
 		BEZIER,
-		SKINNED_ANIMATION
+		SKINNED_ANIMATION,
+		PATH_FOLLOWING
 	};
 
 
@@ -47,6 +48,7 @@ namespace cs460
 		void load_catmull_rom_curve_scene();
 		void load_bezier_curve_scene();
 		void load_skinned_animation_scene();
+		void load_path_following_scene();
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

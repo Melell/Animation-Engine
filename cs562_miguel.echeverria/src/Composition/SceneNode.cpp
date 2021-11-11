@@ -49,7 +49,7 @@ namespace cs460
 	{
 		for (auto it = m_children.begin(); it != m_children.end();)
 		{
-			Scene::get_instance().delete_tree(*it, false);
+			Scene::get_instance().delete_tree(*it);//, false);
 			it = m_children.erase(it);
 		}
 	}

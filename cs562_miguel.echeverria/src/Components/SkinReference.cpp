@@ -23,6 +23,7 @@ namespace cs460
 
 	SkinReference::~SkinReference()
 	{
+		//std::cout << "SKIN REF DESTRUCTOR CALLED\n";
 		Animator::get_instance().remove_skin_ref(this);
 	}
 

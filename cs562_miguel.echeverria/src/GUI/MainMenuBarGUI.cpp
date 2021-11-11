@@ -61,6 +61,10 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::SKINNED_ANIMATION;
 				}
+				if (ImGui::MenuItem("PATH FOLLOWING"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::PATH_FOLLOWING;
+				}
 
 				ImGui::EndMenu();
 			}
@@ -148,6 +152,8 @@ namespace cs460
 			load_bezier_curve_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::SKINNED_ANIMATION)
 			load_skinned_animation_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::PATH_FOLLOWING)
+			load_path_following_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -451,5 +457,73 @@ namespace cs460
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(2.206f, 1.0f, 7.0f));
 		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+	}
+
+	void MainMenuBarGUI::load_path_following_scene()
+	{
+		load_empty_scene();
+
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		// Create the curve node with a PiecewiseCurve component
+		SceneNode* curveNode = root->create_child("BEZIER PIECEWISE CURVE");
+		EditorState& editorState = EditorState::get_main_editor_state();
+		editorState.m_selectedNode = curveNode;
+		PiecewiseCurve* curveComp = curveNode->add_component<PiecewiseCurve>();
+		curveComp->initialize();
+		curveComp->change_curve_type(CURVE_TYPE::BEZIER);
+		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::RESTART);
+
+		// Create the curve point nodes
+		SceneNode* curvePoint0 = curveNode->create_child("Curve Point 0");
+		SceneNode* curvePoint1 = curveNode->create_child("Curve Point 1");
+		SceneNode* curvePoint2 = curveNode->create_child("Curve Point 2");
+
+		// Add to them the curve point components (and set their times)
+		curvePoint0->add_component<CurvePoint>();
+		curvePoint1->add_component<CurvePoint>()->set_time(2.0f);
+		curvePoint2->add_component<CurvePoint>()->set_time(4.0f);
+
+
+		// Add the control points for point 0
+		SceneNode* leftTangent0 = curvePoint0->create_child("Left Control Point 0");
+		leftTangent0->add_component<CurveControlPoint>()->set_is_left_control_point(true);
+		leftTangent0->m_localTr.m_position = glm::vec3(-0.666f, 0.0f, 0.504f);
+
+		SceneNode* rightTangent0 = curvePoint0->create_child("Right Control Point 0");
+		rightTangent0->add_component<CurveControlPoint>()->set_is_left_control_point(false);
+		rightTangent0->m_localTr.m_position = glm::vec3(1.541f, 0.0f, -1.616f);
+
+
+		// Add the control points for point 1
+		SceneNode* leftTangent1 = curvePoint1->create_child("Left Control Point 1");
+		leftTangent1->add_component<CurveControlPoint>()->set_is_left_control_point(true);
+		leftTangent1->m_localTr.m_position = glm::vec3(-1.362f, 0.0f, 1.7f);
+
+		SceneNode* rightTangent1 = curvePoint1->create_child("Right Control Point 1");
+		rightTangent1->add_component<CurveControlPoint>()->set_is_left_control_point(false);
+		rightTangent1->m_localTr.m_position = glm::vec3(1.509f, 0.0f, -1.892f);
+
+
+		// Add the control points for point 2
+		SceneNode* leftTangent2 = curvePoint2->create_child("Left Control Point 2");
+		leftTangent2->add_component<CurveControlPoint>()->set_is_left_control_point(true);
+		leftTangent2->m_localTr.m_position = glm::vec3(0.317f, 0.0f, -1.421f);
+
+		SceneNode* rightTangent2 = curvePoint2->create_child("Right Control Point 2");
+		rightTangent2->add_component<CurveControlPoint>()->set_is_left_control_point(false);
+		rightTangent2->m_localTr.m_position = glm::vec3(0.551f, 0.0f, 0.769f);
+
+
+		// Set the curve points' positions
+		curvePoint0->m_localTr.m_position = glm::vec3(-3.253f, 0.0f, 17.762f);
+		curvePoint1->m_localTr.m_position = glm::vec3(-0.137f, 0.0f, 18.872f);
+		curvePoint2->m_localTr.m_position = glm::vec3(3.0f, 0.0f, 18.0f);
+
+
+		// Place the camera
+		scene.get_camera().set_position(scene.get_camera().get_position() + glm::vec3(0.0f, 2.0f, 0.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, -0.2f, -1.0f) * 30.0f);
 	}
 }

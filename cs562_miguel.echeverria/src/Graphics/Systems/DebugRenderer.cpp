@@ -32,7 +32,7 @@ namespace cs460
 	float DebugRenderer::s_jointSize = 0.025f;
 
 
-	bool DebugRenderer::s_enableMovingObjectDrawing = true;
+	bool DebugRenderer::s_enableMovingObjectDrawing = false;
 	glm::vec4 DebugRenderer::s_movingObjectColor{ 0.1f, 0.9f, 0.4f, 1.0f };
 	float DebugRenderer::s_movingObjectSize = 0.4f;
 

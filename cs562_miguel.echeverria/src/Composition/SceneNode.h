@@ -129,7 +129,7 @@ namespace cs460
 			{
 				Scene& scene = Scene::get_instance();
 				it = m_children.erase(it);
-				scene.delete_tree(child, false);
+				scene.delete_tree(child);//, false);
 				continue;
 			}
 

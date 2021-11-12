@@ -140,5 +140,9 @@ namespace cs460
 
 		float get_arc_length_from_tn_uniform(float tn);		// Since params are spaced out uniformally, the index of tn can be retreived directly
 		float get_arc_length_from_tn_adaptive(float tn);	// Since params are not spaced out uniformally, binary search needs to be made
+
+
+		void update_position();		// Move the object along the curve either with constant velocity or with a ease in/out distance-time function
+		void update_orientation();	// Orient the character using a basic frenet frame
 	};
 }

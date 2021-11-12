@@ -21,6 +21,7 @@
 #include "Components/ModelInstance.h"
 #include "Math/Interpolation/EasingFunctions.h"
 #include "Components/AnimationReference.h"
+#include "Math/Quaternions/QuaternionHelpers.h"
 
 
 namespace cs460
@@ -64,33 +65,8 @@ namespace cs460
 		if (m_timeValues.size() < 2 || m_arcLengthTable.size() < 2)
 			return;
 
-		float dt = FrameRateController::get_instance().get_dt_float();
-
-		// Interpolate the position in the curve (based on curve type and speed mode)
-		if (m_constantSpeed)
-		{
-			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
-			m_distanceTravelled += m_speed * dt * m_timeScale * m_direction;
-		}
-		else
-		{
-			m_prevDistance = m_distanceTravelled;
-
-			// Update the position of the object
-			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
-
-			// Compute the current speed
-			float normalizedTime = m_currentTime / m_totalDuration;
-			float normalizedDist = ease_in_out(normalizedTime, m_accelerateEndTime, m_deccelerateStartTime);
-			float currentDist = normalizedDist * m_totalDistance;
-			m_speed = glm::abs(currentDist - m_prevDistance) / dt;
-
-			// Update the distance travelled with the current speed and the timer to sample the easing curve
-			m_distanceTravelled += m_speed * dt * m_direction;
-			m_currentTime += dt * m_timeScale * m_direction;
-		}
-
-		m_nodeToMove->m_localTr.m_position = m_currentPos;
+		update_position();
+		update_orientation();
 
 		check_bounds();
 	}
@@ -951,5 +927,52 @@ namespace cs460
 		float lerpTn = currentTime / intervalDuration;
 		float result = glm::mix(m_arcLengthTable[startIdx].m_arcLength, m_arcLengthTable[endIdx].m_arcLength, lerpTn);
 		return result;
+	}
+
+
+	// Move the object along the curve either with constant velocity or with a ease in/out distance-time function.
+	void PiecewiseCurve::update_position()
+	{
+		float dt = FrameRateController::get_instance().get_dt_float();
+
+		// Interpolate the position in the curve (based on curve type and speed mode)
+		if (m_constantSpeed)
+		{
+			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
+			m_distanceTravelled += m_speed * dt * m_timeScale * m_direction;
+		}
+		else
+		{
+			m_prevDistance = m_distanceTravelled;
+
+			// Update the position of the object
+			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
+
+			// Compute the current speed
+			float normalizedTime = m_currentTime / m_totalDuration;
+			float normalizedDist = ease_in_out(normalizedTime, m_accelerateEndTime, m_deccelerateStartTime);
+			float currentDist = normalizedDist * m_totalDistance;
+			m_speed = glm::abs(currentDist - m_prevDistance) / dt;
+
+			// Update the distance travelled with the current speed and the timer to sample the easing curve
+			m_distanceTravelled += m_speed * dt * m_direction;
+			m_currentTime += dt * m_timeScale * m_direction;
+		}
+
+		m_nodeToMove->m_localTr.m_position = m_currentPos;
+	}
+
+	// Orient the character using a basic frenet frame
+	void PiecewiseCurve::update_orientation()
+	{
+		const glm::vec3& firstDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
+		const glm::vec3& secondDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
+
+		const glm::vec3& tangent = glm::normalize(firstDerivative);
+		const glm::vec3& bitangent = glm::normalize(glm::cross(tangent, secondDerivative));
+		const glm::vec3& normal = glm::normalize(glm::cross(bitangent, tangent));
+
+		const glm::quat& newOrientation = quat_from_orthonormal_basis(tangent, bitangent, normal);
+		m_nodeToMove->m_localTr.m_orientation = newOrientation;
 	}
 }

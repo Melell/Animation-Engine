@@ -53,6 +53,32 @@ namespace cs460
 		return factor0 * start + factor1 * control1 + factor2 * control2 + factor3 * end;
 	}
 
+	template<typename T>
+	T bezier_first_derivative(const T& start, const T& control1, const T& control2, const T& end, float tn)
+	{
+		float tnSq = tn * tn;
+		float invTn = 1.0f - tn;
+		float invTnSq = invTn * invTn;
+		float factor0 = -3.0f * invTnSq;
+		float factor1 = 3.0f * invTnSq - 6.0f * tn * invTn;
+		float factor2 = 6.0f * tn * invTn - 3.0f * tnSq;
+		float factor3 = 3.0f * tnSq;
+
+		return factor0 * start + factor1 * control1 + factor2 * control2 + factor3 * end;
+	}
+
+	template<typename T>
+	T bezier_second_derivative(const T& start, const T& control1, const T& control2, const T& end, float tn)
+	{
+		float invTn = 1 - tn;
+		float factor0 = 6.0f * invTn;
+		float factor1 = -12.0f * invTn + 6.0f * tn;
+		float factor2 = 6.0f * invTn - 12.0f * tn;
+		float factor3 = 6.0f * tn;
+
+		return factor0 * start + factor1 * control1 + factor2 * control2 + factor3 * end;
+	}
+
 
 	
 
@@ -88,7 +114,7 @@ namespace cs460
 	// Perform bezier curve interpolation between a set of keyframes based on a time value t, which doesn't need
 	// to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per time
 	// key: in-control_point, property, out-control_point
-	glm::vec3 piecewise_bezier(const std::vector<float>& keys, const std::vector<float>& values, float t);
+	glm::vec3 piecewise_bezier(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder = 0);
 
 	// ------------------------------------- PIECEWISE INTERPOLATION FUNCTIONS ----------------------------------------
 }

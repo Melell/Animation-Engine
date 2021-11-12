@@ -206,7 +206,7 @@ namespace cs460
 	// Perform bezier curve interpolation between a set of keyframes based on a time value t, which doesn't need
 	// to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per time
 	// key: in-control_point, property, out-control_point
-	glm::vec3 piecewise_bezier(const std::vector<float>& keys, const std::vector<float>& values, float t)
+	glm::vec3 piecewise_bezier(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder)
 	{
 		// Data will be given as: in-control_point, property, out-control_point
 
@@ -238,6 +238,15 @@ namespace cs460
 		const glm::vec3& cp2 = glm::make_vec3(val1);
 		const glm::vec3& end = glm::make_vec3(val1 + componentCount);
 
-		return bezier_interpolation(start, cp1, cp2, end, tn);
+		glm::vec3 result;
+
+		if (derivativeOrder == 0 || derivativeOrder > 2)
+			result = bezier_interpolation(start, cp1, cp2, end, tn);
+		else if (derivativeOrder == 1)
+			result = bezier_first_derivative(start, cp1, cp2, end, tn);
+		else
+			result = bezier_second_derivative(start, cp1, cp2, end, tn);
+
+		return result;
 	}
 }

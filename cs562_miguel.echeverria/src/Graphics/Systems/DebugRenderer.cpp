@@ -46,6 +46,10 @@ namespace cs460
 	glm::vec4 DebugRenderer::s_tangentEndpointColor{ 0.0f, 1.0f, 0.0f, 1.0f };
 	float DebugRenderer::s_tangentEndpointSize = 0.2f;
 
+	bool DebugRenderer::s_enableTableSamplesDrawing = false;
+	glm::vec4 DebugRenderer::s_tableSampleColor{ 0.012f, 0.678f, 0.988f, 1.0f };
+	float DebugRenderer::s_tableSampleSize = 0.05f;
+
 
 	// TODO: Make this more efficient by saving the meshes
 

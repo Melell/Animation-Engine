@@ -86,12 +86,14 @@ namespace cs460
 		float m_distanceTravelled = 0.0f;		// Used in both
 		float m_prevDistance = 0.0f;			// Use in ease-in/out
 		float m_totalDistance = 1.0f;			// Used in both
-		float m_speed = 5.0f;					// Used in constant speed
-		float m_timeScale = 1.0f;				// Used in both
+		float m_speed = 0.6f;					// Used in constant speed
+		float m_referenceSpeed = 0.41f;			// Used in both
+		//float m_timeScale = 1.0f;				// Used in both
 		float m_direction = 1.0f;				// Used in both
 		FINISH_MODE m_finishMode = FINISH_MODE::RESTART;
 		bool m_paused = false;
-		bool m_constantSpeed = true;
+		bool m_useConstantSpeed = true;
+		bool m_syncAnim = true;
 		float m_accelerateEndTime = 0.2f;		// Used in ease in/out
 		float m_deccelerateStartTime = 0.8f;	// Used in ease in/out
 
@@ -107,6 +109,9 @@ namespace cs460
 		float m_initialTolerance = 0.25f;	// Initial tolerance for adaptive method
 		bool m_useAdaptive = false;
 		bool m_showTable = true;			// Show/hide the table on gui
+		bool m_drawSamples = true;			// Debug draw the table samples in the curve
+
+		bool m_useFrenetFrame = false;
 
 
 		void on_gui() override;
@@ -122,6 +127,7 @@ namespace cs460
 		void debug_draw_linear();
 		void debug_draw_cubic_spline(CURVE_TYPE type);
 		void debug_draw_tangents(SceneNode* pointNode);
+		void debug_draw_table_samples(CURVE_TYPE type);
 
 
 		// Performs binary search on the arc lengths of the table, and returns the lower

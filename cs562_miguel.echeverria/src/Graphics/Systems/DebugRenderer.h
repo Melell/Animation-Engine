@@ -63,5 +63,9 @@ namespace cs460
 		static glm::vec4 s_tangentLineColor;		// Curve (tangents/control points)
 		static glm::vec4 s_tangentEndpointColor;	// Curve (tangents/control points)
 		static float s_tangentEndpointSize;			// Curve (tangents/control points)
+
+		static bool s_enableTableSamplesDrawing;	// Curve (arc length table)
+		static glm::vec4 s_tableSampleColor;		// Curve (arc length table)
+		static float s_tableSampleSize;				// Curve (arc length table)
 	};
 }

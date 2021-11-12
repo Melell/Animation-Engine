@@ -117,6 +117,13 @@ namespace cs460
 					ImGui::ColorEdit4("Endpoints Color", glm::value_ptr(DebugRenderer::s_tangentEndpointColor));
 					ImGui::DragFloat("Endpoints Size", &DebugRenderer::s_tangentEndpointSize, 0.01f, 0.01f, 5.0f, "%.3f");
 
+					ImGui::Separator();
+
+					ImGui::Text("TABLE SAMPLES");
+					ImGui::Checkbox("Enable Drawing##3", &DebugRenderer::s_enableTableSamplesDrawing);
+					ImGui::ColorEdit4("Samples Color", glm::value_ptr(DebugRenderer::s_tableSampleColor));
+					ImGui::DragFloat("Samples Size", &DebugRenderer::s_tableSampleSize, 0.01f, 0.01f, 5.0f, "%.3f");
+
 
 					ImGui::EndMenu();
 				}
@@ -473,7 +480,7 @@ namespace cs460
 		PiecewiseCurve* curveComp = curveNode->add_component<PiecewiseCurve>();
 		curveComp->initialize();
 		curveComp->change_curve_type(CURVE_TYPE::BEZIER);
-		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::RESTART);
+		curveComp->change_finish_mode(PiecewiseCurve::FINISH_MODE::PINPONG);
 
 		// Create the curve point nodes
 		SceneNode* curvePoint0 = curveNode->create_child("Curve Point 0");

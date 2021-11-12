@@ -21,7 +21,6 @@
 #include "Components/ModelInstance.h"
 #include "Math/Interpolation/EasingFunctions.h"
 #include "Components/AnimationReference.h"
-#include "Math/Quaternions/QuaternionHelpers.h"
 
 
 namespace cs460
@@ -76,6 +75,9 @@ namespace cs460
 		// This will call debug_draw_linear when curve is linear
 		if (m_drawCurve)
 			debug_draw_cubic_spline(m_curveType);
+
+		if (DebugRenderer::s_enableTableSamplesDrawing && m_drawSamples)
+			debug_draw_table_samples(m_curveType);
 
 		// Don't draw moving object if specified
 		if (!DebugRenderer::s_enableMovingObjectDrawing || !m_drawMovingObject)
@@ -271,25 +273,46 @@ namespace cs460
 
 		ImGui::Text("CURVE FOLLOWING");
 
-		int speedMode = m_constantSpeed;
+		// Orientation control
+		ImGui::Text("Orientation Control:");
+		int orientationMode = m_useFrenetFrame;
+		ImGui::RadioButton("Center Of Interest", &orientationMode, 0);
+		ImGui::SameLine();
+		ImGui::RadioButton("Frenet Frame", &orientationMode, 1);
+		m_useFrenetFrame = orientationMode;
+
+		// Speed control
+		ImGui::Text("Speed Control:");
+		int speedMode = m_useConstantSpeed;
 		if (ImGui::RadioButton("Constant Speed", &speedMode, 1))
 			reset_animation();
 		ImGui::SameLine();
 		if (ImGui::RadioButton("Ease In/Out", &speedMode, 0))
 			reset_animation();
-		m_constantSpeed = speedMode;
+		m_useConstantSpeed = speedMode;
+
+		ImGui::SameLine();
+		if (ImGui::Checkbox("Sync Anim", &m_syncAnim))
+		{
+			// Reset timescale to default if not syncing
+			if (!m_syncAnim)
+				if (m_nodeToMove)
+					if (AnimationReference* animComp = m_nodeToMove->get_component<AnimationReference>())
+						animComp->set_anim_time_scale(1.0f);
+		}
+
 		
-		if (m_constantSpeed)
+		if (m_useConstantSpeed)
 		{
 			ImGui::SliderFloat("Speed (m/s)", &m_speed, 0.01f, 10.0f, "%.2f");
-			ImGui::Text("Unscaled Duration (s): %.2f", m_totalDistance / m_speed);
+			ImGui::Text(/*"Unscaled */"Total Duration (s): %.2f", m_totalDistance / m_speed);
 		}
 		else
 		{
 			if (ImGui::SliderFloat("Total Duration (s)", &m_totalDuration, 0.01f, 20.0f, "%.2f"))
 				reset_animation();
 
-			ImGui::Text("Scaled Speed (m/s): %.2f", m_speed);
+			ImGui::Text(/*"Scaled */"Speed (m/s): %.2f", m_speed);
 
 			if (ImGui::SliderFloat("t1", &m_accelerateEndTime, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_::ImGuiSliderFlags_AlwaysClamp))
 			{
@@ -302,11 +325,11 @@ namespace cs460
 				reset_animation();
 			}
 		}
-		if (ImGui::SliderFloat("TimeScale", &m_timeScale, 0.01f, 5.0f, "%.2f"))
-		{
-			if (!m_constantSpeed)
-				reset_animation();
-		}
+		//if (ImGui::SliderFloat("TimeScale", &m_timeScale, 0.01f, 5.0f, "%.2f"))
+		//{
+		//	if (!m_useConstantSpeed)
+		//		reset_animation();
+		//}
 
 		ImGui::Checkbox("Paused", &m_paused);
 
@@ -353,6 +376,10 @@ namespace cs460
 		}
 
 
+		ImGui::Checkbox("Show Table", &m_showTable);
+		ImGui::SameLine();
+		ImGui::Checkbox("Draw Samples", &m_drawSamples);
+
 		if (ImGui::Button("Build Table"))
 		{
 			build_arc_length_table(m_useAdaptive);
@@ -362,8 +389,7 @@ namespace cs460
 		{
 			clear_arc_length_table();
 		}
-		ImGui::SameLine();
-		ImGui::Checkbox("Show Table", &m_showTable);
+		
 
 		// Display the table
 		arc_length_table_on_gui();
@@ -524,7 +550,7 @@ namespace cs460
 
 	void PiecewiseCurve::check_bounds()
 	{
-		if (m_constantSpeed)
+		if (m_useConstantSpeed)
 			check_distance_bounds();
 		else
 			check_timer_bounds();
@@ -708,6 +734,20 @@ namespace cs460
 			seg.m_start = pointNode->m_worldTr.m_position;
 			seg.m_end = child->m_worldTr.m_position;
 			DebugRenderer::draw_segment(seg, DebugRenderer::s_tangentLineColor);
+		}
+	}
+
+	void PiecewiseCurve::debug_draw_table_samples(CURVE_TYPE type)
+	{
+		for (int i = 0; i < m_arcLengthTable.size(); ++i)
+		{
+			const glm::vec3& pos = interpolate_position(m_arcLengthTable[i].m_param, type);
+			float halfSize = DebugRenderer::s_tableSampleSize * 0.5f;
+
+			AABB box;
+			box.m_min = pos - glm::vec3(halfSize, halfSize, halfSize);
+			box.m_max = pos + glm::vec3(halfSize, halfSize, halfSize);
+			DebugRenderer::draw_aabb(box, DebugRenderer::s_tableSampleColor);
 		}
 	}
 
@@ -934,16 +974,23 @@ namespace cs460
 	void PiecewiseCurve::update_position()
 	{
 		float dt = FrameRateController::get_instance().get_dt_float();
+		AnimationReference* animComp = m_nodeToMove->get_component<AnimationReference>();
 
 		// Interpolate the position in the curve (based on curve type and speed mode)
-		if (m_constantSpeed)
+		if (m_useConstantSpeed)
 		{
+			if (animComp && m_syncAnim)
+				animComp->set_anim_time_scale(m_speed / m_referenceSpeed);
+
 			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
-			m_distanceTravelled += m_speed * dt * m_timeScale * m_direction;
+			m_distanceTravelled += m_speed * dt * /* m_timeScale **/ m_direction;
 		}
 		else
 		{
 			m_prevDistance = m_distanceTravelled;
+
+			if (animComp && m_syncAnim)
+				animComp->set_anim_time_scale(m_speed / m_referenceSpeed);
 
 			// Update the position of the object
 			m_currentPos = interpolate_position(get_tn_from_arc_length(m_distanceTravelled), m_curveType);
@@ -956,7 +1003,7 @@ namespace cs460
 
 			// Update the distance travelled with the current speed and the timer to sample the easing curve
 			m_distanceTravelled += m_speed * dt * m_direction;
-			m_currentTime += dt * m_timeScale * m_direction;
+			m_currentTime += dt * /*m_timeScale **/ m_direction;
 		}
 
 		m_nodeToMove->m_localTr.m_position = m_currentPos;
@@ -968,11 +1015,40 @@ namespace cs460
 		const glm::vec3& firstDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
 		const glm::vec3& secondDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
 
-		const glm::vec3& tangent = glm::normalize(firstDerivative);
-		const glm::vec3& bitangent = glm::normalize(glm::cross(tangent, secondDerivative));
-		const glm::vec3& normal = glm::normalize(glm::cross(bitangent, tangent));
+		const glm::vec3& tangent = m_direction < 0.0f ? -glm::normalize(firstDerivative) : glm::normalize(firstDerivative);
+		const glm::vec3& normal = glm::normalize(glm::cross(secondDerivative, tangent));
+		const glm::vec3& bitangent = glm::normalize(glm::cross(tangent, normal));
 
-		const glm::quat& newOrientation = quat_from_orthonormal_basis(tangent, bitangent, normal);
-		m_nodeToMove->m_localTr.m_orientation = newOrientation;
+		// Debug draw the basis and second derivative
+		/*float vecScale = 1.0f;
+		// Debug draw tangent
+		Segment seg;
+		seg.m_start = m_currentPos;
+		seg.m_end = (seg.m_start + tangent) * vecScale;
+		DebugRenderer::draw_segment(seg, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+		// Debug draw bitangent
+		seg.m_start = m_currentPos;
+		seg.m_end = (seg.m_start + bitangent) * vecScale;
+		DebugRenderer::draw_segment(seg, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+		// Debug draw normal
+		seg.m_start = m_currentPos;
+		seg.m_end = (seg.m_start + normal) * vecScale;
+		DebugRenderer::draw_segment(seg, { 0.0f, 0.0f, 1.0f, 1.0f });
+
+		// Debug draw second derivative
+		seg.m_start = m_currentPos;
+		seg.m_end = seg.m_start + secondDerivative;
+		DebugRenderer::draw_segment(seg, { 1.0f, 1.0f, 0.0f, 1.0f });*/
+
+		glm::vec3 globalUp(0.0f, 1.0f, 0.0f);
+		glm::quat resultOrientation;
+
+		if (m_useFrenetFrame)
+			resultOrientation = glm::quatLookAtLH(tangent, normal);
+		else
+			resultOrientation = glm::quatLookAtLH(tangent, globalUp);
+		m_nodeToMove->m_localTr.m_orientation = resultOrientation;
 	}
 }

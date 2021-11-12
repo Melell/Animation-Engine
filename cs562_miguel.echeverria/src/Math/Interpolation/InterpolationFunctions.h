@@ -20,6 +20,13 @@ namespace cs460
 		return start + (end - start) * tn;
 	}
 
+	template<typename T>
+	T lerp_first_derivative(const T& start, const T& end, float tn)
+	{
+		return end - start;
+	}
+
+
 
 	// Interpolation between start and end using a cubic hermite spline based on a normalized parameter tn.
 	// startTangent and endTangent are the tangents of start and end respectively
@@ -36,6 +43,32 @@ namespace cs460
 
 		return cubicCoefficient * tnCubed + squareCoefficient * tnSquared + linearCoefficient * tn + independentTerm;
 	}
+
+	template<typename T>
+	T hermite_first_derivative(const T& start, const T& startTangent, const T& end, const T& endTangent, float tn)
+	{
+		float tnSquared = tn * tn;
+		float tnCubed = tn * tnSquared;
+
+		const T& squareCoefficient = (start - end) * 2.0f + startTangent + endTangent;
+		const T& linearCoefficient = (end - start) * 3.0f - startTangent * 2.0f - endTangent;
+		const T& independentTerm = startTangent;
+
+		return 3.0f * squareCoefficient * tnSquared + 2.0f * linearCoefficient * tn + independentTerm;
+	}
+
+	template<typename T>
+	T hermite_second_derivative(const T& start, const T& startTangent, const T& end, const T& endTangent, float tn)
+	{
+		float tnSquared = tn * tn;
+		float tnCubed = tn * tnSquared;
+
+		const T& linearCoefficient = (start - end) * 2.0f + startTangent + endTangent;
+		const T& independentTerm = (end - start) * 3.0f - startTangent * 2.0f - endTangent;
+
+		return 6.0f * linearCoefficient * tn + 2.0f * independentTerm;
+	}
+
 
 
 	// Interpolation between start and end using a cubic spline (Bezier curve), based on a normalized parameter tn.
@@ -80,6 +113,7 @@ namespace cs460
 	}
 
 
+
 	
 
 
@@ -87,7 +121,7 @@ namespace cs460
 
 	// Linearly interpolate between a set of keyframes (assume keyframes will be vec3s) based
 	// on a time value t, which doesn't need to be normalized.
-	glm::vec3 piecewise_lerp(const std::vector<float>& keys, const std::vector<float>& values, float t);
+	glm::vec3 piecewise_lerp(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder = 0);
 
 
 	// Perform spherical linear interpolation between a set of keyframes based on a time value t, which doesn't
@@ -102,13 +136,13 @@ namespace cs460
 	// Perform hermite cubic spline interpolation between a set of keyframes based on a time value t, which doesn't
 	// need to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 3 vec3s per
 	// time key: in-tangent, property, out-tangent
-	glm::vec3 piecewise_hermite(const std::vector<float>& keys, const std::vector<float>& values, float t);
+	glm::vec3 piecewise_hermite(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder = 0);
 
 
 	// Perform catmull-rom cubic spline interpolation between a set of keyframes based on a time value t, which doesn't
 	// need to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 1 vec3 per time
 	// key: property. The in-tangent and out-tangent are computed in this function from the given values.
-	glm::vec3 piecewise_catmull_rom(const std::vector<float>& keys, const std::vector<float>& values, float t);
+	glm::vec3 piecewise_catmull_rom(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder = 0);
 
 
 	// Perform bezier curve interpolation between a set of keyframes based on a time value t, which doesn't need

@@ -190,15 +190,40 @@ namespace cs460
 
 		// Reset variables
 		m_curveType = newType;
-		m_pointCount = 0;
-		m_tangentCount = 0;
-		m_controlPointCount = 0;
+		//m_pointCount = 0;
+		//m_tangentCount = 0;
+		//m_controlPointCount = 0;
 		m_prevDistance = 0.0f;
 		m_distanceTravelled = 0.0f;
 		m_direction = 1.0f;
 
+		// TODO: Organize this better
+		for (SceneNode* childNode : get_owner()->get_children())
+		{
+			if (childNode->get_component<CurvePoint>())
+			{
+				for (SceneNode* childNode2 : childNode->get_children())
+				{
+					CurveControlPoint* controlPointComp = childNode2->get_component<CurveControlPoint>();
+					CurveTangent* tangentComp = childNode2->get_component<CurveTangent>();
+					if (newType == CURVE_TYPE::HERMITE && controlPointComp)
+					{
+						bool wasLeftControlPoint = controlPointComp->get_is_left_control_point();
+						childNode2->delete_component<CurveControlPoint>();
+						childNode2->add_component<CurveTangent>()->set_is_in_tangent(wasLeftControlPoint);
+					}
+					else if (newType == CURVE_TYPE::BEZIER && tangentComp)
+					{
+						bool wasInTangent = tangentComp->get_is_in_tangent();
+						childNode2->delete_component<CurveTangent>();
+						childNode2->add_component<CurveControlPoint>()->set_is_left_control_point(wasInTangent);
+					}
+				}
+			}
+		}
+
 		// Delete all the children curve points and tangents
-		get_owner()->delete_all_children_with_comp<CurvePoint>();
+		//get_owner()->delete_all_children_with_comp<CurvePoint>();
 	}
 
 	void PiecewiseCurve::change_finish_mode(FINISH_MODE newMode)
@@ -280,6 +305,7 @@ namespace cs460
 		ImGui::SameLine();
 		ImGui::RadioButton("Frenet Frame", &orientationMode, 1);
 		m_useFrenetFrame = orientationMode;
+		ImGui::Checkbox("Debug Draw Frenet Frame", &m_debugDrawFrenetFrame);
 
 		// Speed control
 		ImGui::Text("Speed Control:");
@@ -1012,40 +1038,67 @@ namespace cs460
 	// Orient the character using a basic frenet frame
 	void PiecewiseCurve::update_orientation()
 	{
-		const glm::vec3& firstDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
-		const glm::vec3& secondDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
+		glm::vec3 firstDerivative{1.0f, 0.0f, 0.0f};
+		glm::vec3 secondDerivative{ 0.0f, 0.0f, -1.0f };
+
+		if (m_curveType == CURVE_TYPE::LINEAR)
+		{
+			firstDerivative = piecewise_lerp(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
+		}
+		else if (m_curveType == CURVE_TYPE::HERMITE)
+		{
+			firstDerivative = piecewise_hermite(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
+			secondDerivative = piecewise_hermite(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
+		}
+		else if (m_curveType == CURVE_TYPE::CATMULL_ROM)
+		{
+			firstDerivative = piecewise_catmull_rom(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
+			secondDerivative = piecewise_catmull_rom(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
+		}
+		else
+		{
+			firstDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 1u);
+			secondDerivative = piecewise_bezier(m_timeValues, m_propertyValues, get_tn_from_arc_length(m_distanceTravelled), 2u);
+		}
 
 		const glm::vec3& tangent = m_direction < 0.0f ? -glm::normalize(firstDerivative) : glm::normalize(firstDerivative);
 		const glm::vec3& normal = glm::normalize(glm::cross(secondDerivative, tangent));
 		const glm::vec3& bitangent = glm::normalize(glm::cross(tangent, normal));
 
-		// Debug draw the basis and second derivative
-		/*float vecScale = 1.0f;
-		// Debug draw tangent
-		Segment seg;
-		seg.m_start = m_currentPos;
-		seg.m_end = (seg.m_start + tangent) * vecScale;
-		DebugRenderer::draw_segment(seg, { 1.0f, 0.0f, 0.0f, 1.0f });
 
-		// Debug draw bitangent
-		seg.m_start = m_currentPos;
-		seg.m_end = (seg.m_start + bitangent) * vecScale;
-		DebugRenderer::draw_segment(seg, { 0.0f, 1.0f, 0.0f, 1.0f });
+		// Debug draw the basis vectors and second derivative
 
-		// Debug draw normal
-		seg.m_start = m_currentPos;
-		seg.m_end = (seg.m_start + normal) * vecScale;
-		DebugRenderer::draw_segment(seg, { 0.0f, 0.0f, 1.0f, 1.0f });
+		if (m_debugDrawFrenetFrame)
+		{
 
-		// Debug draw second derivative
-		seg.m_start = m_currentPos;
-		seg.m_end = seg.m_start + secondDerivative;
-		DebugRenderer::draw_segment(seg, { 1.0f, 1.0f, 0.0f, 1.0f });*/
+			float vecScale = 1.0f;
+			// Debug draw tangent
+			Segment seg;
+			seg.m_start = m_currentPos;
+			seg.m_end = (seg.m_start + tangent) * vecScale;
+			DebugRenderer::draw_segment(seg, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+			// Debug draw bitangent
+			seg.m_start = m_currentPos;
+			seg.m_end = (seg.m_start + bitangent) * vecScale;
+			DebugRenderer::draw_segment(seg, { 0.0f, 1.0f, 0.0f, 1.0f });
+
+			// Debug draw normal
+			seg.m_start = m_currentPos;
+			seg.m_end = (seg.m_start + normal) * vecScale;
+			DebugRenderer::draw_segment(seg, { 0.0f, 0.0f, 1.0f, 1.0f });
+
+			// Debug draw second derivative
+			seg.m_start = m_currentPos;
+			seg.m_end = seg.m_start + secondDerivative;
+			DebugRenderer::draw_segment(seg, { 1.0f, 1.0f, 0.0f, 1.0f });
+		}
+
 
 		glm::vec3 globalUp(0.0f, 1.0f, 0.0f);
 		glm::quat resultOrientation;
 
-		if (m_useFrenetFrame)
+		if (m_useFrenetFrame && m_curveType != CURVE_TYPE::LINEAR)
 			resultOrientation = glm::quatLookAtLH(tangent, normal);
 		else
 			resultOrientation = glm::quatLookAtLH(tangent, globalUp);

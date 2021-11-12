@@ -112,6 +112,7 @@ namespace cs460
 		bool m_drawSamples = true;			// Debug draw the table samples in the curve
 
 		bool m_useFrenetFrame = false;
+		bool m_debugDrawFrenetFrame = false;
 
 
 		void on_gui() override;

@@ -15,7 +15,7 @@ namespace cs460
 {
 	// Linearly interpolate between a set of keyframes (assume keyframes will be vec3s) based
 	// on a time value t, which doesn't need to be normalized.
-	glm::vec3 piecewise_lerp(const std::vector<float>& keys, const std::vector<float>& values, float t)
+	glm::vec3 piecewise_lerp(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder)
 	{
 		const int componentCount = 3;
 
@@ -40,7 +40,13 @@ namespace cs460
 		float localTime = t - keys[frameIdx - 1];
 		float tn = localTime / intervalDuration;
 
-		return lerp(val0, val1, tn);
+		glm::vec3 result;
+		if (derivativeOrder == 0 || derivativeOrder > 1)
+			result = lerp(val0, val1, tn);
+		else
+			result = lerp_first_derivative(val0, val1, tn);
+
+		return result;
 	}
 
 
@@ -98,7 +104,7 @@ namespace cs460
 
 	// Perform hermite cubic spline interpolation between a set of keyframes based on a time value t, which doesn't
 	// need to be normalized. Assume the values given as data are vec3s (3 floating point values)
-	glm::vec3 piecewise_hermite(const std::vector<float>& keys, const std::vector<float>& values, float t)
+	glm::vec3 piecewise_hermite(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder)
 	{
 		// Data will be given as: in-tangent, property, out-tangent
 
@@ -130,14 +136,22 @@ namespace cs460
 		const glm::vec3& end = glm::make_vec3(val1 + componentCount);
 		const glm::vec3& endInTangent = glm::make_vec3(val1) * intervalDuration;
 
-		return hermite_interpolation(start, startOutTangent, end, endInTangent, tn);
+		glm::vec3 result;
+		if (derivativeOrder == 0 || derivativeOrder > 2)
+			result = hermite_interpolation(start, startOutTangent, end, endInTangent, tn);
+		else if (derivativeOrder == 1)
+			result = hermite_first_derivative(start, startOutTangent, end, endInTangent, tn);
+		else
+			result = hermite_second_derivative(start, startOutTangent, end, endInTangent, tn);
+
+		return result;
 	}
 
 
 	// Perform catmull-rom cubic spline interpolation between a set of keyframes based on a time value t, which doesn't
 	// need to be normalized. Assumes the values given as data are vec3s (3 floating point values) -> 1 vec3 per time
 	// key: property. The in-tangent and out-tangent are computed in this function from the given values.
-	glm::vec3 piecewise_catmull_rom(const std::vector<float>& keys, const std::vector<float>& values, float t)
+	glm::vec3 piecewise_catmull_rom(const std::vector<float>& keys, const std::vector<float>& values, float t, unsigned derivativeOrder)
 	{
 		const int componentCount = 3;
 
@@ -199,7 +213,15 @@ namespace cs460
 		float localTime = t - keys[frameIdx - 1];
 		float tn = localTime / intervalDuration;
 
-		return hermite_interpolation(val1, tangent1, val2, tangent2, tn);
+		glm::vec3 result;
+		if (derivativeOrder == 0 || derivativeOrder > 2)
+			result = hermite_interpolation(val1, tangent1, val2, tangent2, tn);
+		else if (derivativeOrder == 1)
+			result = hermite_first_derivative(val1, tangent1, val2, tangent2, tn);
+		else
+			result = hermite_second_derivative(val1, tangent1, val2, tangent2, tn);
+
+		return result;
 	}
 
 

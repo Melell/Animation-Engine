@@ -26,7 +26,7 @@ namespace cs460
 	glm::vec4 DebugRenderer::s_bvsColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 
-	bool DebugRenderer::s_enableSkeletonDrawing = true;
+	bool DebugRenderer::s_enableSkeletonDrawing = false;
 	glm::vec4 DebugRenderer::s_boneColor{ 0.25f, 1.0f, 0.25f, 1.0f };
 	glm::vec4 DebugRenderer::s_jointColor{ 0.8f, 0.4f, 0.0f, 1.0f };
 	float DebugRenderer::s_jointSize = 0.025f;

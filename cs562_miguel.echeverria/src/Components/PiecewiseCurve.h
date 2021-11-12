@@ -82,7 +82,7 @@ namespace cs460
 		unsigned m_controlPointCount = 0;		// Mainly used for control point naming, so doesn't need to account for those deleted
 
 		float m_currentTime = 0.0f;				// Use in ease-in/out
-		float m_totalDuration = 1.0f;			// Use in ease-in/out
+		float m_totalDuration = 10.0f;			// Use in ease-in/out
 		float m_distanceTravelled = 0.0f;		// Used in both
 		float m_prevDistance = 0.0f;			// Use in ease-in/out
 		float m_totalDistance = 1.0f;			// Used in both

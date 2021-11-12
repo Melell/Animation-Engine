@@ -530,7 +530,7 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(scene.get_camera().get_position() + glm::vec3(0.0f, 2.0f, 0.0f));
+		scene.get_camera().set_position(glm::vec3(0.0f, 2.0f, 25.0f));
 		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, -0.2f, -1.0f) * 30.0f);
 	}
 }

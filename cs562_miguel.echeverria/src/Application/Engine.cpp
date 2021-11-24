@@ -18,6 +18,7 @@
 #include "Animation/PiecewiseCurveMgr.h"
 #include "Platform/InputMgr.h"
 #include "GUI/MainMenuBarGUI.h"		// TODO: Remove this in the future
+#include "Composition/Factory.h"
 
 
 namespace cs460
@@ -43,6 +44,10 @@ namespace cs460
 		// Initialize imgui and set up the context for gui drawing
 		Editor& editor = Editor::get_instance();
 		if (!editor.initialize())
+			return false;
+
+		Factory& factory = Factory::get_instance();
+		if (!factory.initialize())
 			return false;
 
 		// Initialize the scene graph (create the root node)

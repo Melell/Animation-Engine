@@ -72,6 +72,8 @@ namespace cs460
 	{
 		void load_animation_data(const tinygltf::Model& model, const tinygltf::Animation& anim);
 
+		glm::vec3 sample_vec3(float time, int channelIdx);
+		glm::quat sample_quat(float time, int channelIdx, bool useNLerp = false);
 
 		std::string m_name;
 		std::vector<AnimationChannel> m_channels;

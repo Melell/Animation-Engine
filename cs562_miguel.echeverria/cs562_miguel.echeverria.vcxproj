@@ -128,6 +128,12 @@
     </ClCompile>
     <ClCompile Include="src\Animation\Animation.cpp" />
     <ClCompile Include="src\Animation\Animator.cpp" />
+    <ClCompile Include="src\Animation\Blending\Blend1D.cpp" />
+    <ClCompile Include="src\Animation\Blending\Blend2D.cpp" />
+    <ClCompile Include="src\Animation\Blending\BlendAnim.cpp" />
+    <ClCompile Include="src\Animation\Blending\BlendingCore.cpp" />
+    <ClCompile Include="src\Animation\Blending\BlendTree.cpp" />
+    <ClCompile Include="src\Animation\Blending\IBlendNode.cpp" />
     <ClCompile Include="src\Animation\PiecewiseCurveMgr.cpp" />
     <ClCompile Include="src\Animation\Skin.cpp" />
     <ClCompile Include="src\Application\Engine.cpp" />
@@ -144,8 +150,11 @@
     <ClCompile Include="src\Components\PiecewiseCurve.cpp" />
     <ClCompile Include="src\Components\SkeletonRoot.cpp" />
     <ClCompile Include="src\Components\SkinReference.cpp" />
+    <ClCompile Include="src\Composition\Factory.cpp" />
     <ClCompile Include="src\Composition\GLTFNode.cpp" />
     <ClCompile Include="src\Composition\GLTFScene.cpp" />
+    <ClCompile Include="src\Composition\IBase.cpp" />
+    <ClCompile Include="src\Composition\ISerializable.cpp" />
     <ClCompile Include="src\Graphics\BasicShapes\Cube.cpp" />
     <ClCompile Include="src\Graphics\Rendering\Skybox.cpp" />
     <ClCompile Include="src\Graphics\Systems\DebugRenderer.cpp" />
@@ -204,6 +213,12 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Animation\Animation.h" />
     <ClInclude Include="src\Animation\Animator.h" />
+    <ClInclude Include="src\Animation\Blending\Blend1D.h" />
+    <ClInclude Include="src\Animation\Blending\Blend2D.h" />
+    <ClInclude Include="src\Animation\Blending\BlendAnim.h" />
+    <ClInclude Include="src\Animation\Blending\BlendingCore.h" />
+    <ClInclude Include="src\Animation\Blending\BlendTree.h" />
+    <ClInclude Include="src\Animation\Blending\IBlendNode.h" />
     <ClInclude Include="src\Animation\PiecewiseCurveMgr.h" />
     <ClInclude Include="src\Animation\Skin.h" />
     <ClInclude Include="src\Application\Engine.h" />
@@ -220,8 +235,11 @@
     <ClInclude Include="src\Components\PiecewiseCurve.h" />
     <ClInclude Include="src\Components\SkeletonRoot.h" />
     <ClInclude Include="src\Components\SkinReference.h" />
+    <ClInclude Include="src\Composition\Factory.h" />
     <ClInclude Include="src\Composition\GLTFNode.h" />
     <ClInclude Include="src\Composition\GLTFScene.h" />
+    <ClInclude Include="src\Composition\IBase.h" />
+    <ClInclude Include="src\Composition\ISerializable.h" />
     <ClInclude Include="src\Graphics\BasicShapes\Cube.h" />
     <ClInclude Include="src\Graphics\Rendering\Skybox.h" />
     <ClInclude Include="src\Graphics\Systems\DebugRenderer.h" />

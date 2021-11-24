@@ -9,6 +9,7 @@
 
 #include "pch.h"
 #include "Animation.h"
+#include "Math/Interpolation/InterpolationFunctions.h"
 #include <gltf/tiny_gltf.h>
 
 
@@ -103,5 +104,40 @@ namespace cs460
 			if (m_animData[i].m_time > m_duration)
 				m_duration = m_animData[i].m_time;
 		}
+	}
+
+
+	glm::vec3 Animation::sample_vec3(float time, int channelIdx)
+	{
+		AnimationChannel& channel = m_channels[channelIdx];
+		AnimationData& animData = m_animData[channel.m_animDataIdx];
+
+		const std::string& method = animData.m_interpolationMethod;
+		const std::string& property = channel.m_targetProperty;
+		const std::vector<float>& keys = animData.m_keys;
+		const std::vector<float>& values = animData.m_values;
+		
+		glm::vec3 result;
+
+		if (method == "LINEAR")
+			result = piecewise_lerp(animData.m_keys, animData.m_values, time);
+		else if (method == "STEP")
+			result = piecewise_step(animData.m_keys, animData.m_values, time);
+		else if (method == "CUBICSPLINE")
+			result = piecewise_hermite(animData.m_keys, animData.m_values, time);
+
+		return result;
+	}
+
+	glm::quat Animation::sample_quat(float time, int channelIdx, bool useNLerp)
+	{
+		AnimationChannel& channel = m_channels[channelIdx];
+		AnimationData& animData = m_animData[channel.m_animDataIdx];
+
+		glm::quat resultQuat = piecewise_slerp(animData.m_keys, animData.m_values, time);
+		if (useNLerp)
+			resultQuat = glm::normalize(resultQuat);
+
+		return resultQuat;
 	}
 }

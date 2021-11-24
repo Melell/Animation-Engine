@@ -30,3 +30,6 @@ namespace fs = std::filesystem;
 // Project files
 #include "Utilities/DebugCallbacks.h"
 #include "Utilities/Screenshot.h"
+#include "Utilities/Rtti.h"
+#include "Composition/IBase.h"
+#include "Composition/ISerializable.h"

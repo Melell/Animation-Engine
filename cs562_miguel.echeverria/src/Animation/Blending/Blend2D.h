@@ -17,6 +17,11 @@ namespace cs460
 {
 	struct Blend2D : public IBlendNode
 	{
-		glm::vec2 m_blendParam;
+		glm::vec2 m_blendParam{ 0.0f, 0.0f };
+
+		void produce_pose(float time) override;
+
+	private:
+		void blend_children(float time) override;
 	};
 }

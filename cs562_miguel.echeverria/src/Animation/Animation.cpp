@@ -117,7 +117,7 @@ namespace cs460
 		const std::vector<float>& keys = animData.m_keys;
 		const std::vector<float>& values = animData.m_values;
 		
-		glm::vec3 result;
+		glm::vec3 result{ 0.0f, 0.0f, 0.0f };
 
 		if (method == "LINEAR")
 			result = piecewise_lerp(animData.m_keys, animData.m_values, time);

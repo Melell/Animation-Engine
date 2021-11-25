@@ -15,11 +15,34 @@
 
 namespace cs460
 {
+	enum class BlendNodeTypes
+	{
+		BLEND_1D,
+		BLEND_2D,
+		BLEND_ANIM
+	};
+
+
 	struct IBlendNode
 	{
 		IBlendNode* m_parent = nullptr;
 		std::vector<IBlendNode*> m_children;
-
 		AnimPose m_pose;
+		glm::vec2 m_blendPos{0.0f, 0.0f};		// Only x is used in a 1D blend
+
+
+		// Create and add a blend node child of the given type
+		IBlendNode* add_child(BlendNodeTypes type);
+
+		// Remove the given blend node from the vector of children
+		void remove_child(IBlendNode* child);
+
+		// Gets the blended(or not, depending on type of node) pose at time into m_pose
+		virtual void produce_pose(float time) = 0;
+
+	private:
+		// Blends the children's poses into this node's pose.
+		// Meant to be overriden by Blend1D and Blend2D.
+		virtual void blend_children(float time);
 	};
 }

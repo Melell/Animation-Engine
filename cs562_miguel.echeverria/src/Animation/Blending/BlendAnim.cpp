@@ -10,9 +10,16 @@
 
 #include "pch.h"
 #include "BlendAnim.h"
+#include "BlendingCore.h"
+#include "Animation/Animation.h"
 
 
 namespace cs460
 {
-
+	// Produce a pose for the internal animation at the given time and store it in m_pose.
+	void BlendAnim::produce_pose(float time)
+	{
+		float realTime = glm::mod(time, m_animSource->m_duration);
+		::cs460::produce_pose(m_animSource, m_pose, realTime);
+	}
 }

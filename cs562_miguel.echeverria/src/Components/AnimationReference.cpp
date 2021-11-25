@@ -18,6 +18,8 @@
 #include "Components/ModelInstance.h"
 #include "Math/Interpolation/InterpolationFunctions.h"
 #include "Platform/FrameRateController.h"
+#include "Animation/Blending/BlendingCore.h"
+#include "Animation/Blending/IBlendNode.h"
 
 
 namespace cs460
@@ -34,12 +36,43 @@ namespace cs460
 	}
 
 
-	void AnimationReference::update_properties()
+	void AnimationReference::update()
 	{
-		// If no animation selected, or animation paused, don't update
-		if (m_animIdx < 0 || m_paused)
+		// If using a blend tree, ignore the rest of the logic
+		if (m_useBlendTree)
+		{
+			if (m_blendTree == nullptr)
+				return;
+			//if (m_blendTree.empty())
+			//	return;
+
+			m_blendTree->produce_pose(m_animTimer);
+			apply_pose_to_skeleton(m_blendTree->m_pose, this);
+		}
+		else
+		{
+			// If no animation selected, or animation paused, don't update
+			if (m_animIdx < 0 || m_paused)
+				return;
+
+			// Update the properties of the animation
+			update_properties();
+		}
+		
+		// Update the timer of the animation
+		m_animTimer += FrameRateController::get_instance().get_dt_float() * m_timeScale;
+
+		// Don't cap the timer when using blend trees
+		if (m_useBlendTree)
 			return;
 
+		// If looping and animation has finished, restart the animation
+		if (m_looping && m_animTimer > m_duration)
+			m_animTimer = 0.0f;
+	}
+
+	void AnimationReference::update_properties()
+	{
 		Model* model = get_owner()->get_model();
 
 		for (int i = 0; i < m_animProperties.size(); ++i)
@@ -77,20 +110,17 @@ namespace cs460
 				std::memcpy(m_animProperties[i].m_property, glm::value_ptr(interpolatedVal), 3 * sizeof(float));
 			}
 		}
-
-
-		// Update the timer of the animation
-		m_animTimer += FrameRateController::get_instance().get_dt_float() * m_timeScale;
-
-		// If looping and animation has finished, restart the animation
-		if (m_looping && m_animTimer > m_duration)
-			m_animTimer = 0.0f;
 	}
 
 
 	void AnimationReference::on_gui()
 	{
 		Model* model = get_owner()->get_model();
+
+		//ImGui::Checkbox("Use BlendTree", &m_useBlendTree);
+
+		//if (m_useBlendTree)
+		//	return;
 
 		if (ImGui::BeginCombo("Animation", m_previewName.c_str()))
 		{
@@ -221,4 +251,21 @@ namespace cs460
 	{
 		m_paused = isPaused;
 	}
+
+
+	// Getter and setter for whether we are using the blend tree
+	bool AnimationReference::get_use_blend_tree() const
+	{
+		return m_useBlendTree;
+	}
+	void AnimationReference::set_use_blend_tree(bool useBlendTree)
+	{
+		m_useBlendTree = useBlendTree;
+	}
+
+	// Get the blend tree itself
+	//BlendTree& AnimationReference::get_blend_tree()
+	//{
+	//	return m_blendTree;
+	//}
 }

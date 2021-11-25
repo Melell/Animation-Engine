@@ -12,6 +12,7 @@
 
 #include "IComponent.h"
 #include "Animation/Animation.h"
+#include "Animation/Blending/BlendTree.h"
 
 
 namespace cs460
@@ -23,7 +24,8 @@ namespace cs460
 		AnimationReference();
 		virtual ~AnimationReference();
 
-		// Animate the properties of this animation
+		// Update the animation
+		void update();
 		void update_properties();
 
 		void change_animation(int idx, const std::string& animName);
@@ -43,6 +45,15 @@ namespace cs460
 		void set_anim_looping(bool isLooping);
 		void set_anim_paused(bool isPaused);
 
+		// Getter and setter for whether we are using the blend tree
+		bool get_use_blend_tree() const;
+		void set_use_blend_tree(bool useBlendTree);
+
+		// Get the blend tree itself
+		IBlendNode* m_blendTree;
+		//IBlendNode*& get_blend_tree();
+		//BlendTree& get_blend_tree();
+
 	private:
 
 		// Anim resource related data
@@ -57,6 +68,9 @@ namespace cs460
 		bool m_looping = true;
 		bool m_paused = false;
 
+		// Blend tree
+		//BlendTree m_blendTree;
+		bool m_useBlendTree = false;
 
 		void on_gui() override;
 	};

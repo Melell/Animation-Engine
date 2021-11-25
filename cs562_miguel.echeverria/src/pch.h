@@ -33,3 +33,14 @@ namespace fs = std::filesystem;
 #include "Utilities/Rtti.h"
 #include "Composition/IBase.h"
 #include "Composition/ISerializable.h"
+#include "Composition/TransformData.h"
+
+
+namespace cs460
+{
+	// <NodeIdx, pair<NodeTransform, BitMaskForVQS> >
+	typedef std::unordered_map<unsigned, std::pair<TransformData, unsigned char> > AnimPose;
+	
+	// <NodeIdx, BlendParam>
+	typedef std::unordered_map<unsigned, float> BlendMask;
+}

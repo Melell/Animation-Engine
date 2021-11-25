@@ -20,6 +20,10 @@
 #include "Components/ModelInstance.h"		// Remove in future
 #include "Components/AnimationReference.h"	// Remove in future
 #include "Graphics/Systems/DebugRenderer.h"
+#include "Animation/Blending/Blend1D.h"
+#include "Animation/Blending/BlendAnim.h"
+#include "Resources/ResourceManager.h"
+#include "Graphics/GLTF/Model.h"
 
 
 
@@ -61,9 +65,13 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::SKINNED_ANIMATION;
 				}
-				if (ImGui::MenuItem("PATH FOLLOWING"))
+				if (ImGui::MenuItem("Path Following"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::PATH_FOLLOWING;
+				}
+				if (ImGui::MenuItem("ANIMATION BLENDING"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::ANIMATION_BLENDING;
 				}
 
 				ImGui::EndMenu();
@@ -161,6 +169,8 @@ namespace cs460
 			load_skinned_animation_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::PATH_FOLLOWING)
 			load_path_following_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::ANIMATION_BLENDING)
+			load_animation_blending_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -532,5 +542,65 @@ namespace cs460
 		// Place the camera
 		scene.get_camera().set_position(glm::vec3(0.0f, 2.0f, 25.0f));
 		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, -0.2f, -1.0f) * 30.0f);
+	}
+
+	void MainMenuBarGUI::load_animation_blending_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		// Create the nodes
+		SceneNode* xBot = root->create_child("X-BOT");
+
+
+		// Add the model
+		ModelInstance* xBotInstance = xBot->add_component<ModelInstance>();
+		xBotInstance->change_model("data/Models/MIXAMO/mixamo.gltf");
+
+
+		// Set the animation component and blend tree usage
+		AnimationReference* xBotAnim = xBot->get_component<AnimationReference>();
+		xBotAnim->set_use_blend_tree(true);
+
+		// Get the blend tree and build it;
+		Blend1D* blend1d = new Blend1D;
+		xBotAnim->m_blendTree = blend1d;
+		blend1d->m_blendParam = 0.5f;
+
+		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+
+		blendAnim1->m_blendPos.x = 0.0f;
+		blendAnim2->m_blendPos.x = 0.5f;
+		blendAnim3->m_blendPos.x = 1.0f;
+
+		// 5(IDLE), 18(WALK), 11(RUN)
+		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[5]);
+		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[18]);
+		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[11]);
+		
+		
+
+
+		
+		// Set their local transforms
+		/*brainStem->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+		cesiumMan->m_localTr.m_position = glm::vec3(2.206f, 0.0f, 0.0f);
+		fox->m_localTr.m_position = glm::vec3(4.312f, 0.0f, 0.0f);
+		fox->m_localTr.m_scale = glm::vec3(0.022f, 0.022f, 0.022f);
+		box->m_localTr.m_position = glm::vec3(0.0f, 0.0f, -8.094f);
+		cube->m_localTr.m_position = glm::vec3(4.11f, 0.0f, -8.631f);
+		cube->m_localTr.m_scale = glm::vec3(0.64f, 0.64f, 0.64f);*/
+
+
+		// Place the camera
+		scene.get_camera().set_position(glm::vec3(0.0f, 1.0f, 7.0f));
+		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
 	}
 }

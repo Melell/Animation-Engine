@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "Composition/TransformData.h"
-
 
 namespace cs460
 {
 	struct Animation;
+	class AnimationReference;
+
 
 	enum class TargetProperty
 	{
@@ -24,14 +24,12 @@ namespace cs460
 		SCALE = 4
 	};
 
-	// <NodeIdx, pair<NodeTransform, BitMaskForVQS> >
-	typedef std::unordered_map<unsigned, std::pair<TransformData, unsigned char> > AnimPose;
-
-	// <NodeIdx, BlendParam>
-	typedef std::unordered_map<unsigned, float> BlendMask;
-
 
 	void produce_pose(Animation* anim, AnimPose& pose, float time);
 	void blend_pose_lerp(const AnimPose& startPose, const AnimPose& endPose, AnimPose& resultPose, float blendParam, BlendMask* blendMask = nullptr);
 	void BlendPoseBarycentric(const AnimPose& pose0, const AnimPose& pose1, const AnimPose& pose2, float a0, float a1, float a2, AnimPose& resultPose, BlendMask* blendMask = nullptr);
+
+
+	// Apply the given pose to the nodes of the skeleton of the given anim component.
+	void apply_pose_to_skeleton(const AnimPose& pose, AnimationReference* animComp);
 }

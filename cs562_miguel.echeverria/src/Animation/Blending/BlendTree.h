@@ -13,10 +13,10 @@
 
 namespace cs460
 {
-	struct BlendNode;
+	struct IBlendNode;
 
 
-	class BlendTree : public ISerializable
+	/*class BlendTree : public ISerializable
 	{
 	public:
 
@@ -24,9 +24,23 @@ namespace cs460
 		BlendTree();
 		~BlendTree();
 
+		void produce_pose(float time);
+		AnimPose& get_current_pose();
 
+		IBlendNode* get_root();
+
+		// Returns true if the root is null
+		bool empty();
+
+		void clear();
 
 	private:
-		IBlendNode* m_root;
-	};
+		IBlendNode* m_root = nullptr;
+
+
+		void clear_node(IBlendNode* node);
+
+		void internalFromJson(json& value) override;
+		void internalToJson(json& value) override;
+	};*/
 }

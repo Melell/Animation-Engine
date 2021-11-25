@@ -15,10 +15,15 @@
 
 namespace cs460
 {
+	struct Animation;
+
+
 	struct BlendAnim : public IBlendNode
 	{
-		Animation* m_animSource;
-		BlendMask m_blendMask;
-		glm::vec2 m_blendPos;		// Only x is used in a 1D blend
+		Animation* m_animSource = nullptr;
+		//BlendMask m_blendMask;
+
+		// Produce a pose for the internal animation at the given time and store it in m_pose.
+		void produce_pose(float time) override;
 	};
 }

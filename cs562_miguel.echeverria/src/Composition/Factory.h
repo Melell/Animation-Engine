@@ -101,10 +101,10 @@ namespace cs460
 		auto found = m_creators.find(className);
 		if (found != m_creators.end())
 		{
-			std::cout << "WARNING: Couldn't add creator with name " << typeName << ", because there is already one with that name\n";
+			std::cout << "WARNING: Couldn't add creator with name " << className << ", because there is already one with that name\n";
 			return;
 		}
 
-		m_creators[typeName] = new TCreator<T>;
+		m_creators[className] = new TCreator<T>;
 	}
 }

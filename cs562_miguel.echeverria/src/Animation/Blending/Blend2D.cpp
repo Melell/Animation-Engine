@@ -14,5 +14,17 @@
 
 namespace cs460
 {
+	void Blend2D::produce_pose(float time)
+	{
 
+	}
+
+
+	void Blend2D::blend_children(float time)
+	{
+		for (int i = 0; i < m_children.size(); ++i)
+		{
+			m_children[i]->produce_pose(time);
+		}
+	}
 }

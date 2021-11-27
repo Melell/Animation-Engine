@@ -22,6 +22,9 @@ namespace cs460
 {
 	void produce_pose(Animation* anim, AnimPose& pose, float time)
 	{
+		// Clear any remaining pose data
+		pose.clear();
+
 		// For each channel
 		for (int i = 0; i < anim->m_channels.size(); ++i)
 		{

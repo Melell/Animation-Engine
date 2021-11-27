@@ -113,6 +113,38 @@ namespace cs460
 
 
 
+    using GamepadButtonId = const unsigned;
+    using StickId = const unsigned;
+    using TriggerId = const unsigned;
+    namespace GAMEPAD
+    {
+        GamepadButtonId button_a = 0;
+        GamepadButtonId button_b = 1;
+        GamepadButtonId button_x = 2;
+        GamepadButtonId button_y = 3;
+        GamepadButtonId button_lb = 4;
+        GamepadButtonId button_rb = 5;
+        GamepadButtonId button_share = 6;
+        GamepadButtonId button_options = 7;
+        GamepadButtonId button_leftBumper = 8;
+        GamepadButtonId button_rightBumper = 9;
+        GamepadButtonId button_up = 10;
+        GamepadButtonId button_right = 11;
+        GamepadButtonId button_down = 12;
+        GamepadButtonId button_left = 13;
+
+        TriggerId left_trigger = 0;
+        TriggerId right_trigger = 1;
+
+        StickId left_stick = 0;
+        StickId right_stick = 1;
+    }
+
+    const unsigned NUMBER_OF_GAMEPAD_BUTTONS = 14;
+    const unsigned NUMBER_OF_GAMEPAD_AXES = 6;
+
+
+
 	class InputMgr
 	{
 	public:
@@ -154,14 +186,27 @@ namespace cs460
         // ------------------------------------------------------- MOUSE --------------------------------------------------------
 
 
+        // ------------------------------------------------------ GAMEPAD ------------------------------------------------------
+        bool is_gamepad_button_pressed(GamepadButtonId button) const;
+        bool is_gamepad_button_released(GamepadButtonId button) const;
+        bool is_gamepad_button_down(GamepadButtonId button) const;
+        bool is_gamepad_button_up(GamepadButtonId button) const;
+
+        bool is_gamepad_connected() const;
+        // ------------------------------------------------------ GAMEPAD ------------------------------------------------------
+
+
         void set_mouse_position(const glm::vec2& newPos);
         void set_vertical_scroll(float newScroll);
 
 	private:
+        // Keyboard state
 		bool m_currKeyIsPressed[NUMBER_OF_KEYS];
 		bool m_prevKeyIsPressed[NUMBER_OF_KEYS];
         bool m_anyKeyPressed = false;
 
+
+        // Mouse state
         bool m_currMouseIsPressed[NUMBER_OF_MOUSE_BUTTONS];
         bool m_prevMouseIsPressed[NUMBER_OF_MOUSE_BUTTONS];
         bool m_anyMouseButtonPressed = false;
@@ -169,6 +214,22 @@ namespace cs460
         glm::vec2 m_currMousePos;
         glm::vec2 m_prevMousePos;
         float m_verticalScroll;
+
+
+        // Gamepad state
+        const unsigned char* m_currGamepadButtons = nullptr;
+        std::vector<unsigned char> m_prevGamepadButtons;
+        int m_numberOfGamepadButtons = 0;
+
+        const float* m_currGamepadAxes = nullptr;
+        int m_numberOfAxes = 0;
+
+        int m_gamepadId = 0;
+
+
+        void update_keys();
+        void update_mouse();
+        void update_gamepad();
 
 
         InputMgr();

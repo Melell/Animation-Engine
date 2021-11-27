@@ -570,20 +570,26 @@ namespace cs460
 		// Get the blend tree and build it;
 		Blend1D* blend1d = new Blend1D;
 		xBotAnim->m_blendTree = blend1d;
-		blend1d->m_blendParam = 0.5f;
+		blend1d->m_blendParam = 0.0f;
 
 		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
 		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
 		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
 
 		blendAnim1->m_blendPos.x = 0.0f;
 		blendAnim2->m_blendPos.x = 0.5f;
 		blendAnim3->m_blendPos.x = 1.0f;
+		blendAnim4->m_blendPos.x = 1.5f;
+		blendAnim5->m_blendPos.x = 2.0f;
 
-		// 5(IDLE), 18(WALK), 11(RUN)
+		// 5(IDLE), 18(WALK), 6(JOG), 11(RUN), 3(FAST RUN)
 		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[5]);
 		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[18]);
-		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[11]);
+		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[6]);
+		blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[11]);
+		blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[3]);
 		
 		
 

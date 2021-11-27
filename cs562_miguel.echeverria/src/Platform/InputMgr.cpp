@@ -88,24 +88,9 @@ namespace cs460
     // Update previous and current arrays
     void InputMgr::update()
     {
-        // Update the previous states of the keys
-        for (unsigned i = 0; i < NUMBER_OF_KEYS; ++i)
-            m_prevKeyIsPressed[i] = m_currKeyIsPressed[i];
-
-
-        // Update the previous states of the mouse buttons
-        for (unsigned i = 0; i < NUMBER_OF_MOUSE_BUTTONS; ++i)
-            m_prevMouseIsPressed[i] = m_currMouseIsPressed[i];
-
-
-        // Update the previous cursor position and the scroll
-        m_prevMousePos = m_currMousePos;
-        m_verticalScroll = 0.0f;
-
-
-        // Update the any key/mouse button pressed flags
-        m_anyKeyPressed = false;
-        m_anyMouseButtonPressed = false;
+        update_keys();
+        update_mouse();
+        update_gamepad();
     }
 
     // Does nothing for now
@@ -263,6 +248,44 @@ namespace cs460
     }
 
 
+    bool InputMgr::is_gamepad_button_pressed(GamepadButtonId button) const
+    {
+        if (!is_gamepad_connected() || !m_currGamepadButtons || button < 0 || button >= m_prevGamepadButtons.size())
+            return false;
+
+        return !m_prevGamepadButtons[button] && m_currGamepadButtons[button];
+    }
+
+    bool InputMgr::is_gamepad_button_released(GamepadButtonId button) const
+    {
+        if (!is_gamepad_connected() || !m_currGamepadButtons || button < 0 || button >= m_prevGamepadButtons.size())
+            return false;
+
+        return m_prevGamepadButtons[button] && !m_currGamepadButtons[button];
+    }
+
+    bool InputMgr::is_gamepad_button_down(GamepadButtonId button) const
+    {
+        if (!is_gamepad_connected() || !m_currGamepadButtons || button < 0 || button >= m_prevGamepadButtons.size())
+            return false;
+
+        return m_prevGamepadButtons[button] && m_currGamepadButtons[button];
+    }
+
+    bool InputMgr::is_gamepad_button_up(GamepadButtonId button) const
+    {
+        if (!is_gamepad_connected() || !m_currGamepadButtons || button < 0 || button >= m_prevGamepadButtons.size())
+            return false;
+
+        return !m_prevGamepadButtons[button] && !m_currGamepadButtons[button];
+    }
+    
+    bool InputMgr::is_gamepad_connected() const
+    {
+        return glfwJoystickIsGamepad(m_gamepadId);
+    }
+
+
     void InputMgr::set_mouse_position(const glm::vec2& newPos)
     {
         m_currMousePos = newPos;
@@ -271,5 +294,40 @@ namespace cs460
     void InputMgr::set_vertical_scroll(float newScroll)
     {
         m_verticalScroll = newScroll;
+    }
+
+
+    void InputMgr::update_keys()
+    {
+        // Update the previous states of the keys
+        for (unsigned i = 0; i < NUMBER_OF_KEYS; ++i)
+            m_prevKeyIsPressed[i] = m_currKeyIsPressed[i];
+
+        m_anyKeyPressed = false;
+    }
+
+    void InputMgr::update_mouse()
+    {
+        // Update the previous states of the mouse buttons
+        for (unsigned i = 0; i < NUMBER_OF_MOUSE_BUTTONS; ++i)
+            m_prevMouseIsPressed[i] = m_currMouseIsPressed[i];
+
+        // Update the previous cursor position and the scroll
+        m_prevMousePos = m_currMousePos;
+        m_verticalScroll = 0.0f;
+
+        m_anyMouseButtonPressed = false;
+    }
+
+    void InputMgr::update_gamepad()
+    {
+        // Update the previous gamepad buttons with the current ones
+        m_prevGamepadButtons.resize(m_numberOfGamepadButtons);
+        for (int i = 0; i < m_numberOfGamepadButtons; ++i)
+            m_prevGamepadButtons[i] = m_currGamepadButtons[i];
+
+        // Save the gamepad axes and button current state
+        m_currGamepadAxes = glfwGetJoystickAxes(m_gamepadId, &m_numberOfAxes);
+        m_currGamepadButtons = glfwGetJoystickButtons(m_gamepadId, &m_numberOfGamepadButtons);
     }
 }

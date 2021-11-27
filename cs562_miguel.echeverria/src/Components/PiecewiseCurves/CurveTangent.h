@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "IComponent.h"
+#include "Components/IComponent.h"
 
 
 namespace cs460

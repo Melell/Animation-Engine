@@ -1,37 +1,33 @@
 /**
-* @file SkinReference.cpp
+* @file SkeletonRoot.h
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/10
-* @brief Component that indicates this node's mesh is using a skin.
+* @brief Component that represents the common root of joints in a skin. Merely
+*		 for displaying this information in the editor.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */
 
 #pragma once
 
-#include "IComponent.h"
+#include "Components/IComponent.h"
 
 
 namespace cs460
 {
-	class SkinReference : public IComponent
+	class SkeletonRoot : public IComponent
 	{
 	public:
 
-		SkinReference();
-		virtual ~SkinReference();
+		SkeletonRoot();
+		virtual ~SkeletonRoot();
 
 		// Getters and setters for the skin index
 		void set_skin_idx(int idx);
 		int get_skin_idx() const;
 
-		std::vector<glm::mat4>& get_joint_matrices();
-		bool get_draw_skeleton() const;
-
 	private:
 		int m_skinIdx = -1;
-		std::vector<glm::mat4> m_jointMatrices;
-		bool m_drawSkeleton = true;
 
 		void on_gui() override;
 	};

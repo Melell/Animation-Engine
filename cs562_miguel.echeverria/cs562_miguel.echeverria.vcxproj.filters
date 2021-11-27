@@ -87,7 +87,7 @@
     <ClCompile Include="src\Components\IComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\ModelInstance.cpp">
+    <ClCompile Include="src\Components\Models\ModelInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Utilities\Rtti.cpp">
@@ -105,7 +105,7 @@
     <ClCompile Include="src\Graphics\GLTF\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\MeshRenderable.cpp">
+    <ClCompile Include="src\Components\Models\MeshRenderable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Rendering\Shader.cpp">
@@ -153,7 +153,7 @@
     <ClCompile Include="src\Composition\GLTFScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\SkinReference.cpp">
+    <ClCompile Include="src\Components\Animation\SkinReference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation\Animator.cpp">
@@ -165,34 +165,34 @@
     <ClCompile Include="src\Math\Geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\SkeletonRoot.cpp">
+    <ClCompile Include="src\Components\Animation\SkeletonRoot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\Joint.cpp">
+    <ClCompile Include="src\Components\Animation\Joint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\PiecewiseCurve.cpp">
+    <ClCompile Include="src\Components\PiecewiseCurves\PiecewiseCurve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation\Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\AnimationReference.cpp">
+    <ClCompile Include="src\Components\Animation\AnimationReference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Math\Interpolation\InterpolationFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\CurvePoint.cpp">
+    <ClCompile Include="src\Components\PiecewiseCurves\CurvePoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation\PiecewiseCurveMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\CurveTangent.cpp">
+    <ClCompile Include="src\Components\PiecewiseCurves\CurveTangent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Components\CurveControlPoint.cpp">
+    <ClCompile Include="src\Components\PiecewiseCurves\CurveControlPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GUI\RendererConfigGUI.cpp">
@@ -241,6 +241,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Animation\Blending\BlendingCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\Gameplay\ScriptComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\Systems\ScriptMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\Components\PlayerController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Physics\RigidbodyMgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Components\Physics\Rigidbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\SphericalCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cameras\ICamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -317,7 +338,7 @@
     <ClInclude Include="src\Components\IComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\ModelInstance.h">
+    <ClInclude Include="src\Components\Models\ModelInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utilities\Rtti.h">
@@ -335,7 +356,7 @@
     <ClInclude Include="src\Graphics\GLTF\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\MeshRenderable.h">
+    <ClInclude Include="src\Components\Models\MeshRenderable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\Rendering\Shader.h">
@@ -383,7 +404,7 @@
     <ClInclude Include="src\Composition\GLTFScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\SkinReference.h">
+    <ClInclude Include="src\Components\Animation\SkinReference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\Animator.h">
@@ -395,34 +416,34 @@
     <ClInclude Include="src\Math\Geometry\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\SkeletonRoot.h">
+    <ClInclude Include="src\Components\Animation\SkeletonRoot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\Joint.h">
+    <ClInclude Include="src\Components\Animation\Joint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\PiecewiseCurve.h">
+    <ClInclude Include="src\Components\PiecewiseCurves\PiecewiseCurve.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\AnimationReference.h">
+    <ClInclude Include="src\Components\Animation\AnimationReference.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Math\Interpolation\InterpolationFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\CurvePoint.h">
+    <ClInclude Include="src\Components\PiecewiseCurves\CurvePoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\PiecewiseCurveMgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\CurveTangent.h">
+    <ClInclude Include="src\Components\PiecewiseCurves\CurveTangent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Components\CurveControlPoint.h">
+    <ClInclude Include="src\Components\PiecewiseCurves\CurveControlPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\GUI\RendererConfigGUI.h">
@@ -471,6 +492,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\Blending\BlendingCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Gameplay\ScriptComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\Systems\ScriptMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\Components\PlayerController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Physics\RigidbodyMgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Physics\Rigidbody.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Cameras\SphericalCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Cameras\ICamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

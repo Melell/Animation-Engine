@@ -30,5 +30,8 @@ namespace cs460
 
         // Performs one dimensional blending using the children nodes.
 		void blend_children(float time) override;
+
+		// Normalize the blend parameter to the range [0, 1] (0=at from, 1=at to)
+		float get_normalized_blend_param(IBlendNode* from, IBlendNode* to);
 	};
 }

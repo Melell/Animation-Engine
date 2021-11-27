@@ -12,10 +12,10 @@
 #include "BlendingCore.h"
 #include "Animation/Animation.h"
 #include "Math/Interpolation/InterpolationFunctions.h"
-#include "Components/AnimationReference.h"
+#include "Components/Animation/AnimationReference.h"
 #include "Composition/Scene.h"
 #include "Composition/SceneNode.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
 
 
 namespace cs460

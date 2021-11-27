@@ -20,7 +20,7 @@ namespace cs460
 			m_far(1000.0f)
 			
 	{
-		m_perspectiveMtx = glm::perspective(m_yFov, m_aspectRatio, m_near, m_far);
+		update_projection_mtx();
 	}
 
 	PerspectiveCamera::PerspectiveCamera(float yFov, float aspectRatio, float near, float far)
@@ -29,11 +29,68 @@ namespace cs460
 			m_near(near),
 			m_far(far)
 	{
-		m_perspectiveMtx = glm::perspective(m_yFov, m_aspectRatio, m_near, m_far);
+		update_projection_mtx();
 	}
 
-	const glm::mat4& PerspectiveCamera::get_perspective_mtx() const
+
+	// Meant to be implemented by child classes(editor cam, spherical cam etc)
+	void PerspectiveCamera::update_view_mtx()
 	{
-		return m_perspectiveMtx;
+	}
+
+
+	void PerspectiveCamera::update_projection_mtx()
+	{
+		m_projectionMtx = glm::perspective(m_yFov, m_aspectRatio, m_near, m_far);
+	}
+
+
+	// Getters for the camera parameters
+	float PerspectiveCamera::get_y_fov() const
+	{
+		return m_yFov;
+	}
+
+	float PerspectiveCamera::get_aspect_ratio() const
+	{
+		return m_aspectRatio;
+	}
+
+	float PerspectiveCamera::get_near() const
+	{
+		return m_near;
+	}
+
+	float PerspectiveCamera::get_far() const
+	{
+		return m_far;
+	}
+
+
+	// Setters for the camera parameters
+	void PerspectiveCamera::set_y_fov(float yFov)
+	{
+		m_yFov = yFov;
+	}
+
+	void PerspectiveCamera::set_aspect_ratio(float aspectRatio)
+	{
+		m_aspectRatio = aspectRatio;
+	}
+
+	void PerspectiveCamera::set_near(float near)
+	{
+		m_near = near;
+	}
+
+	void PerspectiveCamera::set_far(float far)
+	{
+		m_far = far;
+	}
+
+
+	// Meant to be overriden by specific cameras
+	void PerspectiveCamera::camera_logic()
+	{
 	}
 }

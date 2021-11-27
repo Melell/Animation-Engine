@@ -1,26 +1,26 @@
 /**
-* @file SkeletonRoot.h
+* @file Joint.h
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/10
-* @brief Component that represents the common root of joints in a skin. Merely
-*		 for displaying this information in the editor.
+* @brief Component that represents a joint in a skin. Merely for showing
+*		 the info in the editor.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */
 
 #pragma once
 
-#include "IComponent.h"
+#include "Components/IComponent.h"
 
 
 namespace cs460
 {
-	class SkeletonRoot : public IComponent
+	class Joint : public IComponent
 	{
 	public:
 
-		SkeletonRoot();
-		virtual ~SkeletonRoot();
+		Joint();
+		virtual ~Joint();
 
 		// Getters and setters for the skin index
 		void set_skin_idx(int idx);

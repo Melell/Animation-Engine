@@ -9,12 +9,11 @@
 
 #pragma once
 
-#include "Cameras/EditorCamera.h"
-
 
 namespace cs460
 {
 	class SceneNode;
+	class ICamera;
 
 	// Should this go on a separate file and inside a different class?
 	struct LightProperties
@@ -44,7 +43,8 @@ namespace cs460
 		SceneNode* get_root() const;
 	
 		// The whole camera api will change
-		EditorCamera& get_camera();
+		ICamera* get_active_camera();
+		void change_camera(bool isEditorCam);	// TODO: Change this to a better system
 
 		std::vector<std::unordered_map<int, SceneNode*>>& get_all_model_nodes();
 		std::unordered_map<int, SceneNode*>& get_model_inst_nodes(int instanceId);
@@ -55,7 +55,8 @@ namespace cs460
 	
 		SceneNode* m_root;
 		std::vector<std::unordered_map<int, SceneNode*>> m_modelNodes;		// One "dictionary" per model instance in the scene
-		EditorCamera m_camera;
+		ICamera* m_camera;
+		bool m_isEditorCamera;
 		
 		void update_node(SceneNode* node);		// Recursive function to update the transform of the provided node
 		void delete_tree_internal(SceneNode* node);

@@ -10,12 +10,12 @@
 
 #include "pch.h"
 #include "Animator.h"
-#include "Components/SkinReference.h"
+#include "Components/Animation/SkinReference.h"
 #include "Composition/SceneNode.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
 #include "Composition/Scene.h"
 #include "Graphics/GLTF/Model.h"
-#include "Components/AnimationReference.h"
+#include "Components/Animation/AnimationReference.h"
 
 
 namespace cs460

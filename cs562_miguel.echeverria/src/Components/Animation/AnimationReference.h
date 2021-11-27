@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "IComponent.h"
+#include "Components/IComponent.h"
 #include "Animation/Animation.h"
 #include "Animation/Blending/BlendTree.h"
 

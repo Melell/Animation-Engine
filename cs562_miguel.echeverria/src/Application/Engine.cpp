@@ -19,6 +19,8 @@
 #include "Platform/InputMgr.h"
 #include "GUI/MainMenuBarGUI.h"		// TODO: Remove this in the future
 #include "Composition/Factory.h"
+#include "Gameplay/Systems/ScriptMgr.h"
+#include "Cameras/ICamera.h"
 
 
 namespace cs460
@@ -75,19 +77,23 @@ namespace cs460
 		FrameRateController& frc = FrameRateController::get_instance();
 		PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
 		InputMgr& inputMgr = InputMgr::get_instance();
+		ScriptMgr& scriptMgr = ScriptMgr::get_instance();
 
 		
 		// Loop until the user closes the window
 		while (!renderer.get_window().get_window_should_close())
 		{
 			// Update the editor camera (the way the camera is organized will change)
-			scene.get_camera().update();
+			scene.get_active_camera()->update();
 
 			// Update all the model to local and model to world matrices
 			scene.update();
 
 			// Do all the gui logic as well as the gizmos
 			editor.update();
+
+			// Update all the scripts
+			scriptMgr.update();
 
 			// Update all the piecewise curves
 			curveMgr.update();

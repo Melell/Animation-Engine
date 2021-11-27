@@ -9,10 +9,10 @@
 
 #include "pch.h"
 #include "Renderer.h"
-#include "Components/MeshRenderable.h"
+#include "Components/Models/MeshRenderable.h"
 #include "Graphics/GLTF/Model.h"
 #include "Composition/SceneNode.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
 #include "Graphics/Rendering/Skybox.h"
 #include "Resources/ResourceManager.h"
 #include "DebugRenderer.h"
@@ -91,6 +91,7 @@ namespace cs460
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
+		DebugRenderer::draw_grid(DebugRenderer::s_xGridSize, DebugRenderer::s_zGridSize, DebugRenderer::s_xSubdivisions, DebugRenderer::s_zSubdivisions);
 		glEnable(GL_CULL_FACE);
 	}
 

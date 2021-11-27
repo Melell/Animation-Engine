@@ -83,7 +83,7 @@ namespace cs460
 		float yScroll = inputMgr.get_vertical_scroll();
 		m_blendParam += yScroll * 0.01f;
 		//m_blendParam = m_blendParam < 0.0f ? 0.0f : m_blendParam;
-		std::cout << "BLEND PARAM: " << m_blendParam << std::endl;
+		//std::cout << "BLEND PARAM: " << m_blendParam << std::endl;
 
 		blend_children(time);
 	}
@@ -101,6 +101,15 @@ namespace cs460
 		to->produce_pose(time);
 
 		// Normalize the blend parameter for the pose blending
+		float normalizedBlendParam = get_normalized_blend_param(from, to);
+
+		// blend the pose into ours
+		blend_pose_lerp(from->m_pose, to->m_pose, m_pose, normalizedBlendParam);
+	}
+
+	// Normalize the blend parameter to the range [0, 1] (0=at from, 1=at to)
+	float Blend1D::get_normalized_blend_param(IBlendNode* from, IBlendNode* to)
+	{
 		float segmentBlendDist = to->m_blendPos.x - from->m_blendPos.x;
 		float normalizedBlendParam = 1.0f;
 		if (glm::epsilonNotEqual(segmentBlendDist, 0.0f, FLT_EPSILON))
@@ -109,8 +118,6 @@ namespace cs460
 			normalizedBlendParam = segmentBlendParam / segmentBlendDist;
 		}
 		normalizedBlendParam = glm::clamp(normalizedBlendParam, 0.0f, 1.0f);
-
-		// blend the pose into ours
-		blend_pose_lerp(from->m_pose, to->m_pose, m_pose, normalizedBlendParam);
+		return normalizedBlendParam;
 	}
 }

@@ -9,12 +9,12 @@
 
 #include "pch.h"
 #include "ModelInstance.h"
-#include "IComponent.h"
+#include "Components/IComponent.h"
 #include "Graphics/GLTF/Model.h"
 #include "Resources/ResourceManager.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
-#include "Components/AnimationReference.h"
+#include "Components/Animation/AnimationReference.h"
 #include <gltf/tiny_gltf.h>
 
 

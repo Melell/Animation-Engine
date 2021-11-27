@@ -16,11 +16,11 @@
 #include "Math/Interpolation/InterpolationFunctions.h"
 #include "Graphics/Systems/DebugRenderer.h"
 #include "Math/Geometry/Geometry.h"
-#include "Components/CurveTangent.h"
-#include "Components/CurveControlPoint.h"
-#include "Components/ModelInstance.h"
+#include "Components/PiecewiseCurves/CurveTangent.h"
+#include "Components/PiecewiseCurves/CurveControlPoint.h"
+#include "Components/Models/ModelInstance.h"
 #include "Math/Interpolation/EasingFunctions.h"
-#include "Components/AnimationReference.h"
+#include "Components/Animation/AnimationReference.h"
 
 
 namespace cs460

@@ -126,8 +126,8 @@ namespace cs460
         GamepadButtonId button_rb = 5;
         GamepadButtonId button_share = 6;
         GamepadButtonId button_options = 7;
-        GamepadButtonId button_leftBumper = 8;
-        GamepadButtonId button_rightBumper = 9;
+        GamepadButtonId button_leftThumb = 8;
+        GamepadButtonId button_rightThumb = 9;
         GamepadButtonId button_up = 10;
         GamepadButtonId button_right = 11;
         GamepadButtonId button_down = 12;

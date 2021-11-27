@@ -12,6 +12,7 @@
 #include "Resources/ResourceManager.h"
 #include "Graphics/Rendering/Shader.h"
 #include "Composition/Scene.h"
+#include "Cameras/ICamera.h"
 #include <GL/glew.h>
 
 
@@ -42,8 +43,8 @@ namespace cs460
 		// Bind the shader and set its uniforms
 		shader->use();
 		//shader->set_uniform("modelToWorld", glm::mat4(1.0f));
-		shader->set_uniform("worldToView", glm::mat4(glm::mat3(scene.get_camera().get_view_mtx())));
-		shader->set_uniform("perspectiveProj", scene.get_camera().get_projection_mtx());
+		shader->set_uniform("worldToView", glm::mat4(glm::mat3(scene.get_active_camera()->get_view_mtx())));
+		shader->set_uniform("perspectiveProj", scene.get_active_camera()->get_projection_mtx());
 		shader->set_uniform("skyboxSampler", m_cubeMap.get_texture_unit());
 
 		// Bind the geometry data

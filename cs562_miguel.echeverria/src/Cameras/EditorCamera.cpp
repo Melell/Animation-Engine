@@ -18,28 +18,16 @@
 
 namespace cs460
 {
-	// Logic for the editor camera
-	void EditorCamera::update()
+	void EditorCamera::update_view_mtx()
 	{
-		camera_controls();
-		update_view_mtx();
+		m_viewMtx = glm::lookAt(m_position, m_target, get_up_vec());
 	}
 
 
-	// Getters for position and target
-	glm::vec3 EditorCamera::get_position() const
-	{
-		return m_position;
-	}
-
+	// Getter and setter for the target
 	glm::vec3 EditorCamera::get_target() const
 	{
 		return m_target;
-	}
-
-	void EditorCamera::set_position(const glm::vec3& newPosition)
-	{
-		m_position = newPosition;
 	}
 
 	void EditorCamera::set_target(const glm::vec3& newTarget)
@@ -70,19 +58,8 @@ namespace cs460
 	}
 
 
-	glm::mat4 EditorCamera::get_view_mtx() const
-	{
-		return m_viewMtx;
-	}
-
-	glm::mat4 EditorCamera::get_projection_mtx() const
-	{
-		return m_camera.get_perspective_mtx();
-	}
-
-
 	// Actual logic for the editor camera goes here
-	void EditorCamera::camera_controls()
+	void EditorCamera::camera_logic()
 	{
 		FrameRateController& frc = FrameRateController::get_instance();
 		Renderer& renderer = Renderer::get_instance();
@@ -182,11 +159,6 @@ namespace cs460
 			else
 				m_initialPosRecorded = false;
 		}
-	}
-
-	void EditorCamera::update_view_mtx()
-	{
-		m_viewMtx = glm::lookAt(m_position, m_target, get_up_vec());
 	}
 
 	// Record the mouse x and y screen coordinates.

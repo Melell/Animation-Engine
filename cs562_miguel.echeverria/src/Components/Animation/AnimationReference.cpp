@@ -15,7 +15,7 @@
 #include "Graphics/GLTF/Model.h"
 #include "Composition/Scene.h"
 #include "Composition/SceneNode.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
 #include "Math/Interpolation/InterpolationFunctions.h"
 #include "Platform/FrameRateController.h"
 #include "Animation/Blending/BlendingCore.h"

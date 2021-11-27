@@ -10,20 +10,23 @@
 #include "pch.h"
 #include "MainMenuBarGUI.h"
 #include "Graphics/Systems/Renderer.h"
-#include "Composition/Scene.h"				// For loading scenes manually (remove in the future)
-#include "Editor.h"							// TODO: Remove this in the future
-#include "Composition/SceneNode.h"			// For loading scenes manually (remove in the future)
-#include "Components/PiecewiseCurve.h"		// Remove in future
-#include "Components/CurvePoint.h"			// Remove in future
-#include "Components/CurveTangent.h"		// Remove in future
-#include "Components/CurveControlPoint.h"	// Remove in future
-#include "Components/ModelInstance.h"		// Remove in future
-#include "Components/AnimationReference.h"	// Remove in future
+#include "Composition/Scene.h"								// For loading scenes manually (remove in the future)
+#include "Editor.h"											// TODO: Remove this in the future
+#include "Composition/SceneNode.h"							// For loading scenes manually (remove in the future)
+#include "Components/PiecewiseCurves/PiecewiseCurve.h"		// Remove in future
+#include "Components/PiecewiseCurves/CurvePoint.h"			// Remove in future
+#include "Components/PiecewiseCurves/CurveTangent.h"		// Remove in future
+#include "Components/PiecewiseCurves/CurveControlPoint.h"	// Remove in future
+#include "Components/Models/ModelInstance.h"				// Remove in future
+#include "Components/Animation/AnimationReference.h"		// Remove in future
 #include "Graphics/Systems/DebugRenderer.h"
 #include "Animation/Blending/Blend1D.h"
 #include "Animation/Blending/BlendAnim.h"
 #include "Resources/ResourceManager.h"
 #include "Graphics/GLTF/Model.h"
+#include "Gameplay/Components/PlayerController.h"
+#include "Cameras/EditorCamera.h"
+#include "Cameras/SphericalCamera.h"
 
 
 
@@ -136,6 +139,24 @@ namespace cs460
 					ImGui::EndMenu();
 				}
 
+				if (ImGui::BeginMenu("Grid"))
+				{
+					ImGui::Checkbox("Enable Drawing", &DebugRenderer::s_enableGridDrawing);
+					ImGui::SliderFloat("Grid X Size", &DebugRenderer::s_xGridSize, 10.0f, 100.0f, "%.1f");
+					ImGui::SliderFloat("Grid Z Size", &DebugRenderer::s_zGridSize, 10.0f, 100.0f, "%.1f");
+
+					int xSubdivisions = (int)DebugRenderer::s_xSubdivisions;
+					int zSubdivisions = (int)DebugRenderer::s_zSubdivisions;
+					ImGui::SliderInt("X Subdivisions", &xSubdivisions, 0, 200);
+					ImGui::SliderInt("Z Subdivisions", &zSubdivisions, 0, 200);
+					xSubdivisions = glm::clamp(xSubdivisions, 0, 200);
+					zSubdivisions = glm::clamp(zSubdivisions, 0, 200);
+					DebugRenderer::s_xSubdivisions = (unsigned)xSubdivisions;
+					DebugRenderer::s_zSubdivisions = (unsigned)zSubdivisions;
+
+					ImGui::EndMenu();
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -181,6 +202,9 @@ namespace cs460
 		Scene& scene = Scene::get_instance();
 		scene.clear();
 		Editor::get_instance().get_state().m_selectedNode = nullptr;
+
+		DebugRenderer::s_enableGridDrawing = false;
+		scene.change_camera(true);
 	}
 
 	void MainMenuBarGUI::load_linear_curve_scene()
@@ -217,8 +241,14 @@ namespace cs460
 		curvePoint4->m_localTr.m_position = glm::vec3(0.355f, -1.801f, 0.0f);
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(0.8f, -0.8f, 3.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(0.8f, -0.8f, 3.0f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on linear curve demo\n";
 	}
 
 	void MainMenuBarGUI::load_hermite_curve_scene()
@@ -298,8 +328,14 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(-5.5f, 0.5f, 0.4f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.8f, 0.0f, 0.1f) * 25.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(-5.5f, 0.5f, 0.4f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(0.8f, 0.0f, 0.1f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on hermite curve demo\n";
 	}
 
 	void MainMenuBarGUI::load_catmull_rom_curve_scene()
@@ -336,8 +372,14 @@ namespace cs460
 		curvePoint3->m_localTr.m_position = glm::vec3(-2.011f, 0.472f, 0.558f);
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(4.0f, 0.2f, 3.2f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(-1.0f, -0.2f, -1.0f) * 25.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(4.0f, 0.2f, 3.2f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(-1.0f, -0.2f, -1.0f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on catmull-rom curve demo\n";
 	}
 
 	void MainMenuBarGUI::load_bezier_curve_scene()
@@ -403,8 +445,14 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(-2.2f, 1.2f, 2.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(1.0f, -0.3f, -1.0f) * 25.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(-2.2f, 1.2f, 2.0f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(1.0f, -0.3f, -1.0f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on bezier curve demo\n";
 	}
 
 	void MainMenuBarGUI::load_skinned_animation_scene()
@@ -472,8 +520,14 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(2.206f, 1.0f, 7.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(2.206f, 1.0f, 7.0f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on skinned animations demo\n";
 	}
 
 	void MainMenuBarGUI::load_path_following_scene()
@@ -540,8 +594,14 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(0.0f, 2.0f, 25.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, -0.2f, -1.0f) * 30.0f);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(0.0f, 2.0f, 25.0f));
+			editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, -0.2f, -1.0f) * 30.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on path following demo\n";
 	}
 
 	void MainMenuBarGUI::load_animation_blending_scene()
@@ -550,9 +610,11 @@ namespace cs460
 		load_empty_scene();
 
 		ResourceManager& resourceMgr = ResourceManager::get_instance();
-
 		Scene& scene = Scene::get_instance();
 		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = true;
+		scene.change_camera(false);
 
 		// Create the nodes
 		SceneNode* xBot = root->create_child("X-BOT");
@@ -592,7 +654,8 @@ namespace cs460
 		blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[3]);
 		
 		
-
+		// Add the player controller script component
+		xBot->add_component<PlayerControler>();
 
 		
 		// Set their local transforms
@@ -606,7 +669,7 @@ namespace cs460
 
 
 		// Place the camera
-		scene.get_camera().set_position(glm::vec3(0.0f, 1.0f, 7.0f));
-		scene.get_camera().set_target(scene.get_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		//scene.get_editor_camera().set_position(glm::vec3(0.0f, 1.0f, 7.0f));
+		//scene.get_editor_camera().set_target(scene.get_editor_camera().get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
 	}
 }

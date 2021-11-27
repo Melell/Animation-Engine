@@ -12,6 +12,8 @@
 #include "SceneNode.h"
 #include "GUI/EditorState.h"
 #include "Platform/InputMgr.h"
+#include "Cameras/EditorCamera.h"
+#include "Cameras/SphericalCamera.h"
 
 
 namespace cs460
@@ -19,7 +21,8 @@ namespace cs460
 	Scene::Scene()
 		:	m_root(nullptr)
 	{
-
+		m_camera = new EditorCamera;
+		m_isEditorCamera = true;
 	}
 	
 	Scene::~Scene()
@@ -71,6 +74,9 @@ namespace cs460
 			delete m_root;
 			m_root = nullptr;
 		}
+
+		delete m_camera;
+		m_camera = nullptr;
 	}
 
 	
@@ -99,9 +105,23 @@ namespace cs460
 		return m_root;
 	}
 
-	EditorCamera& Scene::get_camera()
+	ICamera* Scene::get_active_camera()
 	{
 		return m_camera;
+	}
+
+	void Scene::change_camera(bool isEditorCam)
+	{
+		if (m_isEditorCamera == isEditorCam)
+			return;
+
+		m_isEditorCamera = isEditorCam;
+
+		delete m_camera;
+		if (isEditorCam)
+			m_camera = new EditorCamera;
+		else
+			m_camera = new SphericalCamera;
 	}
 
 	std::vector<std::unordered_map<int, SceneNode*>>& Scene::get_all_model_nodes()

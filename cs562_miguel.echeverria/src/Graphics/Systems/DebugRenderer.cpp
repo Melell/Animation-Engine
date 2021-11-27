@@ -14,10 +14,11 @@
 #include "Graphics/Rendering/Shader.h"
 #include "Composition/Scene.h"
 #include "Animation/Animator.h"
-#include "Components/SkinReference.h"
+#include "Components/Animation/SkinReference.h"
 #include "Composition/SceneNode.h"
 #include "Graphics/GLTF/Model.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
+#include "Cameras/ICamera.h"
 #include <GL/glew.h>
 
 
@@ -51,6 +52,13 @@ namespace cs460
 	float DebugRenderer::s_tableSampleSize = 0.05f;
 
 
+	bool DebugRenderer::s_enableGridDrawing = false;
+	float DebugRenderer::s_xGridSize = 50.0f;
+	float DebugRenderer::s_zGridSize = 50.0f;
+	unsigned DebugRenderer::s_xSubdivisions = 30;
+	unsigned DebugRenderer::s_zSubdivisions = 30;
+
+
 	// TODO: Make this more efficient by saving the meshes
 
 	void DebugRenderer::draw_point(const glm::vec3& position, const glm::vec4& color, float pointSize)
@@ -63,9 +71,9 @@ namespace cs460
 		shader->set_uniform("modelToWorld", glm::mat4(1.0f));	// Identity matrix since point is already in world space
 
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
-		shader->set_uniform("worldToView", cam.get_view_mtx());
-		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
 
 		// Buffer setup
 		glBindVertexArray(0);
@@ -104,9 +112,9 @@ namespace cs460
 		shader->set_uniform("modelToWorld", glm::mat4(1.0f));	// Identity matrix since segment is already in world space
 
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
-		shader->set_uniform("worldToView", cam.get_view_mtx());
-		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
 
 		// Buffer setup
 		glBindVertexArray(0);
@@ -143,9 +151,9 @@ namespace cs460
 		shader->set_uniform("color", color);
 
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
-		shader->set_uniform("worldToView", cam.get_view_mtx());
-		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
 		
 		// Compute model to world from the given aabb data
 		glm::vec3 diagonal = aabb.m_max - aabb.m_min;
@@ -181,9 +189,9 @@ namespace cs460
 		shader->set_uniform("color", color);
 
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
-		shader->set_uniform("worldToView", cam.get_view_mtx());
-		shader->set_uniform("perspectiveProj", cam.get_projection_mtx());
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
 		shader->set_uniform("modelToWorld", m2w);
 
 		// Get the already created cube (range [-0.5, 0.5])
@@ -292,5 +300,57 @@ namespace cs460
 			draw_segment(seg, boneColor);
 			draw_skeleton_hierarchy(boneColor, jointColor, jointSize, sourceModel, skin, modelInstNodes, gltfNode.m_childrenIndices[i]);
 		}
+	}
+
+
+	void DebugRenderer::draw_grid(float worldXSize, float worldZSize, unsigned xSubdivisions, unsigned zSubdivisions)
+	{
+		if (!s_enableGridDrawing)
+			return;
+
+		float xHalfSize = 0.5f * worldXSize;
+		float zHalfSize = 0.5f * worldZSize;
+
+		float xPos = -xHalfSize;
+		float zPos = -zHalfSize;
+		float xOffset = worldXSize / (float)xSubdivisions;
+		float zOffset = worldZSize / (float)zSubdivisions;
+
+		// Draw the x subdivisions
+		for (unsigned i = 0; i <= xSubdivisions; ++i)
+		{
+			Segment seg;
+			seg.m_start = glm::vec3(xPos, 0.0f, -zHalfSize);
+			seg.m_end = glm::vec3(xPos, 0.0f, zHalfSize);
+
+			draw_segment(seg, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+			xPos += xOffset;
+		}
+
+		// Draw the z subdivisions
+		for (unsigned i = 0; i <= zSubdivisions; ++i)
+		{
+			Segment seg;
+			seg.m_start = glm::vec3(-xHalfSize, 0.0f, zPos);
+			seg.m_end = glm::vec3(xHalfSize, 0.0f, zPos);
+
+			draw_segment(seg, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+			zPos += zOffset;
+		}
+
+
+		// Draw the axes
+		Segment xSeg;
+		xSeg.m_start = glm::vec3(-xHalfSize, 0.05f, 0.0f);
+		xSeg.m_end = glm::vec3(xHalfSize, 0.05f, 0.0f);
+
+		Segment zSeg;
+		zSeg.m_start = glm::vec3(0.0f, 0.05f, -zHalfSize);
+		zSeg.m_end = glm::vec3(0.0f, 0.05f, zHalfSize);
+
+		draw_segment(xSeg, { 1.0f, 0.0f, 0.0f, 1.0f });
+		draw_segment(zSeg, { 0.0f, 0.0f, 1.0f, 1.0f });
 	}
 }

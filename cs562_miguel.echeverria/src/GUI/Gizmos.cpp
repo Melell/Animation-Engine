@@ -13,6 +13,7 @@
 #include "EditorState.h"
 #include "Composition/SceneNode.h"
 #include "Platform/InputMgr.h"
+#include "Cameras/ICamera.h"
 
 
 namespace cs460
@@ -61,8 +62,8 @@ namespace cs460
 
 
         // Gizmo's drawing
-        const float* viewMtx = glm::value_ptr(scene.get_camera().get_view_mtx());
-        const float* projMtx = glm::value_ptr(scene.get_camera().get_projection_mtx());
+        const float* viewMtx = glm::value_ptr(scene.get_active_camera()->get_view_mtx());
+        const float* projMtx = glm::value_ptr(scene.get_active_camera()->get_projection_mtx());
         glm::mat4 modelMtx;
 
         if (state.m_selectedNode)

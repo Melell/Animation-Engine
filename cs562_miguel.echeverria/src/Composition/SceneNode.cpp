@@ -11,15 +11,15 @@
 #include "pch.h"
 #include "SceneNode.h"
 #include "Components/IComponent.h"
-#include "Components/ModelInstance.h"
+#include "Components/Models/ModelInstance.h"
 #include "Graphics/GLTF/Model.h"
-#include "Components/MeshRenderable.h"
+#include "Components/Models/MeshRenderable.h"
 #include "Scene.h"
-#include "Components/SkinReference.h"
+#include "Components/Animation/SkinReference.h"
 #include "Composition/GLTFNode.h"
-#include "Components/SkeletonRoot.h"
-#include "Components/Joint.h"
-#include "Components/PiecewiseCurve.h"
+#include "Components/Animation/SkeletonRoot.h"
+#include "Components/Animation/Joint.h"
+#include "Components/PiecewiseCurves/PiecewiseCurve.h"
 #include <gltf/tiny_gltf.h>
 
 

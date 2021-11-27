@@ -13,9 +13,10 @@
 #include "Graphics/Systems/Renderer.h"
 #include "Composition/Scene.h"
 #include "Math/Geometry/Geometry.h"
-#include "Components/MeshRenderable.h"
+#include "Components/Models/MeshRenderable.h"
 #include "EditorState.h"
 #include "Animation/PiecewiseCurveMgr.h"
+#include "Cameras/ICamera.h"
 
 
 namespace cs460
@@ -34,7 +35,7 @@ namespace cs460
 		{
 			Renderer& renderer = Renderer::get_instance();
 			Scene& scene = Scene::get_instance();
-			EditorCamera& cam = scene.get_camera();
+			ICamera* cam = scene.get_active_camera();
 			PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
 
 
@@ -44,7 +45,7 @@ namespace cs460
 
 			// Check with this ray against the bv of all meshes
 			Ray worldRay;
-			worldRay.m_origin = cam.get_position();
+			worldRay.m_origin = cam->get_position();
 			worldRay.m_dir = worldRayDir;
 			float meshTime = 0.0f;
 			MeshRenderable* pickedMesh = renderer.ray_vs_meshes(worldRay, &meshTime);
@@ -118,9 +119,9 @@ namespace cs460
 	glm::vec4 Picking::homogeneuos_clip_space_to_camera_space(const glm::vec4& clipCoords)
 	{
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
+		ICamera* cam = scene.get_active_camera();
 
-		const glm::mat4& invProjectionMtx = glm::inverse(cam.get_projection_mtx());
+		const glm::mat4& invProjectionMtx = glm::inverse(cam->get_projection_mtx());
 		const glm::vec4& cameraPoint = invProjectionMtx * clipCoords;
 
 		return glm::vec4(cameraPoint.x, cameraPoint.y, -1.0f, 0.0f);
@@ -129,9 +130,9 @@ namespace cs460
 	glm::vec3 Picking::camera_to_world_space(const glm::vec4& camCoords)
 	{
 		Scene& scene = Scene::get_instance();
-		EditorCamera& cam = scene.get_camera();
+		ICamera* cam = scene.get_active_camera();
 
-		const glm::mat4& invViewMtx = glm::inverse(cam.get_view_mtx());
+		const glm::mat4& invViewMtx = glm::inverse(cam->get_view_mtx());
 		const glm::vec3& worldRay = glm::vec3(invViewMtx * camCoords);
 		return glm::normalize(worldRay);
 	}

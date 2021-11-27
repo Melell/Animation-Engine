@@ -9,14 +9,14 @@
 
 #include "pch.h"
 #include "PiecewiseCurveMgr.h"
-#include "Components/PiecewiseCurve.h"
+#include "Components/PiecewiseCurves/PiecewiseCurve.h"
 #include "Math/Geometry/Geometry.h"
 #include "Math/Geometry/IntersectionTests.h"
 #include "Graphics/Systems/DebugRenderer.h"
 #include "Composition/SceneNode.h"
-#include "Components/CurvePoint.h"
-#include "Components/CurveTangent.h"
-#include "Components/CurveControlPoint.h"
+#include "Components/PiecewiseCurves/CurvePoint.h"
+#include "Components/PiecewiseCurves/CurveTangent.h"
+#include "Components/PiecewiseCurves/CurveControlPoint.h"
 
 
 namespace cs460

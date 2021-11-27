@@ -36,6 +36,8 @@ namespace cs460
 		static void draw_joint(const glm::vec3& worldPos, const glm::vec4& color, float jointSize);
 		static void draw_skeleton_hierarchy(const glm::vec4& boneColor, const glm::vec4& jointColor, float joinSize, Model* sourceModel, const Skin& skin, std::unordered_map<int, SceneNode*>& modelInstNodes, int rootIdx);
 
+		static void draw_grid(float worldXSize, float worldZSize, unsigned xSubdivisions, unsigned zSubdivisions);
+
 
 		// The following variables are here for convenience, but in the future they would probably better
 		// go inside other classes so that the values can be different per bv, skeleton, or curve
@@ -67,5 +69,12 @@ namespace cs460
 		static bool s_enableTableSamplesDrawing;	// Curve (arc length table)
 		static glm::vec4 s_tableSampleColor;		// Curve (arc length table)
 		static float s_tableSampleSize;				// Curve (arc length table)
+
+
+		static bool s_enableGridDrawing;			// Debug Grid
+		static float s_xGridSize;					// Debug Grid
+		static float s_zGridSize;					// Debug Grid
+		static unsigned s_xSubdivisions;			// Debug Grid
+		static unsigned s_zSubdivisions;			// Debug Grid
 	};
 }

@@ -16,8 +16,9 @@
 #include "Graphics/Rendering/Shader.h"
 #include "Composition/SceneNode.h"
 #include "Composition/Scene.h"
-#include "SkinReference.h"
+#include "Components/Animation/SkinReference.h"
 #include "Platform/InputMgr.h"
+#include "Cameras/ICamera.h"
 
 
 namespace cs460
@@ -56,8 +57,8 @@ namespace cs460
 
 
 			const glm::mat4& modelToWorld = get_owner()->m_worldTr.get_model_mtx();
-			const glm::mat4& worldToView = scene.get_camera().get_view_mtx();
-			const glm::mat4& perspectiveProjection = scene.get_camera().get_projection_mtx();
+			const glm::mat4& worldToView = scene.get_active_camera()->get_view_mtx();
+			const glm::mat4& perspectiveProjection = scene.get_active_camera()->get_projection_mtx();
 
 			// Decide between phong color, phong texture, and phong normal map
 			Shader* shader = primitives[i].get_shader();
@@ -102,7 +103,7 @@ namespace cs460
 
 			if (material.m_usesNormalTexture && useNormalMap)
 			{
-				shader->set_uniform("camPosWorldSpace", scene.get_camera().get_position());
+				shader->set_uniform("camPosWorldSpace", scene.get_active_camera()->get_position());
 				shader->set_uniform("mat.m_normalMap", material.m_normalMapTex.get_texture_unit());
 				shader->set_uniform("normalColorScale", material.m_normalMapScale);
 			}

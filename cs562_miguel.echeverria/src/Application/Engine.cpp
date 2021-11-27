@@ -89,16 +89,6 @@ namespace cs460
 			// Do all the gui logic as well as the gizmos
 			editor.update();
 
-			if (inputMgr.is_gamepad_button_pressed(GAMEPAD::button_a))
-				std::cout << "A PRESSED\n";
-			if (inputMgr.is_gamepad_button_down(GAMEPAD::button_a))
-				std::cout << "A DOWN\n";
-
-			if (inputMgr.is_gamepad_button_released(GAMEPAD::button_a))
-				std::cout << "A RELEASED\n";
-			//if (inputMgr.is_gamepad_button_up(GAMEPAD::button_a))
-			//	std::cout << "A UP\n";
-
 			// Update all the piecewise curves
 			curveMgr.update();
 

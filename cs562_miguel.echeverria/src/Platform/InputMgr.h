@@ -133,15 +133,16 @@ namespace cs460
         GamepadButtonId button_down = 12;
         GamepadButtonId button_left = 13;
 
-        TriggerId left_trigger = 0;
-        TriggerId right_trigger = 1;
-
         StickId left_stick = 0;
-        StickId right_stick = 1;
+        StickId right_stick = 2;
+
+        TriggerId left_trigger = 4;
+        TriggerId right_trigger = 5;
     }
 
     const unsigned NUMBER_OF_GAMEPAD_BUTTONS = 14;
-    const unsigned NUMBER_OF_GAMEPAD_AXES = 6;
+    const float TRIGGER_DEADZONE = 0.2f;
+    const float STICK_DEADZONE = 0.2f;
 
 
 
@@ -191,6 +192,12 @@ namespace cs460
         bool is_gamepad_button_released(GamepadButtonId button) const;
         bool is_gamepad_button_down(GamepadButtonId button) const;
         bool is_gamepad_button_up(GamepadButtonId button) const;
+
+        // Returns the 2d vector in the range [-1, 1]x[-1, 1] for the given stick, if above the stick deadzone.
+        glm::vec2 get_gamepad_stick_vec(StickId stick);
+
+        // Returns a value between 0 (not pressed) to 1 (fully pressed), if above the trigger deadzone.
+        float get_gamepad_trigger(TriggerId trigger);
 
         bool is_gamepad_connected() const;
         // ------------------------------------------------------ GAMEPAD ------------------------------------------------------

@@ -279,6 +279,34 @@ namespace cs460
 
         return !m_prevGamepadButtons[button] && !m_currGamepadButtons[button];
     }
+
+    // Returns the 2d vector in the range [-1, 1]x[-1, 1] for the given stick, if above the stick deadzone.
+    glm::vec2 InputMgr::get_gamepad_stick_vec(StickId stick)
+    {
+        glm::vec2 result(0.0f, 0.0f);
+
+        if (m_currGamepadAxes == nullptr)
+            return result;
+
+        result.x = m_currGamepadAxes[stick];
+        result.y = -m_currGamepadAxes[stick + 1];
+
+        if (glm::length(result) > STICK_DEADZONE)
+            return result;
+
+        return glm::vec2(0.0f, 0.0f);
+    }
+
+    // Returns a value between 0 (not pressed) to 1 (fully pressed)
+    float InputMgr::get_gamepad_trigger(TriggerId trigger)
+    {
+        if (m_currGamepadAxes == nullptr)
+            return 0.0f;
+
+        // Convert to range [0, 1] and return the value only if above trigger deadzone
+        float result = (m_currGamepadAxes[trigger] + 1.0f) / 2.0f;
+        return result > TRIGGER_DEADZONE ? result : 0.0f;
+    }
     
     bool InputMgr::is_gamepad_connected() const
     {

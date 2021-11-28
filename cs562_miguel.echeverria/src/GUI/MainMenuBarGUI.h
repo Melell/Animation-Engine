@@ -22,7 +22,8 @@ namespace cs460
 		BEZIER,
 		SKINNED_ANIMATION,
 		PATH_FOLLOWING,
-		ANIMATION_BLENDING
+		BLENDING_1D,
+		BLENDING_2D
 	};
 
 
@@ -50,7 +51,8 @@ namespace cs460
 		void load_bezier_curve_scene();
 		void load_skinned_animation_scene();
 		void load_path_following_scene();
-		void load_animation_blending_scene();
+		void load_blending_1d_scene();
+		void load_blending_2d_scene();
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

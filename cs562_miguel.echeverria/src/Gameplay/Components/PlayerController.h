@@ -15,12 +15,12 @@
 
 namespace cs460
 {
-	class PlayerControler : public ScriptComponent
+	class PlayerController : public ScriptComponent
 	{
 	public:
 
-		PlayerControler();
-		virtual ~PlayerControler();
+		PlayerController();
+		virtual ~PlayerController();
 
 		void initialize() override;
 		void update() override;
@@ -29,6 +29,9 @@ namespace cs460
 
 		const glm::vec3 m_startingForward{ 0.0f, 0.0f, 1.0f };
 		glm::vec3 m_currentForward{ 0.0f, 0.0f, 1.0f };
+
+		void blend_1d_controls(const glm::vec3& leftStickCamSpace, float stickLength, float blendParam);
+		void blend_2d_controls(const glm::vec3& leftStickCamSpace, float stickLength, const glm::vec2& blendParam);
 
 		void on_gui() override;
 	};

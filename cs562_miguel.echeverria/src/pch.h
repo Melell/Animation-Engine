@@ -12,6 +12,7 @@
 #include <sstream>
 #include <algorithm>
 #include <functional>
+#include <cmath>
 
 namespace fs = std::filesystem;
 

@@ -10,7 +10,6 @@
 #include "pch.h"
 #include "Blend1D.h"
 #include "BlendingCore.h"
-#include "Platform/InputMgr.h"	// TODO: Remove this
 
 
 namespace cs460
@@ -23,6 +22,8 @@ namespace cs460
 	// as it's highly likely that the param won't change much from frame to frame.
 	void Blend1D::find_segment(IBlendNode*& from, IBlendNode*& to)
 	{
+		// Perform linear search for now. Later this will be a binary search
+
 		float leftClosest = FLT_MAX;
 		float rightClosest = FLT_MAX;
 		float maxPos = -FLT_MAX;
@@ -79,13 +80,17 @@ namespace cs460
 	// Produces a poses by blending between its children.
 	void Blend1D::produce_pose(float time)
 	{
-		InputMgr& inputMgr = InputMgr::get_instance();
-		float yScroll = inputMgr.get_vertical_scroll();
-		m_blendParam += yScroll * 0.01f;
-		//m_blendParam = m_blendParam < 0.0f ? 0.0f : m_blendParam;
-		//std::cout << "BLEND PARAM: " << m_blendParam << std::endl;
-
 		blend_children(time);
+	}
+
+
+	// Sort the children based on their position in the 1D blend space (smallest x to biggest x)
+	void Blend1D::sort_children()
+	{
+		std::sort(m_children.begin(), m_children.end(), [] (const IBlendNode* lhs, const IBlendNode* rhs) -> bool
+		{
+			return lhs->m_blendPos.x < rhs->m_blendPos.x;
+		});
 	}
 
 

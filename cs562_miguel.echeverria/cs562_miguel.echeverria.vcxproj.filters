@@ -264,6 +264,9 @@
     <ClCompile Include="src\Cameras\ICamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Math\Geometry\Delaunator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -513,6 +516,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Cameras\ICamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Math\Geometry\Delaunator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

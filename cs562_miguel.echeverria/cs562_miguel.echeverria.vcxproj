@@ -63,6 +63,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,6 +182,7 @@
     <ClCompile Include="src\GUI\Picking.cpp" />
     <ClCompile Include="src\GUI\RendererConfigGUI.cpp" />
     <ClCompile Include="src\GUI\SceneGraphGUI.cpp" />
+    <ClCompile Include="src\Math\Geometry\Delaunator.cpp" />
     <ClCompile Include="src\Math\Geometry\Geometry.cpp" />
     <ClCompile Include="src\Math\Geometry\IntersectionTests.cpp" />
     <ClCompile Include="src\Math\Interpolation\EasingFunctions.cpp" />
@@ -273,6 +275,7 @@
     <ClInclude Include="src\GUI\Picking.h" />
     <ClInclude Include="src\GUI\RendererConfigGUI.h" />
     <ClInclude Include="src\GUI\SceneGraphGUI.h" />
+    <ClInclude Include="src\Math\Geometry\Delaunator.hpp" />
     <ClInclude Include="src\Math\Geometry\Geometry.h" />
     <ClInclude Include="src\Math\Geometry\IntersectionTests.h" />
     <ClInclude Include="src\Math\Interpolation\EasingFunctions.h" />

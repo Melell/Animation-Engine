@@ -26,6 +26,9 @@ namespace cs460
 		// Produces a poses by blending between its children.
 		void produce_pose(float time) override;
 
+		// Sort the children based on their position in the 1D blend space (smallest x to biggest x)
+		void sort_children();
+
 	private:
 
         // Performs one dimensional blending using the children nodes.

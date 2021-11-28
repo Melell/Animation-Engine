@@ -17,11 +17,28 @@ namespace cs460
 {
 	struct Blend2D : public IBlendNode
 	{
+    public:
+
+        // Triangle container. Populated in generate_triangles
+        std::vector<unsigned[3]> m_triangles;
 		glm::vec2 m_blendParam{ 0.0f, 0.0f };
 
 		void produce_pose(float time) override;
 
+        // Generates the triangles using delaunay triangulation 
+        // based on the children's blendPosition
+        void generate_triangles();
+
+        // Determine in which triangle the param is located and find n0, n1, n2
+        // perform barycentric compute to extract a0,a1,a2
+        void find_nodes_barycentric(IBlendNode*& node0, IBlendNode*& node1, IBlendNode*& node2, float& a0, float& a1, float& a2);
+
 	private:
+
+        // Performs two dimensional blending using the children nodes.
 		void blend_children(float time) override;
+
+        // Returns the z component of the cross product with z=0, but without unnecessary computations
+        float cross_2d(const glm::vec2& v0, const glm::vec2& v1);
 	};
 }

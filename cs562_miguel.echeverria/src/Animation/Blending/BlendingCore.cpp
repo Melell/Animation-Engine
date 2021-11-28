@@ -133,6 +133,17 @@ namespace cs460
 	}
 
 
+	void blend_pose_barycentric(const AnimPose& pose0, const AnimPose& pose1, const AnimPose& pose2, float a0, float a1, float a2, AnimPose& resultPose, BlendMask* blendMask)
+	{
+		// We will ignore the blend mask for now
+
+		for (auto& pose0Joint : pose0)
+		{
+
+		}
+	}
+
+
 
 	// Apply the given pose to the nodes of the skeleton of the given anim component.
 	void apply_pose_to_skeleton(const AnimPose& pose, AnimationReference* animComp)

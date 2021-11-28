@@ -27,7 +27,7 @@ namespace cs460
 
 	void produce_pose(Animation* anim, AnimPose& pose, float time);
 	void blend_pose_lerp(const AnimPose& startPose, const AnimPose& endPose, AnimPose& resultPose, float blendParam, BlendMask* blendMask = nullptr);
-	void BlendPoseBarycentric(const AnimPose& pose0, const AnimPose& pose1, const AnimPose& pose2, float a0, float a1, float a2, AnimPose& resultPose, BlendMask* blendMask = nullptr);
+	void blend_pose_barycentric(const AnimPose& pose0, const AnimPose& pose1, const AnimPose& pose2, float a0, float a1, float a2, AnimPose& resultPose, BlendMask* blendMask = nullptr);
 
 
 	// Apply the given pose to the nodes of the skeleton of the given anim component.

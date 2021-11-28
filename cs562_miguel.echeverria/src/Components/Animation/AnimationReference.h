@@ -45,14 +45,13 @@ namespace cs460
 		void set_anim_looping(bool isLooping);
 		void set_anim_paused(bool isPaused);
 
-		// Getter and setter for whether we are using the blend tree
-		bool get_use_blend_tree() const;
-		void set_use_blend_tree(bool useBlendTree);
+		// Getter and setter for the type of blend tree to use (0=None, 1=1D, 2=2D)
+		int get_blend_tree_type() const;
+		void set_blend_tree_type(int type);
 
 		// Get the blend tree itself
 		IBlendNode* m_blendTree;
-		//IBlendNode*& get_blend_tree();
-		//BlendTree& get_blend_tree();
+		int m_blendTreeType = 0;
 
 	private:
 
@@ -68,10 +67,8 @@ namespace cs460
 		bool m_looping = true;
 		bool m_paused = false;
 
-		// Blend tree
-		//BlendTree m_blendTree;
-		bool m_useBlendTree = false;
-
 		void on_gui() override;
+		void blend_1d_editor();
+		void blend_2d_editor();
 	};
 }

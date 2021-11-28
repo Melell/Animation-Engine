@@ -25,9 +25,15 @@ namespace cs460
 		// Update the view matrix with the current parameters
 		void update_view_mtx() override;
 
+		// Getters for the camera basis vectors
+		glm::vec3 get_view_vec() const;
+		glm::vec3 get_right_vec() const;
+		glm::vec3 get_up_vec() const;
+
 		// Getters for the camera controlling parameters
 		SceneNode* get_focal_node() const;
 		glm::vec3 get_focal_point() const;
+		glm::vec3 get_focal_offset() const;
 		float get_radius() const;
 		float get_y_angle() const;
 		float get_polar_angle() const;
@@ -35,6 +41,7 @@ namespace cs460
 		// Setters for the camera controlling parameters
 		void set_focal_node(SceneNode* node);
 		void set_focal_point(const glm::vec3& point);
+		void set_focal_offset(const glm::vec3& offset);
 		void set_radius(float radius);
 		void set_y_angle(float yAngle);
 		void set_polar_angle(float polarAngle);
@@ -46,8 +53,16 @@ namespace cs460
 	private:
 		SceneNode* m_focalNode = nullptr;
 		glm::vec3 m_focalPoint{ 0.0f, 0.0f, 0.0f };
-		float m_radius = 25.0f;
+		glm::vec3 m_focalOffset{ 0.0f, 0.0f, 0.0f };
+		float m_radius = 5.0f;
 		float m_yAngle = -90.0f;
-		float m_polarAngle = 40.0f;
+		float m_polarAngle = 60.0f;
+
+
+		// Returns m_focalPoint if m_focalNode is null, and the world position of m_focalNode otherwise.
+		glm::vec3 get_real_focal_point() const;
+
+		// Update the inherited m_position base on the current spherical coordinates parameters
+		void update_position();
 	};
 }

@@ -641,15 +641,14 @@ namespace cs460
 		xBotAnim->set_blend_tree_type(1);
 
 		// Get the blend tree and build it;
-		Blend1D* blend1d = new Blend1D;
-		xBotAnim->m_blendTree = blend1d;
+		Blend1D* blend1d = dynamic_cast<Blend1D*>(xBotAnim->get_blend_tree());
 		blend1d->m_blendParam = 0.0f;
 
-		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
 
 		blendAnim1->m_blendPos.x = 0.0f;
 		blendAnim2->m_blendPos.x = 0.5f;
@@ -699,21 +698,20 @@ namespace cs460
 		xBotAnim->set_blend_tree_type(2);
 
 		// Get the blend tree and build it;
-		Blend2D* blend2d = new Blend2D;
-		xBotAnim->m_blendTree = blend2d;
+		Blend2D* blend2d = dynamic_cast<Blend2D*>(xBotAnim->get_blend_tree());
 		blend2d->m_blendParam = glm::vec2(0.0f, 0.0f);
 
-		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
-		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->m_blendTree->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
 
 		blendAnim1->m_blendPos = glm::vec2(0.0f, 0.0f);
 		blendAnim2->m_blendPos = glm::vec2(0.0f, 1.0f);
 		blendAnim3->m_blendPos = glm::vec2(-1.0f, 0.0f);
 		blendAnim4->m_blendPos = glm::vec2(1.0f, 0.0f);
-		blendAnim5->m_blendPos = glm::vec2(0.0f -1.0f);
+		blendAnim5->m_blendPos = glm::vec2(0.0f, -1.0f);
 
 		// 14(RUMBA-DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
 		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);

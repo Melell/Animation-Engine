@@ -20,6 +20,7 @@
 #include "Platform/FrameRateController.h"
 #include "Animation/Blending/BlendingCore.h"
 #include "Animation/Blending/Blend1D.h"
+#include "Animation/Blending/Blend2D.h"
 
 
 namespace cs460
@@ -27,6 +28,9 @@ namespace cs460
 	AnimationReference::AnimationReference()
 	{
 		Animator::get_instance().add_animation_ref(this);
+
+		m_1dBlendTree = new Blend1D;
+		m_2dBlendTree = new Blend2D;
 	}
 
 	AnimationReference::~AnimationReference()
@@ -41,11 +45,14 @@ namespace cs460
 		// If using a blend tree, ignore the rest of the logic
 		if (m_blendTreeType > 0)
 		{
-			if (m_blendTree == nullptr)
+			// Sanity checks
+			if (m_blendTreeType == 1 && m_1dBlendTree == nullptr)
+				return;
+			if (m_blendTreeType == 2 && m_2dBlendTree == nullptr)
 				return;
 
-			m_blendTree->produce_pose(m_animTimer);
-			apply_pose_to_skeleton(m_blendTree->m_pose, this);
+			get_blend_tree()->produce_pose(m_animTimer);
+			apply_pose_to_skeleton(get_blend_tree()->m_pose, this);
 		}
 		else
 		{
@@ -124,7 +131,7 @@ namespace cs460
 
 		if (m_blendTreeType == 1)
 			blend_1d_editor();
-		else if (m_blendTreeType)
+		else if (m_blendTreeType == 2)
 			blend_2d_editor();
 
 		if (m_blendTreeType > 0)
@@ -166,21 +173,26 @@ namespace cs460
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		// Draw the background and define the clipping region for the editor
-		const ImVec2& spaceMin = ImGui::GetItemRectMin();
-		const ImVec2& spaceMax = ImGui::GetItemRectMax();
-		const ImVec2& spaceSize = ImVec2(spaceMax.x - spaceMin.x, spaceMax.y - spaceMin.y);
-		drawList->PushClipRect(spaceMin, spaceMax);
-		drawList->AddRectFilled(spaceMin, spaceMax, IM_COL32(120, 120, 120, 120), 5.0f);
+		const ImVec2& editorMin = ImGui::GetItemRectMin();
+		const ImVec2& editorMax = ImGui::GetItemRectMax();
+		const ImVec2& editorSize = ImVec2(editorMax.x - editorMin.x, editorMax.y - editorMin.y);
+		drawList->PushClipRect(editorMin, editorMax);
+		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(120, 120, 120, 120), 5.0f);
 
 		
 		// Draw the blend 1D blend space line
-		ImVec2 lineStart(spaceMin.x + 0.025f * spaceSize.x, spaceMin.y + 0.5f * spaceSize.y);
-		ImVec2 lineEnd(spaceMax.x - 0.025f * spaceSize.x, lineStart.y);
+		ImVec2 lineStart(editorMin.x + 0.025f * editorSize.x, editorMin.y + 0.5f * editorSize.y);
+		ImVec2 lineEnd(editorMax.x - 0.025f * editorSize.x, lineStart.y);
 		float lineLength = lineEnd.x - lineStart.x;
 		drawList->AddLine(lineStart, lineEnd, IM_COL32(255, 255, 255, 200), 2.0f);
 
 		// Sort the blend nodes first, to know the length of the blendspace
-		Blend1D* blendTree = dynamic_cast<Blend1D*>(m_blendTree);
+		Blend1D* blendTree = dynamic_cast<Blend1D*>(get_blend_tree());
+		if (blendTree->m_children.empty())
+		{
+			drawList->PopClipRect();
+			return;
+		}
 		blendTree->sort_children();
 
 		IBlendNode* first = blendTree->m_children.front();
@@ -219,7 +231,88 @@ namespace cs460
 
 	void AnimationReference::blend_2d_editor()
 	{
+		// Create a subregion inside the window for drawing the editor
+		float size = ImGui::GetWindowWidth() * 0.5f;
+		if (!ImGui::BeginChild("2D Blending Editor", ImVec2(size, size), true))
+		{
+			ImGui::EndChild();
+			return;
+		}
+		ImGui::EndChild();
 
+		// Get the draw list for custom drawing
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		// Draw the background and define the clipping region for the editor
+		const ImVec2& editorMin = ImGui::GetItemRectMin();
+		const ImVec2& editorMax = ImGui::GetItemRectMax();
+		const ImVec2& editorSize = ImVec2(editorMax.x - editorMin.x, editorMax.y - editorMin.y);
+		drawList->PushClipRect(editorMin, editorMax);
+		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(120, 120, 120, 120), 5.0f);
+
+
+		glm::vec2 editorWorkStart(editorMin.x + 0.025f * editorSize.x, editorMin.y + 0.025f * editorSize.y);
+		glm::vec2 editorWorkEnd(editorMax.x - 0.025f * editorSize.x, editorMax.y - 0.025f * editorSize.y);
+		glm::vec2 editorWorkSize = editorWorkEnd - editorWorkStart;
+
+		// Get the boundaries of the blend space
+		Blend2D* blendTree = dynamic_cast<Blend2D*>(get_blend_tree());
+		const glm::vec2& minPos = blendTree->get_min_pos();
+		const glm::vec2& maxPos = blendTree->get_max_pos();
+		float xLength = maxPos.x - minPos.x;
+		float yLength = maxPos.y - minPos.y;
+
+		// Draw the triangles
+		for (int i = 0; i < blendTree->m_triangles.size(); ++i)
+		{
+			const auto& indices = blendTree->m_triangles[i];
+			const glm::vec2& v0 = blendTree->m_children[indices[0]]->m_blendPos;
+			const glm::vec2& v1 = blendTree->m_children[indices[1]]->m_blendPos;
+			const glm::vec2& v2 = blendTree->m_children[indices[2]]->m_blendPos;
+
+			// Compute the normalized position of v0
+			float currX0Length = v0.x - minPos.x;
+			float x0Factor = currX0Length / xLength;
+			float currY0Length = v0.y - minPos.y;
+			float y0Factor = currY0Length / yLength;
+
+			// Compute the normalized position of v1
+			float currX1Length = v1.x - minPos.x;
+			float x1Factor = currX1Length / xLength;
+			float currY1Length = v1.y - minPos.y;
+			float y1Factor = currY1Length / yLength;
+
+			// Compute the normalized position of v2
+			float currX2Length = v2.x - minPos.x;
+			float x2Factor = currX2Length / xLength;
+			float currY2Length = v2.y - minPos.y;
+			float y2Factor = currY2Length / yLength;
+
+			//if (glm::epsilonEqual(x0Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y0Factor, 0.0f, FLT_EPSILON))
+			//	__debugbreak();
+			//if (glm::epsilonEqual(x1Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y1Factor, 0.0f, FLT_EPSILON))
+			//	__debugbreak();
+			//if (glm::epsilonEqual(x2Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y2Factor, 0.0f, FLT_EPSILON))
+			//	__debugbreak();
+			
+			// Draw v0 to v1
+			ImVec2 v0v1Start(editorWorkStart.x + x0Factor * editorWorkSize.x, editorWorkStart.y + y0Factor * editorWorkSize.y);
+			ImVec2 v0v1End(editorWorkStart.x + x1Factor * editorWorkSize.x, editorWorkStart.y + y1Factor * editorWorkSize.y);
+			drawList->AddLine(v0v1Start, v0v1End, IM_COL32(255, 255, 255, 200), 2.0f);
+
+			// Draw v1 to v2
+			ImVec2 v1v2Start(editorWorkStart.x + x1Factor * editorWorkSize.x, editorWorkStart.y + y1Factor * editorWorkSize.y);
+			ImVec2 v1v2End(editorWorkStart.x + x2Factor * editorWorkSize.x, editorWorkStart.y + y2Factor * editorWorkSize.y);
+			drawList->AddLine(v1v2Start, v1v2End, IM_COL32(255, 255, 255, 200), 2.0f);
+
+			// Draw v2 to v0
+			ImVec2 v2v0Start(editorWorkStart.x + x2Factor * editorWorkSize.x, editorWorkStart.y + y2Factor * editorWorkSize.y);
+			ImVec2 v2v0End(editorWorkStart.x + x0Factor * editorWorkSize.x, editorWorkStart.y + y0Factor * editorWorkSize.y);
+			drawList->AddLine(v2v0Start, v2v0End, IM_COL32(255, 255, 255, 200), 2.0f);
+		}
+
+
+		drawList->PopClipRect();
 	}
 
 
@@ -342,4 +435,27 @@ namespace cs460
 	{
 		m_blendTreeType = type;
 	}
+
+	// Get the current blend tree (null, blend1d, or blend2d)
+	IBlendNode* AnimationReference::get_blend_tree()
+	{
+		if (m_blendTreeType == 1)
+			return m_1dBlendTree;
+		else if (m_blendTreeType == 2)
+			return m_2dBlendTree;
+
+		return nullptr;
+	}
+
+
+	// TODO: Remove these in the future. This is just to be able to harcode the demos
+	//void AnimationReference::set_1d_blend_tree(Blend1D* blendTree)
+	//{
+	//	m_1dBlendTree = blendTree;
+	//}
+	//
+	//void AnimationReference::set_2d_blend_tree(Blend2D* blendTree)
+	//{
+	//	m_2dBlendTree = blendTree;
+	//}
 }

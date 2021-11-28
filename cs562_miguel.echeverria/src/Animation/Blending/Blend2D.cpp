@@ -17,6 +17,9 @@ namespace cs460
 {
 	void Blend2D::produce_pose(float time)
 	{
+		if (m_children.empty())
+			return;
+
 		blend_children(time);
 	}
 
@@ -39,11 +42,13 @@ namespace cs460
 		delaunator::Delaunator triangulator(childCoords);
 
 		// Store the triangles in our own data structure
-		for (int i = 0; i < triangulator.triangles.size(); i += 3)
+		size_t numberOfTriangles = triangulator.triangles.size() / 3;
+		m_triangles.resize(numberOfTriangles);
+		for (int i = 0; i < numberOfTriangles; ++i)
 		{
-			m_triangles[i][0] = (unsigned)triangulator.triangles[i];
-			m_triangles[i][1] = (unsigned)triangulator.triangles[i + 1];
-			m_triangles[i][2] = (unsigned)triangulator.triangles[i + 2];
+			m_triangles[i][0] = (unsigned)triangulator.triangles[i * 3];
+			m_triangles[i][1] = (unsigned)triangulator.triangles[i * 3 + 1];
+			m_triangles[i][2] = (unsigned)triangulator.triangles[i * 3 + 2];
 		}
 	}
 
@@ -53,7 +58,7 @@ namespace cs460
 	{
 		for (int i = 0; i < m_triangles.size(); ++i)
 		{
-			unsigned* indices = m_triangles[i];
+			const auto& indices = m_triangles[i];
 			glm::vec2 v0(m_children[indices[0]]->m_blendPos.x, m_children[indices[0]]->m_blendPos.y);
 			glm::vec2 v1(m_children[indices[1]]->m_blendPos.x, m_children[indices[1]]->m_blendPos.y);
 			glm::vec2 v2(m_children[indices[2]]->m_blendPos.x, m_children[indices[2]]->m_blendPos.y);
@@ -87,6 +92,82 @@ namespace cs460
 	}
 
 
+	// Return the minimum and maximum positions
+	glm::vec2 Blend2D::get_min_pos() const
+	{
+		if (m_triangles.empty())
+			return glm::vec2(-1.0f, -1.0f);
+
+		float minX = FLT_MAX;
+		float minY = FLT_MAX;
+
+		// For every triangle
+		for (int i = 0; i < m_triangles.size(); ++i)
+		{
+			// Get the vertices of the current triangle
+			const auto& indices = m_triangles[i];
+			const glm::vec2& v0 = m_children[indices[0]]->m_blendPos;
+			const glm::vec2& v1 = m_children[indices[1]]->m_blendPos;
+			const glm::vec2& v2 = m_children[indices[2]]->m_blendPos;
+
+			// Update minimum x
+			if (v0.x < minX)
+				minX = v0.x;
+			if (v1.x < minX)
+				minX = v1.x;
+			if (v2.x < minX)
+				minX = v2.x;
+
+			// Update minimum y
+			if (v0.y < minY)
+				minY = v0.y;
+			if (v1.y < minY)
+				minY = v1.y;
+			if (v2.y < minY)
+				minY = v2.y;
+		}
+
+		return glm::vec2(minX, minY);
+	}
+
+	glm::vec2 Blend2D::get_max_pos() const
+	{
+		if (m_triangles.empty())
+			return glm::vec2(1.0f, 1.0f);
+
+		float maxX = -FLT_MAX;
+		float maxY = -FLT_MAX;
+
+		// For every triangle
+		for (int i = 0; i < m_triangles.size(); ++i)
+		{
+			// Get the vertices of the current triangle
+			const auto& indices = m_triangles[i];
+			const glm::vec2& v0 = m_children[indices[0]]->m_blendPos;
+			const glm::vec2& v1 = m_children[indices[1]]->m_blendPos;
+			const glm::vec2& v2 = m_children[indices[2]]->m_blendPos;
+
+			// Update maximum x
+			if (v0.x > maxX)
+				maxX = v0.x;
+			if (v1.x > maxX)
+				maxX = v1.x;
+			if (v2.x > maxX)
+				maxX = v2.x;
+
+			// Update maximum y
+			if (v0.y > maxY)
+				maxY = v0.y;
+			if (v1.y > maxY)
+				maxY = v1.y;
+			if (v2.y > maxY)
+				maxY = v2.y;
+		}
+
+		return glm::vec2(maxX, maxY);
+	}
+
+
 	// Performs two dimensional blending using the children nodes.
 	void Blend2D::blend_children(float time)
 	{
@@ -113,7 +194,7 @@ namespace cs460
 
 
 	// Returns the z component of the cross product with z=0, but without unnecessary computations
-	float Blend2D::cross_2d(const glm::vec2& v0, const glm::vec2& v1)
+	float Blend2D::cross_2d(const glm::vec2& v0, const glm::vec2& v1) const
 	{
 		return v0.x * v1.y - v0.y * v1.x;
 	}

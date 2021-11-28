@@ -54,8 +54,8 @@ namespace cs460
 
 		// Blend parameter controlling
 		AnimationReference* animComp = get_owner()->get_component<AnimationReference>();
-		Blend1D* blend1DTree = dynamic_cast<Blend1D*>(animComp->m_blendTree);
-		Blend2D* blend2DTree = dynamic_cast<Blend2D*>(animComp->m_blendTree);
+		Blend1D* blend1DTree = dynamic_cast<Blend1D*>(animComp->get_blend_tree());
+		Blend2D* blend2DTree = dynamic_cast<Blend2D*>(animComp->get_blend_tree());
 		if (blend1DTree)
 		{
 			float prevParam = blend1DTree->m_blendParam;

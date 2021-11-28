@@ -2,6 +2,7 @@
 
 // STL libraries
 #include <iostream>
+#include <array>
 #include <vector>
 #include <string>
 #include <list>

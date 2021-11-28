@@ -12,11 +12,15 @@
 
 #include "Components/IComponent.h"
 #include "Animation/Animation.h"
-#include "Animation/Blending/BlendTree.h"
 
 
 namespace cs460
 {
+	struct IBlendNode;
+	struct Blend1D;
+	struct Blend2D;
+
+
 	class AnimationReference : public IComponent
 	{
 	public:
@@ -49,9 +53,12 @@ namespace cs460
 		int get_blend_tree_type() const;
 		void set_blend_tree_type(int type);
 
-		// Get the blend tree itself
-		IBlendNode* m_blendTree;
-		int m_blendTreeType = 0;
+		// Get the current blend tree (null, blend1d, or blend2d)
+		IBlendNode* get_blend_tree();
+
+		// TODO: Remove these in the future. This is just to be able to harcode the demos
+		//void set_1d_blend_tree(Blend1D* blendTree);
+		//void set_2d_blend_tree(Blend2D* blendTree);
 
 	private:
 
@@ -66,6 +73,11 @@ namespace cs460
 		float m_timeScale = 1.0f;
 		bool m_looping = true;
 		bool m_paused = false;
+
+		// The 1d and 2d blending trees
+		Blend1D* m_1dBlendTree = nullptr;
+		Blend2D* m_2dBlendTree = nullptr;
+		int m_blendTreeType = 0;
 
 		void on_gui() override;
 		void blend_1d_editor();

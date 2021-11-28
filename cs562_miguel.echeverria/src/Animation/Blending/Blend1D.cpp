@@ -80,6 +80,9 @@ namespace cs460
 	// Produces a poses by blending between its children.
 	void Blend1D::produce_pose(float time)
 	{
+		if (m_children.empty())
+			return;
+
 		blend_children(time);
 	}
 

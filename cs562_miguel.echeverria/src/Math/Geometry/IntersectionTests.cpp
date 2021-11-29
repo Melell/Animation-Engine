@@ -61,4 +61,17 @@ namespace cs460
         // Ray starts inside aabb
         return 0.0f;
 	}
+
+
+    // Returns true if the given 2d point is inside a 2d aabb defined by min and max
+    bool point_in_aabb_2d(const glm::vec2& point, const glm::vec2& min, const glm::vec2& max)
+    {
+        if (point.x < min.x || point.x > max.x)
+            return false;
+
+        if (point.y < min.y || point.y > max.y)
+            return false;
+
+        return true;
+    }
 }

@@ -102,29 +102,18 @@ namespace cs460
 		float minY = FLT_MAX;
 
 		// For every triangle
-		for (int i = 0; i < m_triangles.size(); ++i)
+		for (int i = 0; i < m_children.size(); ++i)
 		{
 			// Get the vertices of the current triangle
-			const auto& indices = m_triangles[i];
-			const glm::vec2& v0 = m_children[indices[0]]->m_blendPos;
-			const glm::vec2& v1 = m_children[indices[1]]->m_blendPos;
-			const glm::vec2& v2 = m_children[indices[2]]->m_blendPos;
+			const glm::vec2& blendPos = m_children[i]->m_blendPos;
 
 			// Update minimum x
-			if (v0.x < minX)
-				minX = v0.x;
-			if (v1.x < minX)
-				minX = v1.x;
-			if (v2.x < minX)
-				minX = v2.x;
+			if (blendPos.x < minX)
+				minX = blendPos.x;
 
 			// Update minimum y
-			if (v0.y < minY)
-				minY = v0.y;
-			if (v1.y < minY)
-				minY = v1.y;
-			if (v2.y < minY)
-				minY = v2.y;
+			if (blendPos.y < minY)
+				minY = blendPos.y;
 		}
 
 		return glm::vec2(minX, minY);
@@ -139,29 +128,18 @@ namespace cs460
 		float maxY = -FLT_MAX;
 
 		// For every triangle
-		for (int i = 0; i < m_triangles.size(); ++i)
+		for (int i = 0; i < m_children.size(); ++i)
 		{
 			// Get the vertices of the current triangle
-			const auto& indices = m_triangles[i];
-			const glm::vec2& v0 = m_children[indices[0]]->m_blendPos;
-			const glm::vec2& v1 = m_children[indices[1]]->m_blendPos;
-			const glm::vec2& v2 = m_children[indices[2]]->m_blendPos;
+			const glm::vec2& blendPos = m_children[i]->m_blendPos;
 
-			// Update maximum x
-			if (v0.x > maxX)
-				maxX = v0.x;
-			if (v1.x > maxX)
-				maxX = v1.x;
-			if (v2.x > maxX)
-				maxX = v2.x;
+			// Update minimum x
+			if (blendPos.x > maxX)
+				maxX = blendPos.x;
 
-			// Update maximum y
-			if (v0.y > maxY)
-				maxY = v0.y;
-			if (v1.y > maxY)
-				maxY = v1.y;
-			if (v2.y > maxY)
-				maxY = v2.y;
+			// Update minimum y
+			if (blendPos.y > maxY)
+				maxY = blendPos.y;
 		}
 
 		return glm::vec2(maxX, maxY);
@@ -174,8 +152,11 @@ namespace cs460
 		// Generate the triangles in case they have changed
 		generate_triangles();
 
+		return;
+
 		// we assume that the children are sorted incrementally by their blend position
-		IBlendNode* node0, * node1, * node2 = nullptr;
+		IBlendNode* node0, * node1, * node2;
+		node0 = node1 = node2 = nullptr;
 		float a0, a1, a2;
 		find_nodes_barycentric(node0, node1, node2, a0, a1, a2);
 

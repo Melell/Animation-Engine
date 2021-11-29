@@ -101,7 +101,8 @@ namespace cs460
 	void Blend1D::blend_children(float time)
 	{
 		// Find the blend nodes to interpolate
-		IBlendNode* from, * to = nullptr;
+		IBlendNode* from, * to;
+		from = to = nullptr;
 		find_segment(from, to);
 
 		// Produce the pose from each

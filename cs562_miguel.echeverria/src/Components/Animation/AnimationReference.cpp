@@ -21,6 +21,7 @@
 #include "Animation/Blending/BlendingCore.h"
 #include "Animation/Blending/Blend1D.h"
 #include "Animation/Blending/Blend2D.h"
+#include "Math/Geometry/IntersectionTests.h"
 
 
 namespace cs460
@@ -162,7 +163,7 @@ namespace cs460
 	void AnimationReference::blend_1d_editor()
 	{
 		// Create a subregion inside the window for drawing the editor
-		if (!ImGui::BeginChild("1D Blending Editor", ImVec2(-1.0f, 60.0f), true))
+		if (!ImGui::BeginChild("1D Blending Editor", ImVec2(-1.0f, 60.0f), true, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove))
 		{
 			ImGui::EndChild();
 			return;
@@ -177,15 +178,9 @@ namespace cs460
 		const ImVec2& editorMax = ImGui::GetItemRectMax();
 		const ImVec2& editorSize = ImVec2(editorMax.x - editorMin.x, editorMax.y - editorMin.y);
 		drawList->PushClipRect(editorMin, editorMax);
-		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(120, 120, 120, 120), 5.0f);
+		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a), 5.0f);
 
 		
-		// Draw the blend 1D blend space line
-		ImVec2 lineStart(editorMin.x + 0.025f * editorSize.x, editorMin.y + 0.5f * editorSize.y);
-		ImVec2 lineEnd(editorMax.x - 0.025f * editorSize.x, lineStart.y);
-		float lineLength = lineEnd.x - lineStart.x;
-		drawList->AddLine(lineStart, lineEnd, IM_COL32(255, 255, 255, 200), 2.0f);
-
 		// Sort the blend nodes first, to know the length of the blendspace
 		Blend1D* blendTree = dynamic_cast<Blend1D*>(get_blend_tree());
 		if (blendTree->m_children.empty())
@@ -199,6 +194,12 @@ namespace cs460
 		IBlendNode* last = blendTree->m_children.back();
 		float totalLength = last->m_blendPos.x - first->m_blendPos.x;
 
+		// Draw the blend 1D blend space line
+		ImVec2 lineStart(editorMin.x + 0.025f * editorSize.x, editorMin.y + 0.5f * editorSize.y);
+		ImVec2 lineEnd(editorMax.x - 0.025f * editorSize.x, lineStart.y);
+		float lineLength = lineEnd.x - lineStart.x;
+		drawList->AddLine(lineStart, lineEnd, IM_COL32(LINES_COLOR.r, LINES_COLOR.g, LINES_COLOR.b, LINES_COLOR.a), 2.0f);
+
 		// Then draw the nodes in the line
 		for (IBlendNode* child : blendTree->m_children)
 		{
@@ -206,12 +207,11 @@ namespace cs460
 			float factor = currLength / totalLength;
 
 			ImVec2 pos(lineStart.x + factor * lineLength, lineEnd.y);
-			const float NODE_SCALE = 12.0f;
 			float halfScale = 0.5f * NODE_SCALE;
 			ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 			ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
 
-			drawList->AddRectFilled(rectMin, rectMax, IM_COL32(0, 170, 205, 210), 3.0f);
+			drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
 		}
 
 		// Draw the blend parameter
@@ -219,11 +219,13 @@ namespace cs460
 		float factor = currLength / totalLength;
 
 		ImVec2 pos(lineStart.x + factor * lineLength, lineEnd.y);
-		const float PARAM_NODE_SCALE = 8.0f;
 		float halfScale = 0.5f * PARAM_NODE_SCALE;
 		ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 		ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
-		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(0, 230, 80, 255), 3.0f);
+		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_NODE_COLOR.r, PARAM_NODE_COLOR.g, PARAM_NODE_COLOR.b, PARAM_NODE_COLOR.a), 3.0f);
+
+		// Blend parameter picking
+		blend_param_picking({ lineStart.x, editorMin.y }, { lineEnd.x, editorMax.y }, rectMin, rectMax, first->m_blendPos, last->m_blendPos, blendTree);
 
 		
 		drawList->PopClipRect();
@@ -233,7 +235,7 @@ namespace cs460
 	{
 		// Create a subregion inside the window for drawing the editor
 		float size = ImGui::GetWindowWidth() * 0.5f;
-		if (!ImGui::BeginChild("2D Blending Editor", ImVec2(size, size), true))
+		if (!ImGui::BeginChild("2D Blending Editor", ImVec2(size, size), true, ImGuiWindowFlags_::ImGuiWindowFlags_NoMove))
 		{
 			ImGui::EndChild();
 			return;
@@ -244,15 +246,17 @@ namespace cs460
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		// Draw the background and define the clipping region for the editor
-		const ImVec2& editorMin = ImGui::GetItemRectMin();
-		const ImVec2& editorMax = ImGui::GetItemRectMax();
+		ImVec2 childWinMin = ImGui::GetItemRectMin();
+		ImVec2 childWinMax = ImGui::GetItemRectMax();
+		const ImVec2& editorMin = childWinMin;
+		const ImVec2& editorMax = childWinMax;
 		const ImVec2& editorSize = ImVec2(editorMax.x - editorMin.x, editorMax.y - editorMin.y);
 		drawList->PushClipRect(editorMin, editorMax);
-		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(120, 120, 120, 120), 5.0f);
+		drawList->AddRectFilled(editorMin, editorMax, IM_COL32(BACKGROUND_COLOR.r, BACKGROUND_COLOR.g, BACKGROUND_COLOR.b, BACKGROUND_COLOR.a), 5.0f);
 
 
-		glm::vec2 editorWorkStart(editorMin.x + 0.025f * editorSize.x, editorMin.y + 0.025f * editorSize.y);
-		glm::vec2 editorWorkEnd(editorMax.x - 0.025f * editorSize.x, editorMax.y - 0.025f * editorSize.y);
+		glm::vec2 editorWorkStart(editorMin.x + 0.05f * editorSize.x, editorMin.y + 0.05f * editorSize.y);
+		glm::vec2 editorWorkEnd(editorMax.x - 0.05f * editorSize.x, editorMax.y - 0.05f * editorSize.y);
 		glm::vec2 editorWorkSize = editorWorkEnd - editorWorkStart;
 
 		// Get the boundaries of the blend space
@@ -287,33 +291,108 @@ namespace cs460
 			float x2Factor = currX2Length / xLength;
 			float currY2Length = v2.y - minPos.y;
 			float y2Factor = currY2Length / yLength;
-
-			//if (glm::epsilonEqual(x0Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y0Factor, 0.0f, FLT_EPSILON))
-			//	__debugbreak();
-			//if (glm::epsilonEqual(x1Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y1Factor, 0.0f, FLT_EPSILON))
-			//	__debugbreak();
-			//if (glm::epsilonEqual(x2Factor, 0.0f, FLT_EPSILON) && glm::epsilonEqual(y2Factor, 0.0f, FLT_EPSILON))
-			//	__debugbreak();
 			
 			// Draw v0 to v1
 			ImVec2 v0v1Start(editorWorkStart.x + x0Factor * editorWorkSize.x, editorWorkStart.y + y0Factor * editorWorkSize.y);
 			ImVec2 v0v1End(editorWorkStart.x + x1Factor * editorWorkSize.x, editorWorkStart.y + y1Factor * editorWorkSize.y);
-			drawList->AddLine(v0v1Start, v0v1End, IM_COL32(255, 255, 255, 200), 2.0f);
+			drawList->AddLine(v0v1Start, v0v1End, IM_COL32(LINES_COLOR.r, LINES_COLOR.g, LINES_COLOR.b, LINES_COLOR.a), 2.0f);
 
 			// Draw v1 to v2
 			ImVec2 v1v2Start(editorWorkStart.x + x1Factor * editorWorkSize.x, editorWorkStart.y + y1Factor * editorWorkSize.y);
 			ImVec2 v1v2End(editorWorkStart.x + x2Factor * editorWorkSize.x, editorWorkStart.y + y2Factor * editorWorkSize.y);
-			drawList->AddLine(v1v2Start, v1v2End, IM_COL32(255, 255, 255, 200), 2.0f);
+			drawList->AddLine(v1v2Start, v1v2End, IM_COL32(LINES_COLOR.r, LINES_COLOR.g, LINES_COLOR.b, LINES_COLOR.a), 2.0f);
 
 			// Draw v2 to v0
 			ImVec2 v2v0Start(editorWorkStart.x + x2Factor * editorWorkSize.x, editorWorkStart.y + y2Factor * editorWorkSize.y);
 			ImVec2 v2v0End(editorWorkStart.x + x0Factor * editorWorkSize.x, editorWorkStart.y + y0Factor * editorWorkSize.y);
-			drawList->AddLine(v2v0Start, v2v0End, IM_COL32(255, 255, 255, 200), 2.0f);
+			drawList->AddLine(v2v0Start, v2v0End, IM_COL32(LINES_COLOR.r, LINES_COLOR.g, LINES_COLOR.b, LINES_COLOR.a), 2.0f);
 		}
+
+		// Draw the blend nodes
+		for (IBlendNode* child : blendTree->m_children)
+		{
+			float currXLength = child->m_blendPos.x - minPos.x;
+			float xFactor = currXLength / xLength;
+
+			float currYLength = child->m_blendPos.y - minPos.y;
+			float yFactor = currYLength / yLength;
+
+			ImVec2 pos(editorWorkStart.x + xFactor * editorWorkSize.x, editorWorkStart.y + yFactor * editorWorkSize.y);
+			float halfScale = 0.5f * NODE_SCALE;
+			ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
+			ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
+
+			drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
+		}
+
+		// Draw the blend parameter
+		float currXLength = blendTree->m_blendParam.x - minPos.x;
+		float xFactor = currXLength / xLength;
+
+		float currYLength = blendTree->m_blendParam.y - minPos.y;
+		float yFactor = currYLength / yLength;
+
+		ImVec2 pos(editorWorkStart.x + xFactor * editorWorkSize.x, editorWorkStart.y + yFactor * editorWorkSize.y);
+		float halfScale = 0.5f * PARAM_NODE_SCALE;
+		ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
+		ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
+		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_NODE_COLOR.r, PARAM_NODE_COLOR.g, PARAM_NODE_COLOR.b, PARAM_NODE_COLOR.a), 3.0f);
+
+		// Blend parameter picking
+		blend_param_picking(editorWorkStart, editorWorkEnd, rectMin, rectMax, minPos, maxPos, blendTree);
 
 
 		drawList->PopClipRect();
 	}
+
+
+	void AnimationReference::blend_param_picking(const glm::vec2& windowCoordsStart, const glm::vec2& windowCoordsEnd, const ImVec2& rectMin, const ImVec2& rectMax, const glm::vec2& blendSpaceMin, const glm::vec2& blendSpaceMax, IBlendNode* blendTree)
+	{
+		static bool draggingBlendParam = false;
+		const glm::vec2& windowCoordsSize = windowCoordsEnd - windowCoordsStart;
+		const glm::vec2& blendSpaceSize = blendSpaceMax - blendSpaceMin;
+		Blend1D* blend1dTree = dynamic_cast<Blend1D*>(blendTree);
+		Blend2D* blend2dTree = dynamic_cast<Blend2D*>(blendTree);
+
+		// If inside the working area
+		const ImVec2& mousePos = ImGui::GetMousePos();
+		if (mousePos.x >= windowCoordsStart.x && mousePos.x <= windowCoordsEnd.x && mousePos.y >= windowCoordsStart.y && mousePos.y <= windowCoordsEnd.y)
+		{
+			// On mouse click, check if inside the blend param
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+				if (point_in_aabb_2d({ mousePos.x, mousePos.y }, { rectMin.x, rectMin.y }, { rectMax.x, rectMax.y }))
+				{
+					std::cout << "CLICKED\n";
+					draggingBlendParam = true;
+				}
+
+			// If mouse down, and on first click mouse was on blend param, drag it
+			if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
+			{
+				if (draggingBlendParam)
+				{
+					float xFactor = (mousePos.x - windowCoordsStart.x) / windowCoordsSize.x;
+
+					// 2d blend tree policy
+					if (blend2dTree)
+					{
+						float yFactor = (mousePos.y - windowCoordsStart.y) / windowCoordsSize.y;
+						blend2dTree->m_blendParam = { blendSpaceMin.x + xFactor * blendSpaceSize.x, blendSpaceMin.y + yFactor * blendSpaceSize.y };
+					}
+					// 1d blend tree policy
+					else if (blend1dTree)
+					{
+						blend1dTree->m_blendParam = blendSpaceMin.x + xFactor * blendSpaceSize.x;
+					}
+				}
+			}
+			else
+				draggingBlendParam = false;
+		}
+		else
+			draggingBlendParam = false;
+	}
+
 
 
 	// Setter and getter for the index of the animation

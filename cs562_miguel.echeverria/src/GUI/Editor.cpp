@@ -104,7 +104,7 @@ namespace cs460
         ImGui::End();
 
         // Show the demo window for reference
-        //ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
     }
 
 

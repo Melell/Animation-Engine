@@ -22,4 +22,8 @@ namespace cs460
 	// Returns -1 if ray doesn't intersect aabb or is a false positive.
 	// Returns the time of intersection otherwise. (function taken from cs350)
 	float ray_vs_aabb(const Ray& ray, const AABB& aabb);
+
+
+	// Returns true if the given 2d point is inside a 2d aabb defined by min and max
+	bool point_in_aabb_2d(const glm::vec2& point, const glm::vec2& min, const glm::vec2& max);
 }

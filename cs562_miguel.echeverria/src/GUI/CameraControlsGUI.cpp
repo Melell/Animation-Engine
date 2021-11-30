@@ -45,8 +45,23 @@ namespace cs460
             }
             else if (sphericalCam)
             {
-                // TODO: Write spherical camera controls
-                ImGui::Text("LETS DO SOME BLENDING!!!");
+                ImGui::Text("CONTROLLER: Controller required for both player");
+                ImGui::Text("movement and camera controls");
+                ImGui::Separator();
+                ImGui::Text("BLEND_1D_DEMO: The type of camera used in");
+                ImGui::Text("this demo is a spherical camera");
+                ImGui::Separator();
+                ImGui::Text("RIGHT STICK: Standard third person");
+                ImGui::Text("right stick camera controls");
+                ImGui::Separator();
+                ImGui::Text("BLEND_2D_DEMO: The 2d blending demo actually uses");
+                ImGui::Text("a fixedcamera, but the controller is still");
+                ImGui::Text("needed for movement");
+                ImGui::NewLine();
+
+                float currRadius = sphericalCam->get_radius();
+                ImGui::SliderFloat("Spherical Cam Radius (only for 1d blending demo)", &currRadius, 1.0f, 10.0f, "%.2f");
+                sphericalCam->set_radius(currRadius);
             }
         }
 

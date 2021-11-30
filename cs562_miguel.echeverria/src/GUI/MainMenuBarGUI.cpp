@@ -640,7 +640,7 @@ namespace cs460
 		// Create the nodes
 		SceneNode* xBot = root->create_child("X-BOT");
 		sphericalCam->set_focal_node(xBot);
-		sphericalCam->set_focal_offset(glm::vec3(0.0f, 1.0f, 0.0f));
+		sphericalCam->set_focal_offset(glm::vec3(0.0f, 1.5f, 0.0f));
 
 
 		// Add the model

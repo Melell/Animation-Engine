@@ -56,7 +56,7 @@ namespace cs460
 		SceneNode* m_focalNode = nullptr;
 		glm::vec3 m_focalPoint{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_focalOffset{ 0.0f, 0.0f, 0.0f };
-		float m_radius = 5.0f;
+		float m_radius = 3.5f;
 		float m_yAngle = -90.0f;
 		float m_polarAngle = 60.0f;
 

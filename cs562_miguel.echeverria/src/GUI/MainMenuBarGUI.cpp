@@ -81,6 +81,14 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLENDING_2D;
 				}
+				if (ImGui::MenuItem("1D BLEND EDITOR"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::BLEND_EDITOR_1D;
+				}
+				if (ImGui::MenuItem("2D BLEND EDITOR"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::BLEND_EDITOR_2D;
+				}
 
 				ImGui::EndMenu();
 			}
@@ -199,6 +207,10 @@ namespace cs460
 			load_blending_1d_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::BLENDING_2D)
 			load_blending_2d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::BLEND_EDITOR_1D)
+			load_blend_editor_1d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::BLEND_EDITOR_2D)
+			load_blend_editor_2d_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -657,7 +669,7 @@ namespace cs460
 		blendAnim5->m_blendPos.x = 2.0f;
 
 		// 14(RUMBA-DANCING), 5(IDLE), 22(WALK), 6(JOG), 15(RUN), 3(FAST RUN)
-		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);
+		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[4]);
 		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
 		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[6]);
 		blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[15]);
@@ -681,9 +693,11 @@ namespace cs460
 		scene.change_camera(false);
 		ICamera* cam = scene.get_active_camera();
 		SphericalCamera* sphericalCam = dynamic_cast<SphericalCamera*>(cam);
+		sphericalCam->m_isActive = false;
 
 		// Create the nodes
 		SceneNode* xBot = root->create_child("X-BOT");
+		xBot->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 20.0f);
 		sphericalCam->set_focal_node(xBot);
 		sphericalCam->set_focal_offset(glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -713,7 +727,7 @@ namespace cs460
 		blendAnim4->m_blendPos = glm::vec2(1.0f, 0.0f);
 		blendAnim5->m_blendPos = glm::vec2(0.0f, -1.0f);
 
-		// 14(RUMBA-DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
+		// 14(RUMBA-DANCING), 4(HIP HOP DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
 		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);
 		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
 		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[23]);
@@ -723,5 +737,119 @@ namespace cs460
 
 		// Add the player controller script component
 		xBot->add_component<PlayerController>();
+	}
+
+	void MainMenuBarGUI::load_blend_editor_1d_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+
+		// Create the nodes
+		SceneNode* xBot = root->create_child("X-BOT");
+		xBot->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+		// Add the model
+		ModelInstance* xBotInstance = xBot->add_component<ModelInstance>();
+		xBotInstance->change_model("data/Models/xbot/xbot.gltf");
+
+
+		// Set the animation component and blend tree usage
+		AnimationReference* xBotAnim = xBot->get_component<AnimationReference>();
+		xBotAnim->set_blend_tree_type(1);
+
+		// Get the blend tree and build it;
+		Blend1D* blend1d = dynamic_cast<Blend1D*>(xBotAnim->get_blend_tree());
+		blend1d->m_blendParam = 0.0f;
+
+		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+
+		blendAnim1->m_blendPos.x = 0.0f;
+		blendAnim2->m_blendPos.x = 0.5f;
+		blendAnim3->m_blendPos.x = 1.0f;
+		blendAnim4->m_blendPos.x = 1.5f;
+		blendAnim5->m_blendPos.x = 2.0f;
+
+		// 14(RUMBA-DANCING), 4(HIP HOP DANCING), 5(IDLE), 22(WALK), 6(JOG), 15(RUN), 3(FAST RUN)
+		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[4]);
+		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
+		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[6]);
+		blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[15]);
+		blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[3]);
+
+
+		// Place the camera
+		editorCam->set_position(glm::vec3(0.0f, 2.0f, 5.0f));
+		editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, -0.1f, -1.0f) * 25.0f);
+	}
+
+	void MainMenuBarGUI::load_blend_editor_2d_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+
+		// Create the nodes
+		SceneNode* xBot = root->create_child("X-BOT");
+		xBot->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+
+		// Add the model
+		ModelInstance* xBotInstance = xBot->add_component<ModelInstance>();
+		xBotInstance->change_model("data/Models/xbot/xbot.gltf");
+
+
+		// Set the animation component and blend tree usage
+		AnimationReference* xBotAnim = xBot->get_component<AnimationReference>();
+		xBotAnim->set_blend_tree_type(2);
+
+		// Get the blend tree and build it;
+		Blend2D* blend2d = dynamic_cast<Blend2D*>(xBotAnim->get_blend_tree());
+		blend2d->m_blendParam = glm::vec2(0.0f, 0.0f);
+
+		BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+
+		blendAnim1->m_blendPos = glm::vec2(0.0f, 0.0f);
+		blendAnim2->m_blendPos = glm::vec2(0.0f, 1.0f);
+		blendAnim3->m_blendPos = glm::vec2(-1.0f, 0.0f);
+		blendAnim4->m_blendPos = glm::vec2(1.0f, 0.0f);
+		blendAnim5->m_blendPos = glm::vec2(0.0f, -1.0f);
+
+		// 14(RUMBA-DANCING), 4(HIP HOP DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
+		blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);
+		blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
+		blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[23]);
+		blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[24]);
+		blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[25]);
+
+
+		// Place the camera
+		editorCam->set_position(glm::vec3(0.0f, 2.0f, 5.0f));
+		editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, -0.1f, -1.0f) * 25.0f);
 	}
 }

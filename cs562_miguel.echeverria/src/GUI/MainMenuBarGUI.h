@@ -23,7 +23,9 @@ namespace cs460
 		SKINNED_ANIMATION,
 		PATH_FOLLOWING,
 		BLENDING_1D,
-		BLENDING_2D
+		BLENDING_2D,
+		BLEND_EDITOR_1D,
+		BLEND_EDITOR_2D
 	};
 
 
@@ -53,6 +55,8 @@ namespace cs460
 		void load_path_following_scene();
 		void load_blending_1d_scene();
 		void load_blending_2d_scene();
+		void load_blend_editor_1d_scene();
+		void load_blend_editor_2d_scene();
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

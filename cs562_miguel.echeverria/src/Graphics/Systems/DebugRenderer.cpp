@@ -339,18 +339,5 @@ namespace cs460
 
 			zPos += zOffset;
 		}
-
-
-		// Draw the axes
-		Segment xSeg;
-		xSeg.m_start = glm::vec3(-xHalfSize, 0.05f, 0.0f);
-		xSeg.m_end = glm::vec3(xHalfSize, 0.05f, 0.0f);
-
-		Segment zSeg;
-		zSeg.m_start = glm::vec3(0.0f, 0.05f, -zHalfSize);
-		zSeg.m_end = glm::vec3(0.0f, 0.05f, zHalfSize);
-
-		draw_segment(xSeg, { 1.0f, 0.0f, 0.0f, 1.0f });
-		draw_segment(zSeg, { 0.0f, 0.0f, 1.0f, 1.0f });
 	}
 }

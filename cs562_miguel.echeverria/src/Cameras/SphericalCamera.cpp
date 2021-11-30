@@ -111,6 +111,9 @@ namespace cs460
 	// Actual logic for the spherical camera goes here
 	void SphericalCamera::camera_logic()
 	{
+		if (!m_isActive)
+			return;
+
 		InputMgr& inputMgr = InputMgr::get_instance();
 		FrameRateController& frc = FrameRateController::get_instance();
 		float dt = frc.get_dt_float();

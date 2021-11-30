@@ -69,9 +69,9 @@ namespace cs460
 			}
 
 			// Otherwise, perform lerp blending
-			unsigned char startPorperties = startJoint.second.second;
+			unsigned char startProperties = startJoint.second.second;
 			unsigned char endProperties = foundEndJoint->second.second;
-			unsigned char overlappingProperties = startPorperties & endProperties;
+			unsigned char overlappingProperties = startProperties & endProperties;
 			
 			// Both start and end pose affect translation
 			if (overlappingProperties & (unsigned char)TargetProperty::TRANSLATION)
@@ -82,7 +82,7 @@ namespace cs460
 			else
 			{
 				// Only start pose affects translation
-				if (startPorperties & (unsigned char)TargetProperty::TRANSLATION)
+				if (startProperties & (unsigned char)TargetProperty::TRANSLATION)
 					resultPose[startJoint.first].first.m_position = startJoint.second.first.m_position;
 				// Only end pose affects translation
 				else if (endProperties & (unsigned char)TargetProperty::TRANSLATION)
@@ -101,7 +101,7 @@ namespace cs460
 			else
 			{
 				// Only start pose affects rotation
-				if (startPorperties & (unsigned char)TargetProperty::ROTATION)
+				if (startProperties & (unsigned char)TargetProperty::ROTATION)
 					resultPose[startJoint.first].first.m_orientation = startJoint.second.first.m_orientation;
 				// Only end pose affects rotation
 				else if (endProperties & (unsigned char)TargetProperty::ROTATION)
@@ -120,7 +120,7 @@ namespace cs460
 			else
 			{
 				// Only start pose affects scale
-				if (startPorperties & (unsigned char)TargetProperty::SCALE)
+				if (startProperties & (unsigned char)TargetProperty::SCALE)
 					resultPose[startJoint.first].first.m_scale = startJoint.second.first.m_scale;
 				// Only end pose affects rotation
 				else if (endProperties & (unsigned char)TargetProperty::SCALE)
@@ -137,9 +137,90 @@ namespace cs460
 	{
 		// We will ignore the blend mask for now
 
-		for (auto& pose0Joint : pose0)
+		// For every joint in the first pose
+		for (auto& currElement : pose0)
 		{
+			const auto& found1 = pose1.find(currElement.first);
+			const auto& found2 = pose2.find(currElement.first);
+			const auto& pose0Joint = currElement.second;
 
+			if (found1 == pose1.end())
+			{
+				// CASE 1: Only the first pose joint is available
+				if (found2 == pose2.end())
+				{
+					resultPose[currElement.first] = pose0Joint;
+					return;
+				}
+				// CASE 2: Only the first and third pose joints are available
+				else
+				{
+					unsigned char pose0Properties = pose0Joint.second;
+					unsigned char pose2Properties = found2->second.second;
+					unsigned char overlappingProperties = pose0Properties & pose2Properties;
+
+					if (overlappingProperties & (unsigned char)TargetProperty::TRANSLATION)
+					{
+
+					}
+					else if (overlappingProperties & (unsigned char)TargetProperty::ROTATION)
+					{
+
+					}
+					else if (overlappingProperties & (unsigned char)TargetProperty::SCALE)
+					{
+
+					}
+				}
+			}
+			// CASE 3: Only the first and second pose joints are available
+			else if (found2 == pose2.end())
+			{
+
+			}
+
+			// CASE 4: All pose joints are available
+
+			const auto& pose1Joint = found1->second;
+			const auto& pose2Joint = found2->second;
+
+			unsigned char pose0Properties = pose0Joint.second;
+			unsigned char pose1Properties = pose1Joint.second;
+			unsigned char pose2Properties = pose2Joint.second;
+			unsigned char overlappingProperties = pose0Properties & pose1Properties & pose2Properties;
+
+			// The three pose joints affect translation
+			if (overlappingProperties & (unsigned char)TargetProperty::TRANSLATION)
+			{
+				resultPose[currElement.first].first.m_position = a0 * pose0Joint.first.m_position + a1 * pose1Joint.first.m_position + a2 * pose2Joint.first.m_position;
+				resultPose[currElement.first].second |= (unsigned char)TargetProperty::TRANSLATION;
+			}
+			else
+			{
+				std::cout << "PROBLEM!!!\n";
+			}
+
+			// The three pose joints affect rotation
+			if (overlappingProperties & (unsigned char)TargetProperty::ROTATION)
+			{
+				resultPose[currElement.first].first.m_orientation = a0 * pose0Joint.first.m_orientation + a1 * pose1Joint.first.m_orientation + a2 * pose2Joint.first.m_orientation;
+				resultPose[currElement.first].second |= (unsigned char)TargetProperty::ROTATION;
+			}
+			else
+			{
+				std::cout << "PROBLEM!!!\n";
+			}
+
+			// The three pose joints affect scale
+			if (overlappingProperties & (unsigned char)TargetProperty::SCALE)
+			{
+				resultPose[currElement.first].first.m_scale = a0 * pose0Joint.first.m_scale + a1 * pose1Joint.first.m_scale + a2 * pose2Joint.first.m_scale;
+				resultPose[currElement.first].second |= (unsigned char)TargetProperty::SCALE;
+			}
+			else
+			{
+				std::cout << "PROBLEM!!!\n";
+			}
 		}
 	}
 

@@ -21,11 +21,21 @@
 #include "Animation/Blending/BlendingCore.h"
 #include "Animation/Blending/Blend1D.h"
 #include "Animation/Blending/Blend2D.h"
+#include "Animation/Blending/BlendAnim.h"
 #include "Math/Geometry/IntersectionTests.h"
 
 
 namespace cs460
 {
+	static const glm::vec4 BACKGROUND_COLOR{ 120, 120, 120, 120 };
+	static const glm::vec4 LINES_COLOR{ 255, 255, 255, 200 };
+	static const glm::vec4 NODES_COLOR{ 0, 170, 205, 210 };
+	static const float NODE_SCALE = 12.0f;
+	static const glm::vec4 PARAM_COLOR{ 0, 230, 80, 255 };
+	static const float PARAM_SCALE = 8.0f;
+	static const glm::vec4 PICKED_NODE_COLOR{225, 70, 5, 210};
+
+
 	AnimationReference::AnimationReference()
 	{
 		Animator::get_instance().add_animation_ref(this);
@@ -123,6 +133,12 @@ namespace cs460
 	{
 		Model* model = get_owner()->get_model();
 
+		if (model->m_animations.empty())
+		{
+			ImGui::Text("No Animations Availale");
+			return;
+		}
+
 		ImGui::Text("Blending options:");
 		ImGui::RadioButton("None", &m_blendTreeType, 0);
 		ImGui::SameLine();
@@ -130,10 +146,28 @@ namespace cs460
 		ImGui::SameLine();
 		ImGui::RadioButton("2D Blend", &m_blendTreeType, 2);
 
+		if (ImGui::Button("Add Anim Node"))
+		{
+			IBlendNode* node = get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM);
+			BlendAnim* animNode = static_cast<BlendAnim*>(node);
+			animNode->m_animSource = &model->m_animations[0];
+			m_pickedNode = node;
+		}
+
 		if (m_blendTreeType == 1)
+		{
+			ImGui::Text("Click + Drag: Move blend parameter (green)");
+			ImGui::Text("Click Blue Square: Display node options");
 			blend_1d_editor();
+			blend_node_gui(m_pickedNode);
+		}
 		else if (m_blendTreeType == 2)
+		{
+			ImGui::Text("Click + Drag: Move blend parameter (green)");
+			ImGui::Text("Click Blue Square: Display node options");
 			blend_2d_editor();
+			blend_node_gui(m_pickedNode);
+		}
 
 		if (m_blendTreeType > 0)
 			return;
@@ -211,7 +245,10 @@ namespace cs460
 			ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 			ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
 
-			drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
+			if (child == m_pickedNode)
+				drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PICKED_NODE_COLOR.r, PICKED_NODE_COLOR.g, PICKED_NODE_COLOR.b, PICKED_NODE_COLOR.a), 3.0f);
+			else
+				drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
 		}
 
 		// Draw the blend parameter
@@ -219,10 +256,10 @@ namespace cs460
 		float factor = currLength / totalLength;
 
 		ImVec2 pos(lineStart.x + factor * lineLength, lineEnd.y);
-		float halfScale = 0.5f * PARAM_NODE_SCALE;
+		float halfScale = 0.5f * PARAM_SCALE;
 		ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 		ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
-		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_NODE_COLOR.r, PARAM_NODE_COLOR.g, PARAM_NODE_COLOR.b, PARAM_NODE_COLOR.a), 3.0f);
+		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_COLOR.r, PARAM_COLOR.g, PARAM_COLOR.b, PARAM_COLOR.a), 3.0f);
 
 		// Blend parameter picking
 		blend_param_picking({ lineStart.x, editorMin.y }, { lineEnd.x, editorMax.y }, rectMin, rectMax, first->m_blendPos, last->m_blendPos, blendTree);
@@ -266,6 +303,12 @@ namespace cs460
 		float xLength = maxPos.x - minPos.x;
 		float yLength = maxPos.y - minPos.y;
 
+		if (blendTree->m_children.empty())
+		{
+			drawList->PopClipRect();
+			return;
+		}
+
 		// Draw the triangles
 		for (int i = 0; i < blendTree->m_triangles.size(); ++i)
 		{
@@ -278,19 +321,19 @@ namespace cs460
 			float currX0Length = v0.x - minPos.x;
 			float x0Factor = currX0Length / xLength;
 			float currY0Length = v0.y - minPos.y;
-			float y0Factor = currY0Length / yLength;
+			float y0Factor = 1.0f - currY0Length / yLength;
 
 			// Compute the normalized position of v1
 			float currX1Length = v1.x - minPos.x;
 			float x1Factor = currX1Length / xLength;
 			float currY1Length = v1.y - minPos.y;
-			float y1Factor = currY1Length / yLength;
+			float y1Factor = 1.0f - currY1Length / yLength;
 
 			// Compute the normalized position of v2
 			float currX2Length = v2.x - minPos.x;
 			float x2Factor = currX2Length / xLength;
 			float currY2Length = v2.y - minPos.y;
-			float y2Factor = currY2Length / yLength;
+			float y2Factor = 1.0f - currY2Length / yLength;
 			
 			// Draw v0 to v1
 			ImVec2 v0v1Start(editorWorkStart.x + x0Factor * editorWorkSize.x, editorWorkStart.y + y0Factor * editorWorkSize.y);
@@ -315,14 +358,18 @@ namespace cs460
 			float xFactor = currXLength / xLength;
 
 			float currYLength = child->m_blendPos.y - minPos.y;
-			float yFactor = currYLength / yLength;
+			float yFactor = 1.0f - currYLength / yLength;
 
 			ImVec2 pos(editorWorkStart.x + xFactor * editorWorkSize.x, editorWorkStart.y + yFactor * editorWorkSize.y);
 			float halfScale = 0.5f * NODE_SCALE;
 			ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 			ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
 
-			drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
+			// Use different color if the current node has been picked
+			if (child == m_pickedNode)
+				drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PICKED_NODE_COLOR.r, PICKED_NODE_COLOR.g, PICKED_NODE_COLOR.b, PICKED_NODE_COLOR.a), 3.0f);
+			else
+				drawList->AddRectFilled(rectMin, rectMax, IM_COL32(NODES_COLOR.r, NODES_COLOR.g, NODES_COLOR.b, NODES_COLOR.a), 3.0f);
 		}
 
 		// Draw the blend parameter
@@ -330,13 +377,13 @@ namespace cs460
 		float xFactor = currXLength / xLength;
 
 		float currYLength = blendTree->m_blendParam.y - minPos.y;
-		float yFactor = currYLength / yLength;
+		float yFactor = 1.0f - currYLength / yLength;
 
 		ImVec2 pos(editorWorkStart.x + xFactor * editorWorkSize.x, editorWorkStart.y + yFactor * editorWorkSize.y);
-		float halfScale = 0.5f * PARAM_NODE_SCALE;
+		float halfScale = 0.5f * PARAM_SCALE;
 		ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
 		ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
-		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_NODE_COLOR.r, PARAM_NODE_COLOR.g, PARAM_NODE_COLOR.b, PARAM_NODE_COLOR.a), 3.0f);
+		drawList->AddRectFilled(rectMin, rectMax, IM_COL32(PARAM_COLOR.r, PARAM_COLOR.g, PARAM_COLOR.b, PARAM_COLOR.a), 3.0f);
 
 		// Blend parameter picking
 		blend_param_picking(editorWorkStart, editorWorkEnd, rectMin, rectMax, minPos, maxPos, blendTree);
@@ -360,11 +407,12 @@ namespace cs460
 		{
 			// On mouse click, check if inside the blend param
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_::ImGuiMouseButton_Left))
+			{
 				if (point_in_aabb_2d({ mousePos.x, mousePos.y }, { rectMin.x, rectMin.y }, { rectMax.x, rectMax.y }))
-				{
-					std::cout << "CLICKED\n";
 					draggingBlendParam = true;
-				}
+				else
+					pick_blend_node(windowCoordsStart, windowCoordsEnd, blendTree, mousePos);
+			}
 
 			// If mouse down, and on first click mouse was on blend param, drag it
 			if (ImGui::IsMouseDown(ImGuiMouseButton_::ImGuiMouseButton_Left))
@@ -376,7 +424,7 @@ namespace cs460
 					// 2d blend tree policy
 					if (blend2dTree)
 					{
-						float yFactor = (mousePos.y - windowCoordsStart.y) / windowCoordsSize.y;
+						float yFactor = 1.0f - (mousePos.y - windowCoordsStart.y) / windowCoordsSize.y;
 						blend2dTree->m_blendParam = { blendSpaceMin.x + xFactor * blendSpaceSize.x, blendSpaceMin.y + yFactor * blendSpaceSize.y };
 					}
 					// 1d blend tree policy
@@ -391,6 +439,111 @@ namespace cs460
 		}
 		else
 			draggingBlendParam = false;
+	}
+
+
+	void AnimationReference::pick_blend_node(const glm::vec2& windowCoordsStart, const glm::vec2& windowCoordsEnd, IBlendNode* blendTree, const ImVec2& mousePos)
+	{
+		Blend1D* tree1d = dynamic_cast<Blend1D*>(blendTree);
+		Blend2D* tree2d = dynamic_cast<Blend2D*>(blendTree);
+
+		const glm::vec2& windowCoordsSize = windowCoordsEnd - windowCoordsStart;
+
+		glm::vec2 minPos;
+		glm::vec2 maxPos;
+		glm::vec2 size;
+
+		if (tree1d)
+		{
+			tree1d->sort_children();
+			minPos = tree1d->m_children.front()->m_blendPos;
+			maxPos = tree1d->m_children.back()->m_blendPos;
+		}
+		else if (tree2d)
+		{
+			minPos = tree2d->get_min_pos();
+			maxPos = tree2d->get_max_pos();
+		}
+
+		size = maxPos - minPos;
+
+		for (int i = 0; i < blendTree->m_children.size(); ++i)
+		{
+			IBlendNode* child = blendTree->m_children[i];
+
+			float currXLength = child->m_blendPos.x - minPos.x;
+			float xFactor = currXLength / size.x;
+
+			float currYLength = child->m_blendPos.y - minPos.y;
+			float yFactor = 1.0f - currYLength / size.y;
+
+			ImVec2 pos(windowCoordsStart.x + xFactor * windowCoordsSize.x, windowCoordsStart.y + yFactor * windowCoordsSize.y);
+			float halfScale = 0.5f * NODE_SCALE;
+			ImVec2 rectMin(pos.x - halfScale, pos.y - halfScale);
+			ImVec2 rectMax(pos.x + halfScale, pos.y + halfScale);
+
+			if (point_in_aabb_2d({ mousePos.x, mousePos.y }, { rectMin.x, rectMin.y }, { rectMax.x, rectMax.y }))
+			{
+				m_pickedNode = child;
+				return;
+			}
+		}
+
+		m_pickedNode = nullptr;
+	}
+
+	void AnimationReference::blend_node_gui(IBlendNode* node)
+	{
+		// If no node was picked, return
+		if (node == nullptr)
+			return;
+
+		Blend1D* blend1d = dynamic_cast<Blend1D*>(node->m_parent);
+		Blend2D* blend2d = dynamic_cast<Blend2D*>(node->m_parent);
+
+		// If on a blend tree type that doesn't correspond to the node picked, return
+		if ((blend1d && m_blendTreeType != 1) || (blend2d && m_blendTreeType != 2))
+			return;
+
+		ImGui::SliderFloat("X##0", &node->m_blendPos.x, -4.0f, 4.0f, "%.3f");
+
+		if (blend2d)
+		{
+			ImGui::SliderFloat("Y##1", &node->m_blendPos.y, -4.0f, 4.0f, "%.3f");
+		}
+
+		// Allow choosing of animation if it is a blend anim node
+		BlendAnim* animNode = dynamic_cast<BlendAnim*>(node);
+		if (animNode)
+		{
+			display_blend_animations_gui(animNode);
+		}
+
+		// Give the option to delete this node
+		if (ImGui::Button("Delete Selected Node"))
+		{
+			m_pickedNode->m_parent->remove_child(m_pickedNode);
+			m_pickedNode = nullptr;
+		}
+	}
+
+
+	void AnimationReference::display_blend_animations_gui(BlendAnim* animNode)
+	{
+		Model* model = get_owner()->get_model();
+
+		if (ImGui::BeginCombo("Animation", animNode->m_animSource->m_name.c_str()))
+		{
+			for (int i = 0; i < model->m_animations.size(); i++)
+			{
+				if (ImGui::Selectable(model->m_animations[i].m_name.c_str()))
+				{
+					animNode->m_animSource = &model->m_animations[i];
+				}
+			}
+
+			ImGui::EndCombo();
+		}
 	}
 
 

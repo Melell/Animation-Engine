@@ -30,8 +30,10 @@ namespace cs460
 		const glm::vec3 m_startingForward{ 0.0f, 0.0f, 1.0f };
 		glm::vec3 m_currentForward{ 0.0f, 0.0f, 1.0f };
 
-		void blend_1d_controls(const glm::vec3& leftStickCamSpace, float stickLength, float blendParam);
-		void blend_2d_controls(const glm::vec3& leftStickCamSpace, float stickLength, const glm::vec2& blendParam);
+		// The controls for both ended up being awfully similar, will improve code reuse in the future
+		void blend_1d_controls(const glm::vec3& leftStickWorldSpace, float stickLength, float blendParam);
+		void blend_2d_controls(const glm::vec3& leftStickWorldSpace, const glm::vec2& param);
+		glm::vec2 clamp_parameter_to_romboid(const glm::vec2& param);
 
 		void on_gui() override;
 	};

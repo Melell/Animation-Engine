@@ -63,15 +63,15 @@ namespace cs460
 			glm::vec2 v1(m_children[indices[1]]->m_blendPos.x, m_children[indices[1]]->m_blendPos.y);
 			glm::vec2 v2(m_children[indices[2]]->m_blendPos.x, m_children[indices[2]]->m_blendPos.y);
 
-			float area0 = cross_2d(v0 - m_blendParam, v1 - m_blendParam);
+			float area0 = cross_2d(v1 - m_blendParam, v2 - m_blendParam);
 			if (area0 > 0.0f)
 				continue;
 
-			float area1 = cross_2d(v1 - m_blendParam, v2 - m_blendParam);
+			float area1 = cross_2d(v2 - m_blendParam, v0 - m_blendParam);
 			if (area1 > 0.0f)
 				continue;
 
-			float area2 = cross_2d(v2 - m_blendParam, v0 - m_blendParam);
+			float area2 = cross_2d(v0 - m_blendParam, v1 - m_blendParam);
 			if (area2 > 0.0f)
 				continue;
 
@@ -152,13 +152,15 @@ namespace cs460
 		// Generate the triangles in case they have changed
 		generate_triangles();
 
-		return;
-
 		// we assume that the children are sorted incrementally by their blend position
 		IBlendNode* node0, * node1, * node2;
 		node0 = node1 = node2 = nullptr;
 		float a0, a1, a2;
+		a0 = a1 = a2 = 0.0f;
 		find_nodes_barycentric(node0, node1, node2, a0, a1, a2);
+
+		if (!node0 || !node1 || !node2)
+			return;
 
 		// produce the pose from each
 		node0->produce_pose(time);

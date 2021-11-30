@@ -19,6 +19,7 @@ namespace cs460
 	struct IBlendNode;
 	struct Blend1D;
 	struct Blend2D;
+	struct BlendAnim;
 
 
 	class AnimationReference : public IComponent
@@ -80,17 +81,15 @@ namespace cs460
 		int m_blendTreeType = 0;
 
 		// Blend tree gui params
-		const glm::vec4 BACKGROUND_COLOR{ 120, 120, 120, 120 };
-		const glm::vec4 LINES_COLOR{ 255, 255, 255, 200 };
-		const glm::vec4 NODES_COLOR{ 0, 170, 205, 210 };
-		const float NODE_SCALE = 12.0f;
-		const glm::vec4 PARAM_NODE_COLOR{ 0, 230, 80, 255 };
-		const float PARAM_NODE_SCALE = 8.0f;
+		IBlendNode* m_pickedNode = nullptr;
 
 
 		void on_gui() override;
 		void blend_1d_editor();
 		void blend_2d_editor();
 		void blend_param_picking(const glm::vec2& windowCoordsStart, const glm::vec2& windowCoordsEnd, const ImVec2& rectMin, const ImVec2& rectMax, const glm::vec2& blendSpaceMin, const glm::vec2& blendSpaceMax, IBlendNode* blendTree);
+		void pick_blend_node(const glm::vec2& windowCoordsStart, const glm::vec2& windowCoordsEnd, IBlendNode* blendTree, const ImVec2& mousePos);
+		void blend_node_gui(IBlendNode* node);
+		void display_blend_animations_gui(BlendAnim* animNode);
 	};
 }

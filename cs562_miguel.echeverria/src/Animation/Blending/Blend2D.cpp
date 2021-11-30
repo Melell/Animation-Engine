@@ -11,10 +11,32 @@
 #include "pch.h"
 #include "Blend2D.h"
 #include "Math/Geometry/Delaunator.hpp"
+#include "BlendAnim.h"
+#include "Components/Animation/AnimationReference.h"
+#include "Composition/SceneNode.h"
+#include "Graphics/GLTF/Model.h"
 
 
 namespace cs460
 {
+	// Sets the animation component owner and adds three default childs
+	Blend2D::Blend2D(AnimationReference* animCompOwner)
+		:	IBlendNode(animCompOwner)
+	{
+		BlendAnim* animNode0 = static_cast<BlendAnim*>(add_child(BlendNodeTypes::BLEND_ANIM));
+		animNode0->m_blendPos = glm::vec2(-0.5f, -0.5f);
+		animNode0->m_animSource = &m_animCompOwner->get_owner()->get_model()->m_animations[0];
+		
+		BlendAnim* animNode1 = static_cast<BlendAnim*>(add_child(BlendNodeTypes::BLEND_ANIM));
+		animNode1->m_blendPos = glm::vec2(0.5f, -0.5f);
+		animNode1->m_animSource = &m_animCompOwner->get_owner()->get_model()->m_animations[0];
+		
+		BlendAnim* animNode2 = static_cast<BlendAnim*>(add_child(BlendNodeTypes::BLEND_ANIM));
+		animNode2->m_blendPos = glm::vec2(0.0f, 0.5f);
+		animNode2->m_animSource = &m_animCompOwner->get_owner()->get_model()->m_animations[0];
+	}
+
+
 	void Blend2D::produce_pose(float time)
 	{
 		if (m_children.empty())

@@ -10,10 +10,28 @@
 #include "pch.h"
 #include "Blend1D.h"
 #include "BlendingCore.h"
+#include "BlendAnim.h"
+#include "Components/Animation/AnimationReference.h"
+#include "Composition/SceneNode.h"
+#include "Graphics/GLTF/Model.h"
 
 
 namespace cs460
 {
+	// Sets the animation component owner and adds two default childs
+	Blend1D::Blend1D(AnimationReference* animCompOwner)
+		:	IBlendNode(animCompOwner)
+	{
+		BlendAnim* animNode0 = static_cast<BlendAnim*>(add_child(BlendNodeTypes::BLEND_ANIM));
+		animNode0->m_blendPos.x = 0.0f;
+		animNode0->m_animSource = &m_animCompOwner->get_owner()->get_model()->m_animations[0];
+
+		BlendAnim* animNode1 = static_cast<BlendAnim*>(add_child(BlendNodeTypes::BLEND_ANIM));
+		animNode1->m_blendPos.x = 1.0f;
+		animNode1->m_animSource = &m_animCompOwner->get_owner()->get_model()->m_animations[0];
+	}
+
+
 	// loop through the children and find the blend nodes segment whose 
 	// blend position (x values) corresponds to the range in which param is contained. 
 	// Note: If the children are sorted incrementally by their blend position (x values), 

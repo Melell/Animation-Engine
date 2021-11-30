@@ -19,6 +19,9 @@ namespace cs460
 		float m_blendParam = 0.0f;
 
 
+		// Sets the animation component owner and adds two default childs
+		Blend1D(AnimationReference* animCompOwner);
+
         // Finds the segment in which m_blendParam lies (returns in out-parameters
         // from and to, the blend nodes that form this segment).
         void find_segment(IBlendNode*& from, IBlendNode*& to);

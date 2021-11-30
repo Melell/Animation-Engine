@@ -17,6 +17,13 @@
 
 namespace cs460
 {
+	// Sets the animation component owner
+	IBlendNode::IBlendNode(AnimationReference* animCompOwner)
+		:	m_animCompOwner(animCompOwner)
+	{
+	}
+
+
 	void IBlendNode::produce_pose(float time)
 	{
 	}
@@ -28,11 +35,11 @@ namespace cs460
 		IBlendNode* newNode = nullptr;
 		
 		if (type == BlendNodeTypes::BLEND_1D)
-			newNode = new Blend1D;
+			newNode = new Blend1D(m_animCompOwner);
 		else if (type == BlendNodeTypes::BLEND_2D)
-			newNode = new Blend2D;
+			newNode = new Blend2D(m_animCompOwner);
 		else if (type == BlendNodeTypes::BLEND_ANIM)
-			newNode = new BlendAnim;
+			newNode = new BlendAnim(m_animCompOwner);
 
 		newNode->m_parent = this;
 		m_children.push_back(newNode);
@@ -47,7 +54,7 @@ namespace cs460
 			if (child == *it)
 			{
 				it = m_children.erase(it);
-				continue;
+				break;
 			}
 		}
 

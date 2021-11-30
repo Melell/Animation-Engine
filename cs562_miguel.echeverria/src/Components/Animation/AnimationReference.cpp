@@ -39,9 +39,6 @@ namespace cs460
 	AnimationReference::AnimationReference()
 	{
 		Animator::get_instance().add_animation_ref(this);
-
-		m_1dBlendTree = new Blend1D;
-		m_2dBlendTree = new Blend2D;
 	}
 
 	AnimationReference::~AnimationReference()
@@ -140,11 +137,14 @@ namespace cs460
 		}
 
 		ImGui::Text("Blending options:");
-		ImGui::RadioButton("None", &m_blendTreeType, 0);
+		if (ImGui::RadioButton("None", &m_blendTreeType, 0))
+			set_blend_tree_type(0);
 		ImGui::SameLine();
-		ImGui::RadioButton("1D Blend", &m_blendTreeType, 1);
+		if (ImGui::RadioButton("1D Blend", &m_blendTreeType, 1))
+			set_blend_tree_type(1);
 		ImGui::SameLine();
-		ImGui::RadioButton("2D Blend", &m_blendTreeType, 2);
+		if (ImGui::RadioButton("2D Blend", &m_blendTreeType, 2))
+			set_blend_tree_type(2);
 
 		if (ImGui::Button("Add Anim Node"))
 		{
@@ -519,11 +519,19 @@ namespace cs460
 			display_blend_animations_gui(animNode);
 		}
 
-		// Give the option to delete this node
-		if (ImGui::Button("Delete Selected Node"))
+		size_t minNodes = 2;
+		if (blend2d)
+			minNodes = 3;
+
+		// Only allow deletion if there are at least more than 2(1d) or 3(2d) nodes
+		if (node->m_parent->m_children.size() > minNodes)
 		{
-			m_pickedNode->m_parent->remove_child(m_pickedNode);
-			m_pickedNode = nullptr;
+			// Give the option to delete this node
+			if (ImGui::Button("Delete Selected Node"))
+			{
+				node->m_parent->remove_child(node);
+				m_pickedNode = nullptr;
+			}
 		}
 	}
 
@@ -666,6 +674,11 @@ namespace cs460
 	void AnimationReference::set_blend_tree_type(int type)
 	{
 		m_blendTreeType = type;
+
+		if (type == 1 && m_1dBlendTree == nullptr)
+			m_1dBlendTree = new Blend1D(this);
+		else if (type == 2 && m_2dBlendTree == nullptr)
+			m_2dBlendTree = new Blend2D(this);
 	}
 
 	// Get the current blend tree (null, blend1d, or blend2d)

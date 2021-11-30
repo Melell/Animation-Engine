@@ -23,7 +23,11 @@ namespace cs460
         std::vector< std::array<unsigned, 3> > m_triangles;
 		glm::vec2 m_blendParam{ 0.0f, 0.0f };
 
-		void produce_pose(float time) override;
+		
+        // Sets the animation component owner and adds three default childs
+        Blend2D(AnimationReference* animCompOwner);
+
+        void produce_pose(float time) override;
 
         // Generates the triangles using delaunay triangulation 
         // based on the children's blendPosition

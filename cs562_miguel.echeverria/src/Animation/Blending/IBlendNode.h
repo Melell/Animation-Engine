@@ -25,11 +25,15 @@ namespace cs460
 
 	struct IBlendNode
 	{
+		AnimationReference* m_animCompOwner = nullptr;
 		IBlendNode* m_parent = nullptr;
 		std::vector<IBlendNode*> m_children;
 		AnimPose m_pose;
 		glm::vec2 m_blendPos{0.0f, 0.0f};		// Only x is used in a 1D blend
 
+
+		// Sets the animation component owner
+		IBlendNode(AnimationReference* animCompOwner);
 
 		// Create and add a blend node child of the given type
 		IBlendNode* add_child(BlendNodeTypes type);

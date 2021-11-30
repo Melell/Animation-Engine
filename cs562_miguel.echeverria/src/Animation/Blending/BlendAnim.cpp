@@ -16,6 +16,13 @@
 
 namespace cs460
 {
+	// Sets the animation component owner
+	BlendAnim::BlendAnim(AnimationReference* animCompOwner)
+		:	IBlendNode(animCompOwner)
+	{
+	}
+
+
 	// Produce a pose for the internal animation at the given time and store it in m_pose.
 	void BlendAnim::produce_pose(float time)
 	{

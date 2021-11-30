@@ -23,6 +23,10 @@ namespace cs460
 		Animation* m_animSource = nullptr;
 		//BlendMask m_blendMask;
 
+		
+		// Sets the animation component owner
+		BlendAnim(AnimationReference* animCompOwner);
+		
 		// Produce a pose for the internal animation at the given time and store it in m_pose.
 		void produce_pose(float time) override;
 	};

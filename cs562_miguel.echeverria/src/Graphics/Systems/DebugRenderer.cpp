@@ -19,6 +19,8 @@
 #include "Graphics/GLTF/Model.h"
 #include "Components/Models/ModelInstance.h"
 #include "Cameras/ICamera.h"
+#include "Components/Animation/IKChainRoot.h"
+#include "Animation/InverseKinematics/IKChain.h"
 #include <GL/glew.h>
 
 
@@ -57,6 +59,13 @@ namespace cs460
 	float DebugRenderer::s_zGridSize = 50.0f;
 	unsigned DebugRenderer::s_xSubdivisions = 30;
 	unsigned DebugRenderer::s_zSubdivisions = 30;
+
+
+	bool DebugRenderer::s_enableIKChainDrawing = true;
+	glm::vec4 DebugRenderer::s_ikBoneColor{ 0.8f, 0.2f, 0.1f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikBoneHighlightColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikJointColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikEndEffectorColor{ 0.0f, 0.9f, 0.3f, 1.0f };
 
 
 	// TODO: Make this more efficient by saving the meshes
@@ -100,6 +109,7 @@ namespace cs460
 		// Buffer cleanup
 		glBindVertexArray(0);
 		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
 	}
 
 	void DebugRenderer::draw_segment(const Segment& segment, const glm::vec4& color)
@@ -140,6 +150,7 @@ namespace cs460
 		// Buffer cleanup
 		glBindVertexArray(0);
 		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
 	}
 
 	void DebugRenderer::draw_aabb(const AABB& aabb, const glm::vec4& color, bool wireframe)
@@ -207,6 +218,125 @@ namespace cs460
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		cube.unbind();
+	}
+
+
+	void DebugRenderer::draw_triangle(const Triangle& triangle, const glm::vec4& color, bool wireframe)
+	{
+		// Shader and uniform setup
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Shader* shader = resourceMgr.get_shader("simple");
+		shader->use();
+		shader->set_uniform("color", color);
+
+		Scene& scene = Scene::get_instance();
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
+		shader->set_uniform("modelToWorld", glm::mat4(1.0f));
+
+		// Buffer setup
+		glBindVertexArray(0);
+
+		unsigned vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		unsigned vbo;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		float data[9] = { triangle.m_v1.x, triangle.m_v1.y, triangle.m_v1.z,
+						  triangle.m_v2.x, triangle.m_v2.y, triangle.m_v2.z,
+						  triangle.m_v3.x, triangle.m_v3.y, triangle.m_v3.z, };
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), (void*)0);
+
+		if (wireframe)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		// Draw the segment
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		// Buffer cleanup
+		glBindVertexArray(0);
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+	}
+
+	void DebugRenderer::draw_triangle_shaded(const Triangle& triangle, const glm::vec4& color)
+	{
+		// Shader and uniform setup
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Shader* shader = resourceMgr.get_shader("phong_color");
+		shader->use();
+		shader->set_uniform("mat.m_diffuse", glm::vec3(color));
+		shader->set_uniform("mat.m_shininess", 128.0f);
+		shader->set_uniform("useSkinning", false);
+
+		Scene& scene = Scene::get_instance();
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
+		shader->set_uniform("modelToWorld", glm::mat4(1.0f));
+		shader->set_uniform("normalViewMtx", glm::transpose(glm::inverse(glm::mat3(cam->get_view_mtx() * glm::mat4(1.0f)))));
+
+		// Set the light properties
+		shader->set_uniform("light.m_direction", scene.m_lightProperties.m_direction);
+		shader->set_uniform("light.m_ambient", scene.m_lightProperties.m_ambient);
+		shader->set_uniform("light.m_diffuse", scene.m_lightProperties.m_diffuse);
+		shader->set_uniform("light.m_specular", scene.m_lightProperties.m_specular);
+
+
+		// Buffer setup
+		glBindVertexArray(0);
+
+		unsigned vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		// Setup the vbo for positions
+		unsigned vbo;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		float data[9] = { triangle.m_v1.x, triangle.m_v1.y, triangle.m_v1.z,
+						  triangle.m_v2.x, triangle.m_v2.y, triangle.m_v2.z,
+						  triangle.m_v3.x, triangle.m_v3.y, triangle.m_v3.z, };
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), (void*)0);
+
+		// Setup the vbo for normals
+		unsigned vbo2;
+		glGenBuffers(1, &vbo2);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+
+		glm::vec3 normal = glm::normalize(glm::cross(triangle.m_v2 - triangle.m_v1, triangle.m_v3 - triangle.m_v1));
+		float normalData[9] = { normal.x, normal.y, normal.z,
+								normal.x, normal.y, normal.z,
+								normal.x, normal.y, normal.z, };
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(normalData), normalData, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void*)0);
+
+		// Draw the segment
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		// Buffer cleanup
+		glBindVertexArray(0);
+		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &vbo2);
+		glDeleteVertexArrays(1, &vao);
 	}
 
 
@@ -338,6 +468,119 @@ namespace cs460
 			draw_segment(seg, { 1.0f, 1.0f, 1.0f, 1.0f });
 
 			zPos += zOffset;
+		}
+	}
+
+
+	void DebugRenderer::draw_all_ik_chains(const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor)
+	{
+		if (!s_enableIKChainDrawing)
+			return;
+
+		Animator& animator = Animator::get_instance();
+		Scene& scene = Scene::get_instance();
+
+		// Iterate through each ik chain root component to draw the chains one by one
+		for (int i = 0; i < animator.m_ikChains.size(); ++i)
+		{
+			IKChainRoot* ikChain = animator.m_ikChains[i];
+			ikChain->debug_draw(boneColor, boneHighlightColor, jointColor, endEffectorColor);
+		}
+	}
+
+
+	static glm::vec3 get_ik_bone_right_vec(const glm::vec3& forward)
+	{
+		const glm::vec3 globalUp(0.0f, 1.0f, 0.0f);
+		const glm::vec3& rightVec = glm::cross(forward, globalUp);
+
+		if (glm::epsilonNotEqual(glm::length(rightVec), 0.0f, FLT_EPSILON))
+			return glm::normalize(rightVec);
+
+
+		const glm::vec3 globalUp2(0.0f, 0.0f, 1.0f);
+		const glm::vec3& rightVec2 = glm::cross(forward, globalUp2);
+		return glm::normalize(rightVec2);
+	}
+
+	static glm::vec3 get_ik_bone_up_vec(const glm::vec3& forward, const glm::vec3& right)
+	{
+		return glm::normalize(glm::cross(right, forward));
+	}
+
+	void DebugRenderer::draw_ik_chain(IKChain* chain, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor)
+	{
+		SceneNode* chainRoot = chain->get_chain_root();
+		SceneNode* endEffector = chain->get_end_effector();
+
+		// From the end effector until the chain root
+		SceneNode* traverser = endEffector;
+		while (traverser != chainRoot && traverser->get_parent() != nullptr)
+		{
+			// Get the "forward" vector (from the parent world pos to the child current joint world pos)
+			const glm::vec3& pos = traverser->m_worldTr.m_position;
+			const glm::vec3& parentPos = traverser->get_parent()->m_worldTr.m_position;
+			const glm::vec3& forward = pos - parentPos;
+
+			float boneLength = glm::length(forward);
+			const float factor = 0.2f;
+
+			// Find the center of the base of pyramid
+			const glm::vec3& startOffset = forward * factor;
+			float startOffsetLength = glm::length(startOffset);
+			const glm::vec3& start = parentPos + startOffset;
+
+			// Get the "right" and "up" vectors
+			const glm::vec3& right = get_ik_bone_right_vec(forward) * startOffsetLength;
+			const glm::vec3& up = get_ik_bone_up_vec(forward, right) * startOffsetLength;
+
+			// Use the "right" and "up" vectors to offset start and get the vertices of the base of the pyramid
+			glm::vec3 pyramidBaseVertices[4] = {};
+			pyramidBaseVertices[0] = start + right + up;
+			pyramidBaseVertices[1] = start - right + up;
+			pyramidBaseVertices[2] = start - right - up;
+			pyramidBaseVertices[3] = start + right - up;
+
+			// Draw the actual bone
+			draw_ik_bone(pos, parentPos, pyramidBaseVertices, boneColor, boneHighlightColor);
+
+			traverser = traverser->get_parent();
+		}
+	}
+
+	void DebugRenderer::draw_ik_bone(const glm::vec3& pos, const glm::vec3& parentPos, const glm::vec3* pyramidBaseVerts, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor)
+	{
+		// Pyramid base vertices is assumed to be of size 4
+		for(int i = 0; i < 4; ++i)
+		{
+			// Draw the top triangle
+			Triangle topTri;
+			topTri.m_v1 = parentPos;
+			topTri.m_v2 = pyramidBaseVerts[i];
+			topTri.m_v3 = pyramidBaseVerts[(i + 1) % 4];
+			draw_triangle_shaded(topTri, boneColor);
+
+			// Draw the bottom triangle
+			Triangle botTri;
+			botTri.m_v1 = topTri.m_v2;
+			botTri.m_v2 = pos;
+			botTri.m_v3 = topTri.m_v3;
+			draw_triangle_shaded(botTri, boneColor);
+
+			// Disable depth test if necessary
+			bool isDepthTestEnabled = glIsEnabled(GL_DEPTH_TEST);
+			if (isDepthTestEnabled)
+				glDisable(GL_DEPTH_TEST);
+
+			// Draw the top triangle with wireframe
+			draw_triangle(topTri, boneHighlightColor, true);
+
+			// Draw the bottom triangle with wireframe
+			draw_triangle(botTri, boneHighlightColor, true);
+
+			// If the depth test was enabled before, enable it again
+			if (isDepthTestEnabled)
+				glEnable(GL_DEPTH_TEST);
 		}
 	}
 }

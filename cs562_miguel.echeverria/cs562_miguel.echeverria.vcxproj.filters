@@ -276,6 +276,9 @@
     <ClCompile Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Components\Animation\IKChainRoot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Utilities\DebugCallbacks.h">
@@ -537,6 +540,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Components\Animation\IKChainRoot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

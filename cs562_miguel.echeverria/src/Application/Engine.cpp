@@ -86,14 +86,6 @@ namespace cs460
 			// Update all the model to local and model to world matrices
 			scene.update();
 
-			//glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-			//glm::mat4 view2 = glm::lookAt(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-			//glm::mat4 view3 = glm::lookAt(glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			//glm::vec3 a(0.0f, 0.0f, 0.0f);
-			//glm::vec3 b = glm::normalize(a);
-			//if (std::isnan(b.x))
-			//	__debugbreak();
-
 			// Update the editor camera (the way the camera is organized will change)
 			scene.get_active_camera()->update();
 

@@ -14,10 +14,11 @@
 
 namespace cs460
 {
-	IKChain::IKChain(SceneNode* chainRoot, SceneNode* endEffector)
-		:	m_chainRoot(chainRoot),
-			m_endEffector(endEffector)
+	IKChain::IKChain(SceneNode* chainRoot, SceneNode* endEffector, SceneNode* target)
 	{
+		set_chain_root(chainRoot);
+		set_end_effector(endEffector);
+		set_target(target);
 	}
 
 
@@ -31,6 +32,12 @@ namespace cs460
 		m_endEffector = endEffector;
 	}
 
+	void IKChain::set_target(SceneNode* target)
+	{
+		m_target = target;
+	}
+
+
 	SceneNode* IKChain::get_chain_root()
 	{
 		return m_chainRoot;
@@ -39,5 +46,10 @@ namespace cs460
 	SceneNode* IKChain::get_end_effector()
 	{
 		return m_endEffector;
+	}
+
+	SceneNode* IKChain::get_target()
+	{
+		return m_target;
 	}
 }

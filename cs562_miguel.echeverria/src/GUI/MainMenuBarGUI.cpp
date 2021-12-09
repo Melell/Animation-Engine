@@ -28,6 +28,9 @@
 #include "Gameplay/Components/PlayerController.h"
 #include "Cameras/EditorCamera.h"
 #include "Cameras/SphericalCamera.h"
+#include "Animation/InverseKinematics/IKChain.h"
+#include "Animation/InverseKinematics/Analytic2Bone2DSolver.h"
+#include "Components/Animation/IKChainRoot.h"
 
 
 
@@ -244,6 +247,12 @@ namespace cs460
 		DebugRenderer::s_enableGridDrawing = false;
 		scene.change_camera(true);
 		scene.get_active_camera()->set_is_active(true);
+
+		if (chain != nullptr)
+		{
+			delete chain;
+			chain = nullptr;
+		}
 	}
 
 	void MainMenuBarGUI::load_linear_curve_scene()
@@ -905,46 +914,24 @@ namespace cs460
 
 		// Place the camera
 		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
-		editorCam->set_position(glm::vec3(0.0f, 20.0f, 0.0f));
+		editorCam->set_position(glm::vec3(0.0f, 0.0f, 20.0f));
 		editorCam->set_target(glm::vec3(0.0f, 0.0f, 0.0f));
 
 
-		// Create the nodes
-		//SceneNode* xBot = root->create_child("X-BOT");
-		//xBot->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 0.0f);
-		//
-		//
-		//// Add the model
-		//ModelInstance* xBotInstance = xBot->add_component<ModelInstance>();
-		//xBotInstance->change_model("data/Models/xbot/xbot.gltf");
-		//
-		//
-		//// Set the animation component and blend tree usage
-		//AnimationReference* xBotAnim = xBot->get_component<AnimationReference>();
-		//xBotAnim->set_blend_tree_type(2);
-		//
-		//// Get the blend tree and build it;
-		//Blend2D* blend2d = dynamic_cast<Blend2D*>(xBotAnim->get_blend_tree());
-		//blend2d->m_blendParam = glm::vec2(0.0f, 0.0f);
-		//
-		//BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[0]);
-		//BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[1]);
-		//BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[2]);
-		//BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
-		//BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
-		//
-		//blendAnim1->m_blendPos = glm::vec2(0.0f, 0.0f);
-		//blendAnim2->m_blendPos = glm::vec2(0.0f, 1.0f);
-		//blendAnim3->m_blendPos = glm::vec2(-1.0f, 0.0f);
-		//blendAnim4->m_blendPos = glm::vec2(1.0f, 0.0f);
-		//blendAnim5->m_blendPos = glm::vec2(0.0f, -1.0f);
-		//
-		//// 14(RUMBA-DANCING), 4(HIP HOP DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
-		//blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);
-		//blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
-		//blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[23]);
-		//blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[24]);
-		//blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[25]);
+		// Create the ik chain joints
+		SceneNode* joint0 = root->create_child("Joint 0");
+		SceneNode* joint1 = joint0->create_child("Joint 1");
+		SceneNode* joint2 = joint1->create_child("Joint 2");
+
+		// Place the joints
+		joint1->m_localTr.m_position.x = 3.0f;
+		joint2->m_localTr.m_position.x = 3.0f;
+
+
+		// Setup the ik chain component
+		IKChainRoot* chainRoot = joint0->add_component<IKChainRoot>();
+		chainRoot->initialize();
+		chainRoot->set_end_effector(joint2);
 	}
 
 	void MainMenuBarGUI::load_ik_ccd_3d_scene()

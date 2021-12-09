@@ -146,6 +146,7 @@
     <ClCompile Include="src\Cameras\PerspectiveCamera.cpp" />
     <ClCompile Include="src\Cameras\SphericalCamera.cpp" />
     <ClCompile Include="src\Components\Animation\AnimationReference.cpp" />
+    <ClCompile Include="src\Components\Animation\IKChainRoot.cpp" />
     <ClCompile Include="src\Components\Gameplay\ScriptComponent.cpp" />
     <ClCompile Include="src\Components\Physics\Rigidbody.cpp" />
     <ClCompile Include="src\Components\PiecewiseCurves\CurveControlPoint.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="src\Cameras\PerspectiveCamera.h" />
     <ClInclude Include="src\Cameras\SphericalCamera.h" />
     <ClInclude Include="src\Components\Animation\AnimationReference.h" />
+    <ClInclude Include="src\Components\Animation\IKChainRoot.h" />
     <ClInclude Include="src\Components\Gameplay\ScriptComponent.h" />
     <ClInclude Include="src\Components\Physics\Rigidbody.h" />
     <ClInclude Include="src\Components\PiecewiseCurves\CurveControlPoint.h" />

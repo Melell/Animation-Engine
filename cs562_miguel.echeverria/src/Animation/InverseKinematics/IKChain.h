@@ -19,16 +19,19 @@ namespace cs460
 	{
 	public:
 
-		IKChain(SceneNode* chainRoot = nullptr, SceneNode* endEffector = nullptr);
+		IKChain(SceneNode* chainRoot = nullptr, SceneNode* endEffector = nullptr, SceneNode* target = nullptr);
 
 		void set_chain_root(SceneNode* chainRoot);
 		void set_end_effector(SceneNode* endEffector);
+		void set_target(SceneNode* target);
 
 		SceneNode* get_chain_root();
 		SceneNode* get_end_effector();
+		SceneNode* get_target();
 
 	private:
 		SceneNode* m_chainRoot = nullptr;
 		SceneNode* m_endEffector = nullptr;
+		SceneNode* m_target = nullptr;
 	};
 }

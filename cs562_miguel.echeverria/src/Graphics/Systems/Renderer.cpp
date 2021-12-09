@@ -87,8 +87,14 @@ namespace cs460
 		// Debug draw all skeletons
 		glDisable(GL_DEPTH_TEST);
 		DebugRenderer::draw_all_skeletons(DebugRenderer::s_boneColor, DebugRenderer::s_jointColor, DebugRenderer::s_jointSize);
+		//Triangle tri;
+		//tri.m_v1 = glm::vec3(0.0f, 1.0f, 0.0f);
+		//tri.m_v2 = glm::vec3(-1.0f, 0.0f, 0.0f);
+		//tri.m_v3 = glm::vec3(1.0f, 0.0f, 0.0f);
+		//DebugRenderer::draw_triangle_shaded(tri, { 1.0f, 0.0f, 0.0f, 1.0f });
 		PiecewiseCurveMgr::get_instance().debug_draw();
 		glEnable(GL_DEPTH_TEST);
+		DebugRenderer::draw_all_ik_chains(DebugRenderer::s_ikBoneColor, DebugRenderer::s_ikBoneHighlightColor, DebugRenderer::s_ikJointColor, DebugRenderer::s_ikEndEffectorColor);
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
 		DebugRenderer::draw_grid(DebugRenderer::s_xGridSize, DebugRenderer::s_zGridSize, DebugRenderer::s_xSubdivisions, DebugRenderer::s_zSubdivisions);

@@ -15,6 +15,7 @@ namespace cs460
 {
 	class AnimationReference;
 	class SkinReference;
+	class IKChainRoot;
 
 	class Animator
 	{
@@ -33,12 +34,16 @@ namespace cs460
 		void add_animation_ref(AnimationReference* animComp);		// Adds an animation reference component to the internal vector
 		void remove_animation_ref(AnimationReference* animComp);	// Removes an animation reference component from the internal vector
 
+		void add_ik_chain(IKChainRoot* ikChainComp);				// Adds an ik chain root component to the internal vector
+		void remove_ik_chain(IKChainRoot* ikChainComp);				// Removes an ik chain root component from the internal vector
+
 		void add_skin_ref(SkinReference* skinComp);					// Adds a skin reference component to the internal vector
 		void remove_skin_ref(SkinReference* skinComp);				// Removes a skin reference component from the internal vector
 
 	private:
 
 		std::vector<AnimationReference*> m_animReferences;
+		std::vector<IKChainRoot*> m_ikChains;
 		std::vector<SkinReference*> m_skinReferences;
 
 		Animator();
@@ -48,6 +53,9 @@ namespace cs460
 
 		// Update each animation
 		void update_animations();
+
+		// Update each ik chain
+		void update_ik_chains();
 
 		// Update the joint matrices of each skin
 		void update_skins();

@@ -16,6 +16,7 @@
 #include "Composition/Scene.h"
 #include "Graphics/GLTF/Model.h"
 #include "Components/Animation/AnimationReference.h"
+#include "Components/Animation/IKChainRoot.h"
 
 
 namespace cs460
@@ -46,6 +47,9 @@ namespace cs460
 		// Update all the animations' properties
 		update_animations();
 
+		// Solve the ik problems of each ik chain
+		update_ik_chains();
+
 		// Update the joint matrices of each skin
 		update_skins();
 	}
@@ -75,6 +79,25 @@ namespace cs460
 	}
 
 
+	// Adds an ik chain root component to the internal vector
+	void Animator::add_ik_chain(IKChainRoot* ikChainComp)
+	{
+		m_ikChains.push_back(ikChainComp);
+	}
+
+	// Removes an ik chain root component from the internal vector
+	void Animator::remove_ik_chain(IKChainRoot* ikChainComp)
+	{
+		auto foundIt = std::find(m_ikChains.begin(), m_ikChains.end(), ikChainComp);
+
+		// Nothing to remove if not in the vector
+		if (foundIt == m_ikChains.end())
+			return;
+
+		m_ikChains.erase(foundIt);
+	}
+
+
 	// Adds a skin reference component to the internal vector
 	void Animator::add_skin_ref(SkinReference* skinComp)
 	{
@@ -101,6 +124,16 @@ namespace cs460
 		{
 			AnimationReference* animComp = m_animReferences[i];
 			animComp->update();
+		}
+	}
+
+	// Update each ik chain
+	void Animator::update_ik_chains()
+	{
+		for (int i = 0; i < m_ikChains.size(); ++i)
+		{
+			IKChainRoot* ikChainComp = m_ikChains[i];
+			ikChainComp->update();
 		}
 	}
 

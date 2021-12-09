@@ -12,6 +12,9 @@
 
 namespace cs460
 {
+	struct IKChain;
+
+
 	enum class SCENE_TO_LOAD
 	{
 		NONE,
@@ -63,6 +66,8 @@ namespace cs460
 		void load_ik_analytical_2d_scene();
 		void load_ik_ccd_3d_scene();
 		void load_ik_fabrik_3d_scene();
+
+		IKChain* chain = nullptr;
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

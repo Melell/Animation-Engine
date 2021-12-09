@@ -25,7 +25,10 @@ namespace cs460
 		BLENDING_1D,
 		BLENDING_2D,
 		BLEND_EDITOR_1D,
-		BLEND_EDITOR_2D
+		BLEND_EDITOR_2D,
+		IK_ANALYTICAL_2D,
+		IK_CCD_3D,
+		IK_FABRIK_3D
 	};
 
 
@@ -57,6 +60,9 @@ namespace cs460
 		void load_blending_2d_scene();
 		void load_blend_editor_1d_scene();
 		void load_blend_editor_2d_scene();
+		void load_ik_analytical_2d_scene();
+		void load_ik_ccd_3d_scene();
+		void load_ik_fabrik_3d_scene();
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

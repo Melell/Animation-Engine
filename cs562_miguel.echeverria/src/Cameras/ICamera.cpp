@@ -16,7 +16,9 @@ namespace cs460
 	// Call the internal virtual method that handles the camera controls
 	void ICamera::update()
 	{
-		camera_logic();
+		if (m_isActive)
+			camera_logic();
+
 		update_view_mtx();
 		update_projection_mtx();
 	}
@@ -52,6 +54,18 @@ namespace cs460
 	const glm::mat4& ICamera::get_projection_mtx() const
 	{
 		return m_projectionMtx;
+	}
+
+
+	// Setter and getter for the boolean that determines whether the camera is updated or not
+	void ICamera::set_is_active(bool isActive)
+	{
+		m_isActive = isActive;
+	}
+
+	bool ICamera::get_is_active() const
+	{
+		return m_isActive;
 	}
 
 

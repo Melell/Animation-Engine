@@ -20,7 +20,13 @@ namespace cs460
 {
 	void EditorCamera::update_view_mtx()
 	{
-		m_viewMtx = glm::lookAt(m_position, m_target, get_up_vec());
+		const glm::vec3& upVec = get_up_vec();
+		if (glm::epsilonEqual(glm::length(upVec), 0.0f, FLT_EPSILON))
+			return;
+
+		const glm::vec3& viewVec = glm::normalize(m_target - m_position);
+
+		m_viewMtx = glm::lookAt(m_position, m_target, upVec);
 	}
 
 
@@ -39,21 +45,44 @@ namespace cs460
 	// Getters for the camera basis vectors
 	glm::vec3 EditorCamera::get_view_vec() const
 	{
-		return glm::normalize(m_target - m_position);
+		// If length of (target - pos) is 0, can't normalize safely
+		const glm::vec3& viewVec = m_target - m_position;
+		if (glm::epsilonEqual(glm::length(viewVec), 0.0f, FLT_EPSILON))
+			return viewVec;
+
+		return glm::normalize(viewVec);
 	}
 
 	glm::vec3 EditorCamera::get_right_vec() const
 	{
+		// If length of (target - pos) is 0, can't cross and normalize safely
 		const glm::vec3& viewVec = m_target - m_position;
+		if (glm::epsilonEqual(glm::length(viewVec), 0.0f, FLT_EPSILON))
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// If viewVec and globalUp are colinear (their cross will
+		// give 0 vector), then use a different globalUp
 		const glm::vec3& globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		return glm::normalize(glm::cross(viewVec, globalUp));
+		const glm::vec3& rightVec = glm::cross(viewVec, globalUp);
+
+		if (glm::epsilonNotEqual(glm::length(rightVec), 0.0f, FLT_EPSILON))
+			return glm::normalize(rightVec);
+
+		const glm::vec3& globalUp2 = glm::vec3(0.0f, 0.0f, 1.0f);
+		const glm::vec3& rightVec2 = glm::cross(viewVec, globalUp2);
+		return glm::normalize(rightVec2);
 	}
 
 	glm::vec3 EditorCamera::get_up_vec() const
 	{
+		// Get the right vector and do a sanity check
+		const glm::vec3& rightVec = get_right_vec();
+		if (glm::epsilonEqual(glm::length(rightVec), 0.0f, FLT_EPSILON))
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// The view vec is already safe
 		const glm::vec3& viewVec = m_target - m_position;
-		const glm::vec3& globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		const glm::vec3& rightVec = glm::cross(viewVec, globalUp);
+
 		return glm::normalize(glm::cross(rightVec, viewVec));
 	}
 

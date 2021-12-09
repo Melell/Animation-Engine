@@ -73,22 +73,35 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::PATH_FOLLOWING;
 				}
-				if (ImGui::MenuItem("BLENDING 1D"))
+				if (ImGui::MenuItem("Blending 1D"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLENDING_1D;
 				}
-				if (ImGui::MenuItem("BLENDING 2D"))
+				if (ImGui::MenuItem("Blending 2D"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLENDING_2D;
 				}
-				if (ImGui::MenuItem("1D BLEND EDITOR"))
+				if (ImGui::MenuItem("1D blend editor"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLEND_EDITOR_1D;
 				}
-				if (ImGui::MenuItem("2D BLEND EDITOR"))
+				if (ImGui::MenuItem("2D blend editor"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLEND_EDITOR_2D;
 				}
+				if (ImGui::MenuItem("IK ANALYTIC 2D"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::IK_ANALYTICAL_2D;
+				}
+				if (ImGui::MenuItem("IK CCD 3D"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::IK_CCD_3D;
+				}
+				if (ImGui::MenuItem("IK FABRIK 3D"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::IK_FABRIK_3D;
+				}
+				
 
 				ImGui::EndMenu();
 			}
@@ -211,6 +224,12 @@ namespace cs460
 			load_blend_editor_1d_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::BLEND_EDITOR_2D)
 			load_blend_editor_2d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_ANALYTICAL_2D)
+			load_ik_analytical_2d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_CCD_3D)
+			load_ik_ccd_3d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_FABRIK_3D)
+			load_ik_fabrik_3d_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -224,6 +243,7 @@ namespace cs460
 
 		DebugRenderer::s_enableGridDrawing = false;
 		scene.change_camera(true);
+		scene.get_active_camera()->set_is_active(true);
 	}
 
 	void MainMenuBarGUI::load_linear_curve_scene()
@@ -260,7 +280,9 @@ namespace cs460
 		curvePoint4->m_localTr.m_position = glm::vec3(0.355f, -1.801f, 0.0f);
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(0.8f, -0.8f, 3.0f));
@@ -347,7 +369,9 @@ namespace cs460
 
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(-5.5f, 0.5f, 0.4f));
@@ -391,7 +415,9 @@ namespace cs460
 		curvePoint3->m_localTr.m_position = glm::vec3(-2.011f, 0.472f, 0.558f);
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(4.0f, 0.2f, 3.2f));
@@ -464,7 +490,9 @@ namespace cs460
 
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(-2.2f, 1.2f, 2.0f));
@@ -539,7 +567,9 @@ namespace cs460
 
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(2.206f, 1.0f, 7.0f));
@@ -613,7 +643,9 @@ namespace cs460
 
 
 		// Place the camera
-		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(scene.get_active_camera());
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 		if (editorCam)
 		{
 			editorCam->set_position(glm::vec3(0.0f, 2.0f, 25.0f));
@@ -635,6 +667,7 @@ namespace cs460
 		DebugRenderer::s_enableGridDrawing = true;
 		scene.change_camera(false);
 		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
 		SphericalCamera* sphericalCam = dynamic_cast<SphericalCamera*>(cam);
 
 		// Create the nodes
@@ -692,8 +725,8 @@ namespace cs460
 		DebugRenderer::s_enableGridDrawing = true;
 		scene.change_camera(false);
 		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(false);
 		SphericalCamera* sphericalCam = dynamic_cast<SphericalCamera*>(cam);
-		sphericalCam->m_isActive = false;
 
 		// Create the nodes
 		SceneNode* xBot = root->create_child("X-BOT");
@@ -751,6 +784,7 @@ namespace cs460
 		DebugRenderer::s_enableGridDrawing = false;
 		scene.change_camera(true);
 		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
 		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 
 		// Create the nodes
@@ -808,6 +842,7 @@ namespace cs460
 		DebugRenderer::s_enableGridDrawing = false;
 		scene.change_camera(true);
 		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
 		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
 
 		// Create the nodes
@@ -851,5 +886,74 @@ namespace cs460
 		// Place the camera
 		editorCam->set_position(glm::vec3(0.0f, 2.0f, 5.0f));
 		editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, -0.1f, -1.0f) * 25.0f);
+	}
+
+
+	void MainMenuBarGUI::load_ik_analytical_2d_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(false);
+
+		// Place the camera
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		editorCam->set_position(glm::vec3(0.0f, 20.0f, 0.0f));
+		editorCam->set_target(glm::vec3(0.0f, 0.0f, 0.0f));
+
+
+		// Create the nodes
+		//SceneNode* xBot = root->create_child("X-BOT");
+		//xBot->m_localTr.m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+		//
+		//
+		//// Add the model
+		//ModelInstance* xBotInstance = xBot->add_component<ModelInstance>();
+		//xBotInstance->change_model("data/Models/xbot/xbot.gltf");
+		//
+		//
+		//// Set the animation component and blend tree usage
+		//AnimationReference* xBotAnim = xBot->get_component<AnimationReference>();
+		//xBotAnim->set_blend_tree_type(2);
+		//
+		//// Get the blend tree and build it;
+		//Blend2D* blend2d = dynamic_cast<Blend2D*>(xBotAnim->get_blend_tree());
+		//blend2d->m_blendParam = glm::vec2(0.0f, 0.0f);
+		//
+		//BlendAnim* blendAnim1 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[0]);
+		//BlendAnim* blendAnim2 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[1]);
+		//BlendAnim* blendAnim3 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->m_children[2]);
+		//BlendAnim* blendAnim4 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		//BlendAnim* blendAnim5 = static_cast<BlendAnim*>(xBotAnim->get_blend_tree()->add_child(BlendNodeTypes::BLEND_ANIM));
+		//
+		//blendAnim1->m_blendPos = glm::vec2(0.0f, 0.0f);
+		//blendAnim2->m_blendPos = glm::vec2(0.0f, 1.0f);
+		//blendAnim3->m_blendPos = glm::vec2(-1.0f, 0.0f);
+		//blendAnim4->m_blendPos = glm::vec2(1.0f, 0.0f);
+		//blendAnim5->m_blendPos = glm::vec2(0.0f, -1.0f);
+		//
+		//// 14(RUMBA-DANCING), 4(HIP HOP DANCING), 22(WALK), 23(WALK-LEFT), 24(WALK-RIGHT), 25(WALK-BACK)
+		//blendAnim1->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[14]);
+		//blendAnim2->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[22]);
+		//blendAnim3->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[23]);
+		//blendAnim4->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[24]);
+		//blendAnim5->m_animSource = &(xBotInstance->get_owner()->get_model()->m_animations[25]);
+	}
+
+	void MainMenuBarGUI::load_ik_ccd_3d_scene()
+	{
+
+	}
+
+	void MainMenuBarGUI::load_ik_fabrik_3d_scene()
+	{
+
 	}
 }

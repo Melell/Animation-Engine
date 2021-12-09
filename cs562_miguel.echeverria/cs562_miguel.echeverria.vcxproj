@@ -135,6 +135,9 @@
     <ClCompile Include="src\Animation\Blending\BlendingCore.cpp" />
     <ClCompile Include="src\Animation\Blending\BlendTree.cpp" />
     <ClCompile Include="src\Animation\Blending\IBlendNode.cpp" />
+    <ClCompile Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.cpp" />
+    <ClCompile Include="src\Animation\InverseKinematics\IKChain.cpp" />
+    <ClCompile Include="src\Animation\InverseKinematics\IKSolver.cpp" />
     <ClCompile Include="src\Animation\PiecewiseCurveMgr.cpp" />
     <ClCompile Include="src\Animation\Skin.cpp" />
     <ClCompile Include="src\Application\Engine.cpp" />
@@ -228,6 +231,9 @@
     <ClInclude Include="src\Animation\Blending\BlendingCore.h" />
     <ClInclude Include="src\Animation\Blending\BlendTree.h" />
     <ClInclude Include="src\Animation\Blending\IBlendNode.h" />
+    <ClInclude Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.h" />
+    <ClInclude Include="src\Animation\InverseKinematics\IKChain.h" />
+    <ClInclude Include="src\Animation\InverseKinematics\IKSolver.h" />
     <ClInclude Include="src\Animation\PiecewiseCurveMgr.h" />
     <ClInclude Include="src\Animation\Skin.h" />
     <ClInclude Include="src\Application\Engine.h" />

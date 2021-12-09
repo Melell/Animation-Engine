@@ -46,8 +46,6 @@ namespace cs460
 		void set_y_angle(float yAngle);
 		void set_polar_angle(float polarAngle);
 
-		bool m_isActive = true;
-
 	protected:
 		// Actual logic for the spherical camera goes here
 		void camera_logic() override;

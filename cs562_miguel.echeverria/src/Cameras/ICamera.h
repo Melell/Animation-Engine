@@ -31,10 +31,16 @@ namespace cs460
 		virtual void update_projection_mtx() = 0;
 		const glm::mat4& get_projection_mtx() const;
 
+		// Setter and getter for the boolean that determines whether the camera is updated or not
+		void set_is_active(bool isActive);
+		bool get_is_active() const;
+
 	protected:
 		glm::vec3 m_position = glm::vec3(0.0f, 1.0f, 25.0f);
 		glm::mat4 m_viewMtx = glm::mat4(1.0f);
 		glm::mat4 m_projectionMtx = glm::mat4(1.0f);
+
+		bool m_isActive = true;
 
 
 		// Meant to be overriden by specific cameras

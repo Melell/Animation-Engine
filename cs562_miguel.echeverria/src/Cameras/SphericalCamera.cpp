@@ -20,26 +20,56 @@ namespace cs460
 	// Update the view matrix with the current parameters
 	void SphericalCamera::update_view_mtx()
 	{
-		m_viewMtx = glm::lookAt(m_position, get_real_focal_point(), get_up_vec());
+		const glm::vec3& upVec = get_up_vec();
+		if (glm::epsilonEqual(glm::length(upVec), 0.0f, FLT_EPSILON))
+			return;
+
+		const glm::vec3& realFocalPoint = get_real_focal_point();
+		const glm::vec3& viewVec = glm::normalize(realFocalPoint - m_position);
+
+		m_viewMtx = glm::lookAt(m_position, realFocalPoint, upVec);
 	}
 
 
 	// Getters for the camera basis vectors
 	glm::vec3 SphericalCamera::get_view_vec() const
 	{
-		return glm::normalize(get_real_focal_point() - m_position);
+		// If length of (get_real_focal_point() - pos) is 0, can't normalize safely
+		const glm::vec3& viewVec = get_real_focal_point() - m_position;
+		if (glm::epsilonEqual(glm::length(viewVec), 0.0f, FLT_EPSILON))
+			return viewVec;
+
+		return glm::normalize(viewVec);
 	}
 	glm::vec3 SphericalCamera::get_right_vec() const
 	{
+		// If length of (get_real_focal_point() - pos) is 0, can't cross and normalize safely
 		const glm::vec3& viewVec = get_real_focal_point() - m_position;
+		if (glm::epsilonEqual(glm::length(viewVec), 0.0f, FLT_EPSILON))
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// If viewVec and globalUp are colinear (their cross will
+		// give 0 vector), then use a different globalUp
 		const glm::vec3& globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		return glm::normalize(glm::cross(viewVec, globalUp));
+		const glm::vec3& rightVec = glm::cross(viewVec, globalUp);
+
+		if (glm::epsilonNotEqual(glm::length(rightVec), 0.0f, FLT_EPSILON))
+			return glm::normalize(rightVec);
+
+		const glm::vec3& globalUp2 = glm::vec3(0.0f, 0.0f, 1.0f);
+		const glm::vec3& rightVec2 = glm::cross(viewVec, globalUp2);
+		return glm::normalize(rightVec2);
 	}
 	glm::vec3 SphericalCamera::get_up_vec() const
 	{
+		// Get the right vector and do a sanity check
+		const glm::vec3& rightVec = get_right_vec();
+		if (glm::epsilonEqual(glm::length(rightVec), 0.0f, FLT_EPSILON))
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+
+		// The view vec is already safe
 		const glm::vec3& viewVec = get_real_focal_point() - m_position;
-		const glm::vec3& globalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		const glm::vec3& rightVec = glm::cross(viewVec, globalUp);
+
 		return glm::normalize(glm::cross(rightVec, viewVec));
 	}
 
@@ -111,9 +141,6 @@ namespace cs460
 	// Actual logic for the spherical camera goes here
 	void SphericalCamera::camera_logic()
 	{
-		if (!m_isActive)
-			return;
-
 		InputMgr& inputMgr = InputMgr::get_instance();
 		FrameRateController& frc = FrameRateController::get_instance();
 		float dt = frc.get_dt_float();

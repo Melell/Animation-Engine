@@ -40,8 +40,7 @@ namespace cs460
 		}
 
 
-		// Get the end effector and target world positions
-		const glm::vec3& endWorldPos = endEffector->m_worldTr.m_position;
+		// Get the target world positions
 		const glm::vec3& targetWorldPos = target->m_worldTr.m_position;
 
 		// Process until a solution is found, or max iterations is reached
@@ -49,26 +48,26 @@ namespace cs460
 		{
 			// For each joint from the parent of the end effector until the chain root
 			SceneNode* traverser = endEffector->get_parent();
-			while (traverser != nullptr && traverser != chainRoot)
+			while (traverser != nullptr && traverser != chainRoot->get_parent())
 			{
-				set_local_rotation(traverser, endWorldPos, targetWorldPos);
+				const glm::vec3& endWorldPos = endEffector->m_worldTr.m_position;
 
+				// Do ccd and update the nodes' rotations
+				set_local_rotation(traverser, endWorldPos, targetWorldPos);
+				update_world_transforms(traverser, endEffector);
 				
 				traverser = traverser->get_parent();
 			}
+
+			// Check if we found the solution, and if not repeat
+			if (check_solution(endEffector->m_worldTr.m_position, targetWorldPos))
+			{
+				m_status = IKSolverStatus::SUCCESS;
+				return m_status;
+			}
 		}
 
-
-		//float theta1 = 0.0f;
-		//float theta2 = 0.0f;
-
-		// Apply the computed local rotations
-		//glm::quat localRot1(glm::vec3(0.0f, 0.0f, theta1));
-		//glm::quat localRot2(glm::vec3(0.0f, 0.0f, theta2));
-		//endEffector->get_parent()->m_localTr.m_orientation = localRot2;
-		//chainRoot->m_localTr.m_orientation = localRot1;
-
-		m_status = IKSolverStatus::SUCCESS;
+		m_status = IKSolverStatus::FAILURE;
 		return m_status;
 	}
 
@@ -83,7 +82,7 @@ namespace cs460
 	void CCD3DSolver::set_local_rotation(SceneNode* currNode, const glm::vec3& endWorldPos, const glm::vec3& targetWorldPos)
 	{
 		// Get the vectors v1 = endEffector - curr; and v2 = target - curr
-				// (curr being the world position of the current joint)
+		// (curr being the world position of the current joint)
 		const glm::vec3& currWorldPos = currNode->m_worldTr.m_position;
 		const glm::vec3& v1 = endWorldPos - currWorldPos;
 		const glm::vec3& v2 = targetWorldPos - currWorldPos;
@@ -93,7 +92,7 @@ namespace cs460
 		const glm::vec3& v2Norm = glm::normalize(v2);
 
 		// Get the angle theta between v1 and v2, and its cosine(v1v2Dot)
-		float v1v2Dot = glm::dot(v1Norm, v2Norm);
+		float v1v2Dot = glm::clamp(glm::dot(v1Norm, v2Norm), -1.0f, 1.0f);
 		float theta = acos(v1v2Dot);
 
 		// Get the axis around which the current joint will rotate by theta
@@ -102,7 +101,52 @@ namespace cs460
 			axis = glm::normalize(glm::cross(v1Norm, v2Norm));
 
 		// Build a quaternion from the axis angle rotation we just computed
-		// This is the current joint's local orientation
-		currNode->m_localTr.m_orientation = glm::angleAxis(theta, axis);
+		// This rotation is applied to the joint's local orientation
+		const glm::quat& rot = glm::angleAxis(theta, axis);
+		currNode->m_localTr.m_orientation = rot * currNode->m_localTr.m_orientation;
+
+		if (std::isnan(currNode->m_localTr.m_orientation.x))
+			__debugbreak();
+	}
+
+
+	// Update the world transforms of all the nodes starting from the given one, until the end effector
+	void CCD3DSolver::update_world_transforms(SceneNode* start, SceneNode* endEffector)
+	{
+		// Store all the nodes that we need to update (do so from end effector until start)
+		std::list<SceneNode*> nodes;
+
+		// Any siblings that are not part of the ik chain will be updated with the regular scene update
+
+		SceneNode* traverser = endEffector;
+		while (traverser != nullptr)
+		{
+			nodes.push_front(traverser);
+
+			if (traverser == start)
+				break;
+
+			traverser = traverser->get_parent();
+		}
+
+		// Update each node from start until end effector
+		for (SceneNode* currNode : nodes)
+		{
+			if (currNode->get_parent())
+				currNode->m_worldTr.concatenate(currNode->m_localTr, currNode->get_parent()->m_worldTr);
+			else
+				currNode->m_worldTr = currNode->m_localTr;
+		}
+	}
+
+
+	// Check whether a solution has been found
+	bool CCD3DSolver::check_solution(const glm::vec3& endEffectorWorldPos, const glm::vec3& targetWorldPos)
+	{
+		float distToTarget = glm::length(targetWorldPos - endEffectorWorldPos);
+		if (distToTarget < m_solutionTolerance)
+			return true;
+
+		return false;
 	}
 }

@@ -25,8 +25,11 @@ namespace cs460
 		glm::mat4 get_inv_scale_mtx() const;
 		glm::mat4 get_inv_rotation_mtx() const;
 
-		//void concatenate(const TransformData& localTr, const TransformData& parentWorldTr);
-		//void inverse_concatenate(const TransformData& localTr, const TransformData& parentWorldTr);
+		// Concatenates the given local transform with its parent world transform, to find the world data (this transform)
+		void concatenate(const TransformData& localTr, const TransformData& parentWorldTr);
+
+		// Takes this transform to local space given its world data, and its parent's world data
+		void inverse_concatenate(const TransformData& worldTr, const TransformData& parentWorldTr);
 
 
 		glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };

@@ -142,11 +142,7 @@ namespace cs460
 
 		// Update the world transform of the current node (it's parent world tr is already updated)
 		if (SceneNode* parent = node->get_parent())
-		{
-			node->m_worldTr.m_scale = parent->m_worldTr.m_scale * node->m_localTr.m_scale;
-			node->m_worldTr.m_orientation = parent->m_worldTr.m_orientation * node->m_localTr.m_orientation;
-			node->m_worldTr.m_position = parent->m_worldTr.m_position + parent->m_worldTr.m_orientation * (parent->m_worldTr.m_scale * node->m_localTr.m_position);
-		}
+			node->m_worldTr.concatenate(node->m_localTr, parent->m_worldTr);
 
 		// Update all its childs
 		const std::vector<SceneNode*>& children = node->get_children();

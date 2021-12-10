@@ -972,9 +972,9 @@ namespace cs460
 
 		// Place the joints
 		joint1->m_localTr.m_position.x = 2.0f;
-		joint2->m_localTr.m_position.x = 4.0f;
-		joint3->m_localTr.m_position.x = 6.0f;
-		joint4->m_localTr.m_position.x = 8.0f;
+		joint2->m_localTr.m_position.x = 2.0f;
+		joint3->m_localTr.m_position.x = 2.0f;
+		joint4->m_localTr.m_position.x = 2.0f;
 		target->m_localTr.m_position.x = 8.0f;
 
 
@@ -983,6 +983,7 @@ namespace cs460
 		chainRoot->initialize();
 		chainRoot->set_end_effector(joint4);
 		chainRoot->set_target(target);
+		chainRoot->set_solver_type(IKSolverType::CCD_3D);
 
 
 		// Make the target the selected node in the editor

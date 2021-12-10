@@ -102,16 +102,12 @@ namespace cs460
                 // Otherwise, do inverse concatenation to obtain the local transform of the selected object from its world transform
                 else
                 {
-                    float invScaleX = parent->m_worldTr.m_scale.x > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.x) : 0.001f;
-                    float invScaleY = parent->m_worldTr.m_scale.y > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.y) : 0.001f;
-                    float invScaleZ = parent->m_worldTr.m_scale.z > FLT_EPSILON ? (1.0f / parent->m_worldTr.m_scale.z) : 0.001f;
-                    glm::vec3 invScale = glm::vec3(invScaleX, invScaleY, invScaleZ);
+                    TransformData childWorld;
+                    childWorld.m_position = childWorldPos;
+                    childWorld.m_orientation = childWorldOrientation;
+                    childWorld.m_scale = childWorldScale;
 
-                    glm::quat invRotation = glm::inverse(parent->m_worldTr.m_orientation);
-
-                    state.m_selectedNode->m_localTr.m_scale = invScale * childWorldScale;
-                    state.m_selectedNode->m_localTr.m_orientation = invRotation * childWorldOrientation;
-                    state.m_selectedNode->m_localTr.m_position = invScale * (invRotation * (childWorldPos - parent->m_worldTr.m_position));
+                    state.m_selectedNode->m_localTr.inverse_concatenate(childWorld, parent->m_worldTr);
                 }
             }
         }

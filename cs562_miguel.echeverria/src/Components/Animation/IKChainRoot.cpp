@@ -62,7 +62,7 @@ namespace cs460
 		}
 
 		// Update the last target position if the previous frame's solve was successful
-		if (m_solver->get_status() == IKSolverStatus::SUCCESS)
+		if (m_solver->get_status() != IKSolverStatus::PROCESSING)
 			m_lastTargetPos = target->m_worldTr.m_position;
 
 		// Solve using the internal solver
@@ -113,6 +113,7 @@ namespace cs460
 		m_solverType = type;
 
 		delete m_solver;
+		m_solver = nullptr;
 
 		if (type == IKSolverType::ANALYTIC_2BONE_2D)
 			m_solver = new Analytic2Bone2DSolver;
@@ -120,6 +121,8 @@ namespace cs460
 			m_solver = new CCD3DSolver;
 		else if (type == IKSolverType::FABRIK_3D)
 			m_solver = new FABRIK3DSolver;
+
+		m_solver->set_ik_chain(m_chain);
 	}
 
 

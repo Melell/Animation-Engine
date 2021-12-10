@@ -136,6 +136,8 @@
     <ClCompile Include="src\Animation\Blending\BlendTree.cpp" />
     <ClCompile Include="src\Animation\Blending\IBlendNode.cpp" />
     <ClCompile Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.cpp" />
+    <ClCompile Include="src\Animation\InverseKinematics\CCD3DSolver.cpp" />
+    <ClCompile Include="src\Animation\InverseKinematics\FABRIK3DSolver.cpp" />
     <ClCompile Include="src\Animation\InverseKinematics\IKChain.cpp" />
     <ClCompile Include="src\Animation\InverseKinematics\IKSolver.cpp" />
     <ClCompile Include="src\Animation\PiecewiseCurveMgr.cpp" />
@@ -233,6 +235,8 @@
     <ClInclude Include="src\Animation\Blending\BlendTree.h" />
     <ClInclude Include="src\Animation\Blending\IBlendNode.h" />
     <ClInclude Include="src\Animation\InverseKinematics\Analytic2Bone2DSolver.h" />
+    <ClInclude Include="src\Animation\InverseKinematics\CCD3DSolver.h" />
+    <ClInclude Include="src\Animation\InverseKinematics\FABRIK3DSolver.h" />
     <ClInclude Include="src\Animation\InverseKinematics\IKChain.h" />
     <ClInclude Include="src\Animation\InverseKinematics\IKSolver.h" />
     <ClInclude Include="src\Animation\PiecewiseCurveMgr.h" />

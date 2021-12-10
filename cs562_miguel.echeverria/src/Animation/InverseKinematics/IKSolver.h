@@ -23,6 +23,13 @@ namespace cs460
 		FAILURE
 	};
 
+	enum class IKSolverType
+	{
+		ANALYTIC_2BONE_2D,
+		CCD_3D,
+		FABRIK_3D
+	};
+
 
 	class IKSolver
 	{

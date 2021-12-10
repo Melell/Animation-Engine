@@ -26,7 +26,8 @@ namespace cs460
 	// Performs an iteration of the solve loop (if any)
 	IKSolverStatus IKSolver::solve()
 	{
-		return IKSolverStatus::PROCESSING;
+		m_status = IKSolverStatus::PROCESSING;
+		return m_status;
 	}
 
 	// Reset all the solver data

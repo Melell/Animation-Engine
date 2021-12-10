@@ -41,8 +41,8 @@ namespace cs460
 
 		static void draw_grid(float worldXSize, float worldZSize, unsigned xSubdivisions, unsigned zSubdivisions);
 
-		static void draw_all_ik_chains(const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor);
-		static void draw_ik_chain(IKChain* chain, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor);
+		static void draw_all_ik_chains();
+		static void draw_ik_chain(IKChain* chain, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& targetColor);
 		static void draw_ik_bone(const glm::vec3& pos, const glm::vec3& parentPos, const glm::vec3* pyramidBaseVerts, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor);
 
 
@@ -86,9 +86,12 @@ namespace cs460
 
 
 		static bool s_enableIKChainDrawing;			// IKChain
-		static glm::vec4 s_ikBoneColor;				// IKChain
+		static glm::vec4 s_ikBoneColorIdle;			// IKChain
+		static glm::vec4 s_ikBoneColorProcessing;	// IKChain
+		static glm::vec4 s_ikBoneColorSuccess;		// IKChain
+		static glm::vec4 s_ikBoneColorFailure;		// IKChain
 		static glm::vec4 s_ikBoneHighlightColor;	// IKChain
 		static glm::vec4 s_ikJointColor;			// IKChain
-		static glm::vec4 s_ikEndEffectorColor;		// IKChain
+		static glm::vec4 s_ikTargetColor;			// IKChain
 	};
 }

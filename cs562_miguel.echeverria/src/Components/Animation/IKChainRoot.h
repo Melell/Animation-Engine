@@ -28,17 +28,24 @@ namespace cs460
 
 		void initialize();
 		IKSolverStatus update();
-		void debug_draw(const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor);
+		void debug_draw();
 
 		void set_end_effector(SceneNode* endEffector);
+		void set_target(SceneNode* target);
+		void set_solver_type(IKSolverType type);
 
 		IKChain* get_chain() const;
 		IKSolver* get_solver() const;
+		IKSolverType get_solver_type() const;
 
 	private:
 		IKChain* m_chain = nullptr;
 		IKSolver* m_solver = nullptr;
-		glm::vec2 m_lastEndEffectorLocalPos{0.0f, 0.0f};
+
+		glm::vec3 m_lastTargetPos{ 0.0f, 0.0f, 0.0f };
+		IKSolverStatus m_lastSolverStatus = IKSolverStatus::IDLE;
+		IKSolverType m_solverType = IKSolverType::ANALYTIC_2BONE_2D;
+
 		bool m_drawChain = true;
 
 		virtual void on_gui();	// To be overriden by specific components

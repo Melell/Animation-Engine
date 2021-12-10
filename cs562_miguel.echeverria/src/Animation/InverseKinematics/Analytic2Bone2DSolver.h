@@ -19,7 +19,7 @@ namespace cs460
 	public:
 
 		Analytic2Bone2DSolver();
-		~Analytic2Bone2DSolver();
+		virtual ~Analytic2Bone2DSolver();
 
 		IKSolverStatus solve() override;	// Tries to solve the internal IK chain
 		void reset_solver() override;		// Resets all of this solver's data

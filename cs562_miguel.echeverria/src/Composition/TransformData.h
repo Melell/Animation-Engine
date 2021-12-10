@@ -25,6 +25,9 @@ namespace cs460
 		glm::mat4 get_inv_scale_mtx() const;
 		glm::mat4 get_inv_rotation_mtx() const;
 
+		//void concatenate(const TransformData& localTr, const TransformData& parentWorldTr);
+		//void inverse_concatenate(const TransformData& localTr, const TransformData& parentWorldTr);
+
 
 		glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };

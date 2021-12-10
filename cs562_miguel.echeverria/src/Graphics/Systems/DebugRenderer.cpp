@@ -62,10 +62,13 @@ namespace cs460
 
 
 	bool DebugRenderer::s_enableIKChainDrawing = true;
-	glm::vec4 DebugRenderer::s_ikBoneColor{ 0.8f, 0.2f, 0.1f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikBoneColorIdle{ 0.5f, 0.02f, 0.7f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikBoneColorProcessing{ 0.8f, 0.8f, 0.1f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikBoneColorSuccess{ 0.2f, 0.8f, 0.1f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikBoneColorFailure{ 0.8f, 0.2f, 0.1f, 1.0f };
 	glm::vec4 DebugRenderer::s_ikBoneHighlightColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 	glm::vec4 DebugRenderer::s_ikJointColor{ 1.0f, 1.0f, 1.0f, 1.0f };
-	glm::vec4 DebugRenderer::s_ikEndEffectorColor{ 0.0f, 0.9f, 0.3f, 1.0f };
+	glm::vec4 DebugRenderer::s_ikTargetColor{ 0.0f, 0.9f, 0.3f, 1.0f };
 
 
 	// TODO: Make this more efficient by saving the meshes
@@ -472,7 +475,7 @@ namespace cs460
 	}
 
 
-	void DebugRenderer::draw_all_ik_chains(const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor)
+	void DebugRenderer::draw_all_ik_chains()
 	{
 		if (!s_enableIKChainDrawing)
 			return;
@@ -484,7 +487,7 @@ namespace cs460
 		for (int i = 0; i < animator.m_ikChains.size(); ++i)
 		{
 			IKChainRoot* ikChain = animator.m_ikChains[i];
-			ikChain->debug_draw(boneColor, boneHighlightColor, jointColor, endEffectorColor);
+			ikChain->debug_draw();
 		}
 	}
 
@@ -508,7 +511,7 @@ namespace cs460
 		return glm::normalize(glm::cross(right, forward));
 	}
 
-	void DebugRenderer::draw_ik_chain(IKChain* chain, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor)
+	void DebugRenderer::draw_ik_chain(IKChain* chain, const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& targetColor)
 	{
 		SceneNode* chainRoot = chain->get_chain_root();
 		SceneNode* endEffector = chain->get_end_effector();

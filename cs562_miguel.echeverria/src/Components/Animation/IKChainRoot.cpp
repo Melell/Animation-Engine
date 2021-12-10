@@ -11,6 +11,8 @@
 #include "IKChainRoot.h"
 #include "Animation/InverseKinematics/IKChain.h"
 #include "Animation/InverseKinematics/Analytic2Bone2DSolver.h"
+#include "Animation/InverseKinematics/CCD3DSolver.h"
+#include "Animation/InverseKinematics/FABRIK3DSolver.h"
 #include "Composition/SceneNode.h"
 #include "Animation/Animator.h"
 #include "Graphics/Systems/DebugRenderer.h"
@@ -44,29 +46,46 @@ namespace cs460
 	IKSolverStatus IKChainRoot::update()
 	{
 		if (m_solver == nullptr)
-			return IKSolverStatus::IDLE;
+		{
+			m_lastSolverStatus = IKSolverStatus::IDLE;
+			return m_lastSolverStatus;
+		}
 
 		
-		// Don't solve if we have finished processing and the end effector hasn't moved
-		SceneNode* endEffector = m_chain->get_end_effector();
-		const glm::vec2& currentPos = glm::vec2(endEffector->m_localTr.m_position);
-		if (m_solver->get_status() != IKSolverStatus::PROCESSING && glm::all(glm::epsilonEqual(currentPos, m_lastEndEffectorLocalPos, FLT_EPSILON)))
-			return IKSolverStatus::IDLE;
+		// Don't solve if we have finished processing and the target hasn't moved
+		SceneNode* target = m_chain->get_target();
+		const glm::vec3& currentTargetPos = target->m_worldTr.m_position;
+		if (m_solver->get_status() != IKSolverStatus::PROCESSING && glm::all(glm::epsilonEqual(currentTargetPos, m_lastTargetPos, FLT_EPSILON)))
+		{
+			m_lastSolverStatus = IKSolverStatus::IDLE;
+			return m_lastSolverStatus;
+		}
 
-		// Update the last end effector local position if the previous frame's solve was successful
+		// Update the last target position if the previous frame's solve was successful
 		if (m_solver->get_status() == IKSolverStatus::SUCCESS)
-			m_lastEndEffectorLocalPos = glm::vec2(endEffector->m_localTr.m_position);
+			m_lastTargetPos = target->m_worldTr.m_position;
 
 		// Solve using the internal solver
-		return m_solver->solve();
+		m_lastSolverStatus = m_solver->solve();
+		return m_lastSolverStatus;
 	}
 
-	void IKChainRoot::debug_draw(const glm::vec4& boneColor, const glm::vec4& boneHighlightColor, const glm::vec4& jointColor, const glm::vec4& endEffectorColor)
+	void IKChainRoot::debug_draw()
 	{
 		if (!m_drawChain)
 			return;
 
-		DebugRenderer::draw_ik_chain(m_chain, boneColor, boneHighlightColor, jointColor, endEffectorColor);
+		glm::vec4 boneColor{ 0.0f, 1.0f, 0.0f, 1.0f };
+		if (m_lastSolverStatus == IKSolverStatus::IDLE)
+			boneColor = DebugRenderer::s_ikBoneColorIdle;
+		else if (m_lastSolverStatus == IKSolverStatus::PROCESSING)
+			boneColor = DebugRenderer::s_ikBoneColorProcessing;
+		else if (m_lastSolverStatus == IKSolverStatus::SUCCESS)
+			boneColor = DebugRenderer::s_ikBoneColorSuccess;
+		else if (m_lastSolverStatus == IKSolverStatus::FAILURE)
+			boneColor = DebugRenderer::s_ikBoneColorFailure;
+
+		DebugRenderer::draw_ik_chain(m_chain, boneColor, DebugRenderer::s_ikBoneHighlightColor, DebugRenderer::s_ikJointColor, DebugRenderer::s_ikTargetColor);
 	}
 
 
@@ -76,8 +95,33 @@ namespace cs460
 			return;
 
 		m_chain->set_end_effector(endEffector);
-		m_lastEndEffectorLocalPos = endEffector->m_localTr.m_position;
 	}
+
+	void IKChainRoot::set_target(SceneNode* target)
+	{
+		if (m_chain == nullptr)
+			return;
+
+		m_chain->set_target(target);
+	}
+
+	void IKChainRoot::set_solver_type(IKSolverType type)
+	{
+		if (m_solverType == type)
+			return;
+
+		m_solverType = type;
+
+		delete m_solver;
+
+		if (type == IKSolverType::ANALYTIC_2BONE_2D)
+			m_solver = new Analytic2Bone2DSolver;
+		else if (type == IKSolverType::CCD_3D)
+			m_solver = new CCD3DSolver;
+		else if (type == IKSolverType::FABRIK_3D)
+			m_solver = new FABRIK3DSolver;
+	}
+
 
 	IKChain* IKChainRoot::get_chain() const
 	{
@@ -87,10 +131,40 @@ namespace cs460
 	{
 		return m_solver;
 	}
+	IKSolverType IKChainRoot::get_solver_type() const
+	{
+		return m_solverType;
+	}
 
 
 	void IKChainRoot::on_gui()
 	{
 		ImGui::Checkbox("Draw IK Chain", &m_drawChain);
+
+		std::string previewValue = "Analytic 2 Bone 2D";
+		if (m_solverType == IKSolverType::ANALYTIC_2BONE_2D)
+			previewValue = "Analytic 2 Bone 2D";
+		else if (m_solverType == IKSolverType::CCD_3D)
+			previewValue = "CCD 3D";
+		else if (m_solverType == IKSolverType::FABRIK_3D)
+			previewValue = "FABRIK 3D";
+
+		if (ImGui::BeginCombo("Solver Type", previewValue.c_str()))
+		{
+			if (ImGui::Selectable("Analytic 2 Bone 2D"))
+			{
+				m_solverType = IKSolverType::ANALYTIC_2BONE_2D;
+			}
+			if (ImGui::Selectable("CCD 3D"))
+			{
+				m_solverType = IKSolverType::CCD_3D;
+			}
+			if (ImGui::Selectable("FABRIK 3D"))
+			{
+				m_solverType = IKSolverType::FABRIK_3D;
+			}
+
+			ImGui::EndCombo();
+		}
 	}
 }

@@ -11,6 +11,9 @@
 #include "CCD3DSolver.h"
 #include "IKChain.h"
 #include "Composition/SceneNode.h"
+#include "Graphics/Systems/DebugRenderer.h"
+#include "Math/Geometry/Geometry.h"
+#include <GL/glew.h>
 
 
 namespace cs460
@@ -34,7 +37,7 @@ namespace cs460
 		SceneNode* target = m_chain->get_target();
 		if (chainRoot == nullptr || endEffector == nullptr || target == nullptr)
 		{
-			std::cout << "ERROR : ANALYTIC 2 BONE 2D SOLVER : Either chain root, end effector or target are not present!!!\n";
+			std::cout << "ERROR : CCD 3D SOLVER : Either chain root, end effector or target are not present!!!\n";
 			m_status = IKSolverStatus::FAILURE;
 			return m_status;
 		}
@@ -53,7 +56,7 @@ namespace cs460
 				const glm::vec3& endWorldPos = endEffector->m_worldTr.m_position;
 
 				// Do ccd and update the nodes' rotations
-				set_local_rotation(traverser, endWorldPos, targetWorldPos);
+				apply_local_rotation(traverser, endWorldPos, targetWorldPos);
 				update_world_transforms(traverser, endEffector);
 				
 				traverser = traverser->get_parent();
@@ -66,7 +69,7 @@ namespace cs460
 				return m_status;
 			}
 		}
-
+			
 		m_status = IKSolverStatus::FAILURE;
 		return m_status;
 	}
@@ -79,7 +82,7 @@ namespace cs460
 
 
 	// Main part of the CCD algorithm, uses the end effector and target's world positions to compute the local rotation of currNode
-	void CCD3DSolver::set_local_rotation(SceneNode* currNode, const glm::vec3& endWorldPos, const glm::vec3& targetWorldPos)
+	void CCD3DSolver::apply_local_rotation(SceneNode* currNode, const glm::vec3& endWorldPos, const glm::vec3& targetWorldPos)
 	{
 		// Get the vectors v1 = endEffector - curr; and v2 = target - curr
 		// (curr being the world position of the current joint)
@@ -100,13 +103,11 @@ namespace cs460
 		if (glm::abs(v1v2Dot) < 1.0f)
 			axis = glm::normalize(glm::cross(v1Norm, v2Norm));
 
+
 		// Build a quaternion from the axis angle rotation we just computed
 		// This rotation is applied to the joint's local orientation
-		const glm::quat& rot = glm::angleAxis(theta, axis);
+		glm::quat rot = glm::angleAxis(theta, axis);
 		currNode->m_localTr.m_orientation = rot * currNode->m_localTr.m_orientation;
-
-		if (std::isnan(currNode->m_localTr.m_orientation.x))
-			__debugbreak();
 	}
 
 
@@ -136,6 +137,8 @@ namespace cs460
 				currNode->m_worldTr.concatenate(currNode->m_localTr, currNode->get_parent()->m_worldTr);
 			else
 				currNode->m_worldTr = currNode->m_localTr;
+
+			//currNode->m_updateWorldTr = false;
 		}
 	}
 

@@ -14,6 +14,7 @@
 #include "Platform/InputMgr.h"
 #include "Cameras/EditorCamera.h"
 #include "Cameras/SphericalCamera.h"
+//#include "Components/Animation/IKChainRoot.h"
 
 
 namespace cs460
@@ -140,9 +141,17 @@ namespace cs460
 		if (node == nullptr)
 			return;
 
-		// Update the world transform of the current node (it's parent world tr is already updated)
-		if (SceneNode* parent = node->get_parent())
-			node->m_worldTr.concatenate(node->m_localTr, parent->m_worldTr);
+		//if (node->get_component<IKChainRoot>())
+		//	return;
+
+		if (node->m_updateWorldTr)
+		{
+			// Update the world transform of the current node (it's parent world tr is already updated)
+			if (SceneNode* parent = node->get_parent())
+				node->m_worldTr.concatenate(node->m_localTr, parent->m_worldTr);
+		}
+
+		node->m_updateWorldTr = true;
 
 		// Update all its childs
 		const std::vector<SceneNode*>& children = node->get_children();

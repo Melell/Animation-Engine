@@ -94,6 +94,10 @@ namespace cs460
 		void change_name(const std::string& newName);
 		std::string get_name() const;
 
+
+		// Needs to be set to false each frame that we don't want to update this node's world transform
+		bool m_updateWorldTr = true;
+
 	private:
 		std::string m_name;						// "Gameobject" name
 		SceneNode* m_parent;

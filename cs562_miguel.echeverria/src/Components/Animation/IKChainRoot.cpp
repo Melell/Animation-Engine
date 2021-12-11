@@ -57,10 +57,10 @@ namespace cs460
 		const glm::vec3& currentTargetPos = target->m_worldTr.m_position;
 		if (m_solver->get_status() != IKSolverStatus::PROCESSING && glm::all(glm::epsilonEqual(currentTargetPos, m_lastTargetPos, FLT_EPSILON)))
 		{
-			m_lastSolverStatus = IKSolverStatus::IDLE;
+			m_lastSolverStatus = m_solver->get_status();//IKSolverStatus::IDLE;
 			return m_lastSolverStatus;
 		}
-
+		
 		// Update the last target position if the previous frame's solve was successful
 		if (m_solver->get_status() != IKSolverStatus::PROCESSING)
 			m_lastTargetPos = target->m_worldTr.m_position;

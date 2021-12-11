@@ -993,6 +993,50 @@ namespace cs460
 
 	void MainMenuBarGUI::load_ik_fabrik_3d_scene()
 	{
+		// Clear the scene
+		load_empty_scene();
 
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+
+		// Place the camera
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		editorCam->set_position(glm::vec3(0.0f, 0.0f, 25.0f));
+		editorCam->set_target(glm::vec3(0.0f, 0.0f, 0.0f));
+
+
+		// Create the ik chain joints
+		SceneNode* joint0 = root->create_child("Joint 0");
+		SceneNode* joint1 = joint0->create_child("Joint 1");
+		SceneNode* joint2 = joint1->create_child("Joint 2");
+		SceneNode* joint3 = joint2->create_child("Joint 3");
+		SceneNode* joint4 = joint3->create_child("Joint 4");
+		SceneNode* target = root->create_child("TARGET");
+
+		// Place the joints
+		joint1->m_localTr.m_position.x = 2.0f;
+		joint2->m_localTr.m_position.x = 2.0f;
+		joint3->m_localTr.m_position.x = 2.0f;
+		joint4->m_localTr.m_position.x = 2.0f;
+		target->m_localTr.m_position.x = 8.0f;
+
+
+		// Setup the ik chain component
+		IKChainRoot* chainRoot = joint0->add_component<IKChainRoot>();
+		chainRoot->initialize();
+		chainRoot->set_end_effector(joint4);
+		chainRoot->set_target(target);
+		chainRoot->set_solver_type(IKSolverType::FABRIK_3D);
+
+
+		// Make the target the selected node in the editor
+		EditorState& editorState = EditorState::get_main_editor_state();
+		editorState.m_selectedNode = target;
 	}
 }

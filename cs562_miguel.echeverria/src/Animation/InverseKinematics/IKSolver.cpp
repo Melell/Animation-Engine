@@ -54,4 +54,9 @@ namespace cs460
 	{
 		return m_status;
 	}
+
+
+	void IKSolver::on_gui()
+	{
+	}
 }

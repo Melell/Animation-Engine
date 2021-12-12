@@ -50,6 +50,8 @@ namespace cs460
 		// Query the current status of the solver
 		IKSolverStatus get_status() const;
 
+		virtual void on_gui();
+
 	protected:
 		IKChain* m_chain = nullptr;
 		IKSolverStatus m_status = IKSolverStatus::IDLE;

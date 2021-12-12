@@ -20,6 +20,7 @@
 #include "Components/Animation/SkeletonRoot.h"
 #include "Components/Animation/Joint.h"
 #include "Components/PiecewiseCurves/PiecewiseCurve.h"
+#include "Components/Animation/IKChainRoot.h"
 #include <gltf/tiny_gltf.h>
 
 
@@ -170,6 +171,11 @@ namespace cs460
 				PiecewiseCurve* curveComp = add_component<PiecewiseCurve>();
 				curveComp->initialize();
 			}
+			//if (ImGui::Selectable("IK Chain Root"))
+			//{
+			//	IKChainRoot* ikChainComp = add_component<IKChainRoot>();
+			//	ikChainComp->initialize();
+			//}
 
 			ImGui::EndPopup();
 		}

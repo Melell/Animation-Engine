@@ -160,13 +160,13 @@ namespace cs460
 	}
 
 	// Recursive function to free the memory of all the nodes
-	void Scene::delete_tree(SceneNode* node)//, bool clearParentChildren)
+	void Scene::delete_tree(SceneNode* node, bool clearParentChildren)
 	{
 		SceneNode* parent = node->get_parent();
 		delete_tree_internal(node);
 
-		//if (parent != nullptr)// && clearParentChildren)
-		//	parent->m_children.clear();
+		if (parent != nullptr && clearParentChildren)
+			parent->m_children.clear();
 	}
 
 	void Scene::delete_tree_internal(SceneNode* node)

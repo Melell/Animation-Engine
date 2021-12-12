@@ -66,6 +66,17 @@ namespace cs460
 	}
 
 
+	void FABRIK3DSolver::on_gui()
+	{
+		ImGui::SliderFloat("Solution Tolerance", &m_solutionTolerance, 0.01f, 0.5f, "%.2f");
+		int maxIterations = m_maxIterations;
+		if (ImGui::SliderInt("Max Iterations", &maxIterations, 1, 5, "%d"))
+		{
+			m_maxIterations = maxIterations < 1 ? 1 : maxIterations;
+		}
+	}
+
+
 	void FABRIK3DSolver::store_world_positions(SceneNode* chainRoot, SceneNode* endEffector, std::vector<glm::vec3>& jointsWorldPos)
 	{
 		// Add in reverser order, start-end of vector is: end effector until chain root

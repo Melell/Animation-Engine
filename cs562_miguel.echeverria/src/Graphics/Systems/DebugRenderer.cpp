@@ -516,6 +516,9 @@ namespace cs460
 		SceneNode* chainRoot = chain->get_chain_root();
 		SceneNode* endEffector = chain->get_end_effector();
 
+		if (!chainRoot || !endEffector)
+			return;
+
 		// From the end effector until the chain root
 		SceneNode* traverser = endEffector;
 		while (traverser != chainRoot && traverser->get_parent() != nullptr)
@@ -526,16 +529,19 @@ namespace cs460
 			const glm::vec3& forward = pos - parentPos;
 
 			float boneLength = glm::length(forward);
-			const float factor = 0.2f;
+			const float heightFactor = 0.2f;
+			const float widthFactor = 0.125f;
 
 			// Find the center of the base of pyramid
-			const glm::vec3& startOffset = forward * factor;
-			float startOffsetLength = glm::length(startOffset);
-			const glm::vec3& start = parentPos + startOffset;
+			const glm::vec3& startUpOffset = forward * heightFactor;
+			const glm::vec3& startSideOffset = forward * widthFactor;
+			float startHeightOffset = glm::length(startUpOffset);
+			float startWidthOffset = glm::length(startSideOffset);
+			const glm::vec3& start = parentPos + startUpOffset;
 
 			// Get the "right" and "up" vectors
-			const glm::vec3& right = get_ik_bone_right_vec(forward) * startOffsetLength;
-			const glm::vec3& up = get_ik_bone_up_vec(forward, right) * startOffsetLength;
+			const glm::vec3& right = get_ik_bone_right_vec(forward) * startWidthOffset;
+			const glm::vec3& up = get_ik_bone_up_vec(forward, right) * startWidthOffset;
 
 			// Use the "right" and "up" vectors to offset start and get the vertices of the base of the pyramid
 			glm::vec3 pyramidBaseVertices[4] = {};

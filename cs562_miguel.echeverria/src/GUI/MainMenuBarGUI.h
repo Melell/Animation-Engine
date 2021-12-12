@@ -31,7 +31,8 @@ namespace cs460
 		BLEND_EDITOR_2D,
 		IK_ANALYTICAL_2D,
 		IK_CCD_3D,
-		IK_FABRIK_3D
+		IK_FABRIK_3D,
+		IK_ON_SKELETON
 	};
 
 
@@ -66,8 +67,8 @@ namespace cs460
 		void load_ik_analytical_2d_scene();
 		void load_ik_ccd_3d_scene();
 		void load_ik_fabrik_3d_scene();
+		void load_ik_on_skeleton_scene();
 
-		IKChain* chain = nullptr;
 
 		MainMenuBarGUI();
 		MainMenuBarGUI(const MainMenuBarGUI&) = delete;

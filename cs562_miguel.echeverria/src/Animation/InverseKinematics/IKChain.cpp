@@ -52,4 +52,25 @@ namespace cs460
 	{
 		return m_target;
 	}
+
+
+	// Functions to add/remove a joint to/from the end of the chain, changing the end effector
+	void IKChain::push_joint()
+	{
+		SceneNode* newEndEffector = m_endEffector->create_child("Pushed Joint");
+		newEndEffector->m_localTr.m_position = m_endEffector->m_localTr.m_position;
+		set_end_effector(newEndEffector);
+	}
+
+	void IKChain::pop_joint()
+	{
+		// Can't have less than 2 joints in an ik chain
+		if (m_chainRoot == m_endEffector->get_parent()->get_parent())
+			return;
+
+		SceneNode* oldEndEffector = m_endEffector;
+		set_end_effector(m_endEffector->get_parent());
+		Scene& scene = Scene::get_instance();
+		scene.delete_tree(oldEndEffector, true);
+	}
 }

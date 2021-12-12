@@ -81,6 +81,17 @@ namespace cs460
 	}
 
 
+	void CCD3DSolver::on_gui()
+	{
+		ImGui::SliderFloat("Solution Tolerance", &m_solutionTolerance, 0.01f, 0.5f, "%.2f");
+		int maxIterations = m_maxIterations;
+		if (ImGui::SliderInt("Max Iterations", &maxIterations, 1, 5, "%d"))
+		{
+			m_maxIterations = maxIterations < 1 ? 1 : maxIterations;
+		}
+	}
+
+
 	// Main part of the CCD algorithm, uses the end effector and target's world positions to compute the local rotation of currNode
 	void CCD3DSolver::apply_local_rotation(SceneNode* currNode, const glm::vec3& endWorldPos, const glm::vec3& targetWorldPos)
 	{

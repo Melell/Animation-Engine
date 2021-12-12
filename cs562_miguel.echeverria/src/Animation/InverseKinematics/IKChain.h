@@ -29,6 +29,10 @@ namespace cs460
 		SceneNode* get_end_effector();
 		SceneNode* get_target();
 
+		// Functions to add/remove a joint to/from the end of the chain, changing the end effector
+		void push_joint();
+		void pop_joint();
+
 	private:
 		SceneNode* m_chainRoot = nullptr;
 		SceneNode* m_endEffector = nullptr;

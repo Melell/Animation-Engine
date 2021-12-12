@@ -21,6 +21,8 @@ namespace cs460
 		float m_solutionTolerance = 0.1f;
 		unsigned m_maxIterations = 1;
 
+		void on_gui() override;
+
 	private:
 
 		void store_world_positions(SceneNode* chainRoot, SceneNode* endEffector, std::vector<glm::vec3>& jointsWorldPos);

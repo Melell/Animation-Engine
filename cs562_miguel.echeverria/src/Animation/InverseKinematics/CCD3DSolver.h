@@ -30,6 +30,8 @@ namespace cs460
 		float m_solutionTolerance = 0.1f;
 		unsigned m_maxIterations = 1;
 
+		void on_gui() override;
+
 	private:
 
 		// Main part of the CCD algorithm, uses the end effector and target's world positions to compute the local rotation of currNode

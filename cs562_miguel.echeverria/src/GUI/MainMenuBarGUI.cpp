@@ -104,6 +104,10 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_FABRIK_3D;
 				}
+				if (ImGui::MenuItem("IK ON SKELETON"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::IK_ON_SKELETON;
+				}
 				
 
 				ImGui::EndMenu();
@@ -186,6 +190,17 @@ namespace cs460
 					ImGui::EndMenu();
 				}
 
+				if (ImGui::BeginMenu("IK CHAIN"))
+				{
+					ImGui::Checkbox("Enable Drawing", &DebugRenderer::s_enableIKChainDrawing);
+					ImGui::ColorEdit4("Bone Success Color", glm::value_ptr(DebugRenderer::s_ikBoneColorSuccess));
+					ImGui::ColorEdit4("Bone Failure Color", glm::value_ptr(DebugRenderer::s_ikBoneColorFailure));
+					ImGui::ColorEdit4("Bone Idle Color", glm::value_ptr(DebugRenderer::s_ikBoneColorIdle));
+					ImGui::ColorEdit4("Bone Processing Color", glm::value_ptr(DebugRenderer::s_ikBoneColorProcessing));
+					ImGui::ColorEdit4("Bone Highlight Color", glm::value_ptr(DebugRenderer::s_ikBoneHighlightColor));
+					ImGui::EndMenu();
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -233,6 +248,8 @@ namespace cs460
 			load_ik_ccd_3d_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_FABRIK_3D)
 			load_ik_fabrik_3d_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_ON_SKELETON)
+			load_ik_on_skeleton_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -245,14 +262,9 @@ namespace cs460
 		Editor::get_instance().get_state().m_selectedNode = nullptr;
 
 		DebugRenderer::s_enableGridDrawing = false;
+		DebugRenderer::s_enableSkeletonDrawing = false;
 		scene.change_camera(true);
 		scene.get_active_camera()->set_is_active(true);
-
-		if (chain != nullptr)
-		{
-			delete chain;
-			chain = nullptr;
-		}
 	}
 
 	void MainMenuBarGUI::load_linear_curve_scene()
@@ -919,7 +931,7 @@ namespace cs460
 
 
 		// Create the ik chain joints
-		SceneNode* joint0 = root->create_child("Joint 0");
+		SceneNode* joint0 = root->create_child("CHAIN ROOT");
 		SceneNode* joint1 = joint0->create_child("Joint 1");
 		SceneNode* joint2 = joint1->create_child("Joint 2");
 		SceneNode* target = root->create_child("TARGET");
@@ -963,7 +975,7 @@ namespace cs460
 
 
 		// Create the ik chain joints
-		SceneNode* joint0 = root->create_child("Joint 0");
+		SceneNode* joint0 = root->create_child("CHAIN ROOT");
 		SceneNode* joint1 = joint0->create_child("Joint 1");
 		SceneNode* joint2 = joint1->create_child("Joint 2");
 		SceneNode* joint3 = joint2->create_child("Joint 3");
@@ -1012,7 +1024,7 @@ namespace cs460
 
 
 		// Create the ik chain joints
-		SceneNode* joint0 = root->create_child("Joint 0");
+		SceneNode* joint0 = root->create_child("CHAIN ROOT");
 		SceneNode* joint1 = joint0->create_child("Joint 1");
 		SceneNode* joint2 = joint1->create_child("Joint 2");
 		SceneNode* joint3 = joint2->create_child("Joint 3");
@@ -1034,6 +1046,53 @@ namespace cs460
 		chainRoot->set_target(target);
 		chainRoot->set_solver_type(IKSolverType::FABRIK_3D);
 
+
+		// Make the target the selected node in the editor
+		EditorState& editorState = EditorState::get_main_editor_state();
+		editorState.m_selectedNode = target;
+	}
+
+
+	void MainMenuBarGUI::load_ik_on_skeleton_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		DebugRenderer::s_enableSkeletonDrawing = true;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+
+		// Place the camera
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		editorCam->set_position(glm::vec3(0.0f, 1.0f, 3.5f));
+		editorCam->set_target(glm::vec3(0.0f, 1.0f, -25.0f));
+
+
+		// Create the model
+		SceneNode* brainStem = root->create_child("BRAIN_STEM");
+		ModelInstance* modelInst = brainStem->add_component<ModelInstance>();
+		modelInst->change_model("data/Models/BrainStem/BrainStem.gltf");
+
+		// Set the chain root and end effector from the model nodes
+		SceneNode* leftHip = brainStem->get_children().at(0)->get_children().at(0)->get_children().at(0)->get_children().at(0)->get_children().at(1);
+		leftHip->change_name("CHAIN ROOT");
+		IKChainRoot* chainRootComp = leftHip->add_component<IKChainRoot>();
+		chainRootComp->initialize();
+		SceneNode* leftFoot = leftHip->get_children().at(0)->get_children().at(0)->get_children().at(0);
+		leftFoot->change_name("END EFFECTOR");
+		chainRootComp->set_end_effector(leftFoot);
+		chainRootComp->set_solver_type(IKSolverType::FABRIK_3D);
+
+		// Create and set the target of the ik chain
+		SceneNode* target = root->create_child("TARGET");
+		target->m_localTr.m_position = glm::vec3(-0.12f, 0.05f, 0.0f);
+		chainRootComp->set_target(target);
 
 		// Make the target the selected node in the editor
 		EditorState& editorState = EditorState::get_main_editor_state();

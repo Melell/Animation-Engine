@@ -45,7 +45,7 @@ namespace cs460
 
 	IKSolverStatus IKChainRoot::update()
 	{
-		if (m_solver == nullptr)
+		if (!m_solver || !m_chain->get_chain_root() || !m_chain->get_end_effector() || !m_chain->get_target())
 		{
 			m_lastSolverStatus = IKSolverStatus::IDLE;
 			return m_lastSolverStatus;
@@ -142,8 +142,21 @@ namespace cs460
 
 	void IKChainRoot::on_gui()
 	{
+		// Wether the ik chain will be drawn or not
 		ImGui::Checkbox("Draw IK Chain", &m_drawChain);
 
+
+		// Push/pop joints to the chain
+		if (ImGui::Button("Push Joint"))
+			m_chain->push_joint();
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Pop Joint"))
+			m_chain->pop_joint();
+
+
+		// Change between the different solver types
 		std::string previewValue = "Analytic 2 Bone 2D";
 		if (m_solverType == IKSolverType::ANALYTIC_2BONE_2D)
 			previewValue = "Analytic 2 Bone 2D";
@@ -156,18 +169,21 @@ namespace cs460
 		{
 			if (ImGui::Selectable("Analytic 2 Bone 2D"))
 			{
-				m_solverType = IKSolverType::ANALYTIC_2BONE_2D;
+				set_solver_type(IKSolverType::ANALYTIC_2BONE_2D);
 			}
 			if (ImGui::Selectable("CCD 3D"))
 			{
-				m_solverType = IKSolverType::CCD_3D;
+				set_solver_type(IKSolverType::CCD_3D);
 			}
 			if (ImGui::Selectable("FABRIK 3D"))
 			{
-				m_solverType = IKSolverType::FABRIK_3D;
+				set_solver_type(IKSolverType::FABRIK_3D);
 			}
 
 			ImGui::EndCombo();
 		}
+
+		// Solver parameters
+		m_solver->on_gui();
 	}
 }

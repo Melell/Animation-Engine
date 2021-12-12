@@ -2,6 +2,7 @@
 #include "FABRIK3DSolver.h"
 #include "Composition/SceneNode.h"
 #include "Animation/InverseKinematics/IKChain.h"
+#include <GLFW/glfw3.h>
 
 
 namespace cs460
@@ -50,10 +51,7 @@ namespace cs460
 			backward_step(worldPositions, boneLengths, originalRootWorldPos);
 
 			if (check_solution(worldPositions[0], targetWorldPos))
-			{
 				m_status = IKSolverStatus::SUCCESS;
-				return m_status;
-			}
 		}
 
 		update_local_rotations(chainRoot, endEffector, worldPositions);
@@ -120,7 +118,7 @@ namespace cs460
 	void FABRIK3DSolver::backward_step(std::vector<glm::vec3>& worldPositions, const std::vector<float>& boneLengths, const glm::vec3& originalRootWorldPos)
 	{
 		// Set the chain root to its original world position
-		worldPositions.back() = originalRootWorldPos;
+		worldPositions[worldPositions.size() - 1] = originalRootWorldPos;
 
 		// From the chain root until the end effector (not included)
 		for (int i = worldPositions.size() - 1; i > 0; --i)
@@ -133,7 +131,7 @@ namespace cs460
 			if (glm::epsilonNotEqual(glm::length(currBoneDir), 0.0f, FLT_EPSILON))
 				currBoneDirNorm = glm::normalize(currBoneDir);
 
-			worldPositions[i - 1] = currWorldPos + currBoneDirNorm * boneLengths[(worldPositions.size() - 1) - i];
+			worldPositions[i - 1] = currWorldPos + currBoneDirNorm * boneLengths[i - 1];
 		}
 	}
 
@@ -201,8 +199,13 @@ namespace cs460
 
 
 			// Perform inverse concatenation of orientations to get the local orientation needed
-			glm::quat invParentRot = glm::inverse((*it)->get_parent()->m_worldTr.m_orientation);
-			(*it)->m_localTr.m_orientation = invParentRot * (*it)->m_worldTr.m_orientation;
+			if ((*it)->get_parent())
+			{
+				glm::quat invParentRot = glm::inverse((*it)->get_parent()->m_worldTr.m_orientation);
+				(*it)->m_localTr.m_orientation = invParentRot * (*it)->m_worldTr.m_orientation;
+			}
+			else
+				(*it)->m_localTr.m_orientation = (*it)->m_worldTr.m_orientation;
 		}
 	}
 

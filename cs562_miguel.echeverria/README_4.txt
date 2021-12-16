@@ -24,32 +24,20 @@ Additional Notes: Extra credits implemented
 - 2D Blending Editor: Same controls as 1d editor.
 - Triangulation with Delaunay
 
-(ASSIGNMENT 5)
-- Kinematic Chain Editing:
-    - On the "CHAIN ROOT" node, you can push/pop joints to the chain through the components gui.
-    - You can modify the lengths of the bones at run-time by selecting one of its joint in the scene graph, and moving
-      it (thus making one end's bone larger, and the other end's bone smaller)
-- Skeleton IK:
-    - The last demo contains a Brain-Stem model, and an ik chain that goes from the left hip, until the left foot.
-      By selecting the "TARGET" node in the scene graph, you can move the target that the end effector will try to
-      follow.
-
 
 Known Bugs:
 - Ctrl + Shift + R to reload resources not implemented
 - Deleting objects and components manually is mostly broken and will probably crash, so don't try any of that at the moment.
-- CCD works weird, I don't know whether it is normal or I have something wrong.
+  The only component that you might want to delete and it is safe to do so is the PlayerController component.
 
-Time of implementation: About 4-5 days.
-Time of testing: Not sure.
+Time of implementation: About 7-8 days.
+Time of testing: Not sure, but extensive testing while implementing was done.
 
 IMPORTANT USAGE NOTES:
 
 DEMOS:
-- NEW, IMPORTANT: Top-left of the gui to load the demos. IK_... are the demos implemented for this assignment. On all the demos,
-  you should look in the scene graph for the objects named "CHAIN ROOT", "END EFFECTOR", and "TARGET". "CHAIN ROOT" has the
-  component with all the parameters you can tweak for the demos. "TARGET" is the object that you should move to verify the
-  inverse kinematics work.
+- NEW, IMPORTANT: Top-left of the gui to load the demos. BLENDING_1D and BLENDING_2D demos require a controller. When a blending demo
+is loaded, you should open the AnimationReference component gui (of the model root node), to visualize the blend space.
 
 Gui usage:
 - Top-left window: Scene hierarchy. Right click any node to display options (create child, change name, delete node).
@@ -75,7 +63,7 @@ node is added, if the curve type was hermite or bezier, there will also be tange
 of each curve point node.
 
 - You can control all of the parametes for this assignment's demo in the gui of the PiecewiseCurve component (the component
-in the root node of the curve). This is where you will need to generate the arc length table in order to see the
+in the root node of the curve). IMPORTANT(for curves assignment): This is where you will need to generate the arc length table in order to see the
 model moving. Every time you change a value like number of samples or initial tolerance, you will have to recompute the table.
 
 - There is drop-down menu at the top left bar, which some options for debug drawing of bounding volumes, skeletons, curves,
@@ -91,31 +79,23 @@ Editor Camera controls:
 - There is an imgui window that allows you to tweak the speed of the camera
 - V: Reset the camera
 
-Spherical Camera controls(only for Blending_1D demo):
-- Right Stick: Move camera around player
+Spherical Camera controls(only for BLENDING_1D demo):
+- NEW, IMPORTANT: Right Stick: Move camera around player
 
 Other controls:
 - Ctrl + R: Reset the scene (delete all nodes except root)
 - Ctrl + Q: Quit the application
-- Left Stick: Move player (for Blending_1D and Blending_2D demos)
-- Right Trigger: Sprint (for Blending_1D demo)
+- NEW, IMPORTANT: Left Stick: Move player (for BLENDING_1D and BLENDING_2D demos)
+- NEW, IMPORTANT: Right Trigger: Sprint (for BLENDING_1D demo)
 
 Note:
-- NEW, IMPORTANT: The ik solver has the following status: Success(green), failure(red), processing(yellow/orange), and idle(purple).
-  The ik chain will be displayed in the color corresponding to the solver's current status. However, since all the iterations are
-  being done on the same frame, processing status will not be visible at the moment. Also, idle will only be visible when loading
-  the demo, because the rest of the times it will always show the last status (success or failure).
-- NEW, IMPORTANT: You can also change the maximum allowed error and the maximum allowed iterations of each solver method, in the
-  "CHAIN ROOT", component gui.
-
-
 - If you want to add multiple models, you can create multiple objects in the scene with "ModelInstance" component.
-- The Blending_1D scene is a directional movement demo (controller required).
-- The Blending_2D scene is a targeted movement demo (controller required, although camera is fixed).
-- The Blending_1D_Editor scene is a similar demo as Blending_1D, but without the player controller,
-  so that you can test out the 1d blend tree editor. (also uses the editor camera)
-- The Blending_2D_Editor scene is a similar demo as Blending_2D, but without the player controller,
-  so that you can test out the 2d blend tree editor. (also uses the editor camera)
-- When loading one of the demos, always open the AnimationReference component gui of the model root
-  node (named "X-BOT" in the demos), so that you can view all the options, or the parameter changing when the stick is
-  moved.
+- NEW, IMPORTANT: The BLENDING_1D scene is a directional movement demo (controller required).
+- NEW, IMPORTANT: The BLENDING_2D scene is a targeted movement demo (controller required, although camera is fixed).
+- NEW, IMPORTANT: The BLENDING_1D_EDITOR scene is a similar demo as BLENDING_1D, but without the player controller,
+so that you can test out the 1d blend tree editor. (also uses the editor camera)
+- NEW, IMPORTANT: The BLENDING_2D_EDITOR scene is a similar demo as BLENDING_2D, but without the player controller,
+so that you can test out the 2d blend tree editor. (also uses the editor camera)
+- NEW, IMPORTANT: When loading one of the demos, always open the AnimationReference component gui of the model root
+node (named "X-BOT" in the demos), so that you can view all the options, or the parameter changing when the stick is
+moved.

@@ -139,29 +139,9 @@ namespace cs460
 				normals.push_back(get_averaged_normal(r, c));
 				normals.push_back(get_averaged_normal(r + 1, c));
 
-				// Compute the current tangent vectors
-				bool negateTangent = false;
-				unsigned nextC = c + 1;
-				if (c + 1 >= m_width)
-				{
-					nextC = c - 1;
-					negateTangent = true;
-				}
-
-				unsigned nextXIdxBot = idx(r, nextC);
-				unsigned nextXIdxTop = idx(r + 1, nextC);
-
-				glm::vec3 currTangent = glm::normalize(m_system.m_particles[nextXIdxBot].m_pos - m_system.m_particles[currIdx].m_pos);
-				glm::vec3 nextTangent = glm::normalize(m_system.m_particles[nextXIdxTop].m_pos - m_system.m_particles[nextIdx].m_pos);
-				if (negateTangent)
-				{
-					currTangent *= -1.0f;
-					nextTangent *= -1.0f;
-				}
-
-				// Gather the tangents data from the particles
-				tangents.push_back(currTangent);
-				tangents.push_back(nextTangent);
+				// Gather the averaged tangents from the particles
+				tangents.push_back(get_averaged_tangent(r, c));
+				tangents.push_back(get_averaged_tangent(r + 1, c));
 			}
 
 			// Update the position data
@@ -294,30 +274,9 @@ namespace cs460
 				uvs.push_back(m_system.m_particles[currIdx].m_uv);
 				uvs.push_back(m_system.m_particles[nextIdx].m_uv);
 
-
-				// Compute the current tangent vectors
-				bool negateTangent = false;
-				unsigned nextC = c + 1;
-				if (c + 1 >= m_width)
-				{
-					nextC = c - 1;
-					negateTangent = true;
-				}
-
-				unsigned nextXIdxBot = idx(r, nextC);
-				unsigned nextXIdxTop = idx(r + 1, nextC);
-
-				glm::vec3 currTangent = glm::normalize(m_system.m_particles[nextXIdxBot].m_pos - m_system.m_particles[currIdx].m_pos);
-				glm::vec3 nextTangent = glm::normalize(m_system.m_particles[nextXIdxTop].m_pos - m_system.m_particles[nextIdx].m_pos);
-				if (negateTangent)
-				{
-					currTangent *= -1.0f;
-					nextTangent *= -1.0f;
-				}
-
-				// Gather the tangents data from the particles
-				tangents.push_back(currTangent);
-				tangents.push_back(nextTangent);
+				// Gather the averaged tangents from the particles
+				tangents.push_back(get_averaged_tangent(r, c));
+				tangents.push_back(get_averaged_tangent(r + 1, c));
 			}
 
 			// Upload the position data
@@ -481,6 +440,37 @@ namespace cs460
 		}
 
 		return glm::normalize(average / (float)normalCount);
+	}
+
+
+	glm::vec3 Cloth::get_averaged_tangent(int row, int col)
+	{
+		unsigned tangentCount = 0;
+		glm::vec3 average(0.0f, 0.0f, 0.0f);
+	
+		// Left side tangent
+		if (col - 1 >= 0)
+		{
+			VerletParticle& left = m_system.m_particles[idx(row, col - 1)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+	
+			glm::vec3 tangent = curr.m_pos - left.m_pos;
+			average += tangent;
+			++tangentCount;
+		}
+
+		// Right side tangent
+		if (col + 1 < m_width)
+		{
+			VerletParticle& right = m_system.m_particles[idx(row, col + 1)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+
+			glm::vec3 tangent = right.m_pos - curr.m_pos;
+			average += tangent;
+			++tangentCount;
+		}
+	
+		return glm::normalize(average / (float)tangentCount);
 	}
 
 

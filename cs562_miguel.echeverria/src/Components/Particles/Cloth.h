@@ -54,6 +54,7 @@ namespace cs460
 		void initialize_stretch_constraints();
 
 		glm::vec3 get_averaged_normal(int row, int col);
+		glm::vec3 get_averaged_tangent(int row, int col);
 
 		void setup_uniforms();
 

@@ -1,3 +1,12 @@
+/**
+* @file FABRIK3DSolver.cpp
+* @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
+* @date 2020/04/12
+* @brief Solves ik problems in 3d using the Forwards And Backwards Reaching IK method.
+*
+* @copyright Copyright (C) 2020 DigiPen Institute of Technology .
+*/
+
 #include "pch.h"
 #include "FABRIK3DSolver.h"
 #include "Composition/SceneNode.h"

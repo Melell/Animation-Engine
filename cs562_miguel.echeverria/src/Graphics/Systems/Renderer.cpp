@@ -20,6 +20,7 @@
 #include "Animation/PiecewiseCurveMgr.h"
 #include "Math/Geometry/Geometry.h"
 #include "Math/Geometry/IntersectionTests.h"
+#include "Animation/ParticleSimulations/ClothMgr.h"
 #include <GL/glew.h>
 
 
@@ -84,7 +85,7 @@ namespace cs460
 		// Draw the skybox last if active
 		m_skybox->render();
 
-		// Debug draw all skeletons
+		// Debug draw all systems that require debug drawing
 		glDisable(GL_DEPTH_TEST);
 		DebugRenderer::draw_all_skeletons(DebugRenderer::s_boneColor, DebugRenderer::s_jointColor, DebugRenderer::s_jointSize);
 		PiecewiseCurveMgr::get_instance().debug_draw();
@@ -93,6 +94,7 @@ namespace cs460
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
 		DebugRenderer::draw_grid(DebugRenderer::s_xGridSize, DebugRenderer::s_zGridSize, DebugRenderer::s_xSubdivisions, DebugRenderer::s_zSubdivisions);
+		ClothMgr::get_instance().debug_draw();
 		glEnable(GL_CULL_FACE);
 	}
 

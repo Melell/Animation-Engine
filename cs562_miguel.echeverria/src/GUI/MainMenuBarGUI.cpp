@@ -31,6 +31,8 @@
 #include "Animation/InverseKinematics/IKChain.h"
 #include "Animation/InverseKinematics/Analytic2Bone2DSolver.h"
 #include "Components/Animation/IKChainRoot.h"
+#include "Graphics/Rendering/Skybox.h"
+#include "Components/Particles/Cloth.h"
 
 
 
@@ -92,21 +94,25 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::BLEND_EDITOR_2D;
 				}
-				if (ImGui::MenuItem("IK ANALYTIC 2D"))
+				if (ImGui::MenuItem("IK Analytic 2D"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_ANALYTICAL_2D;
 				}
-				if (ImGui::MenuItem("IK CCD 3D"))
+				if (ImGui::MenuItem("IK Ccd 3D"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_CCD_3D;
 				}
-				if (ImGui::MenuItem("IK FABRIK 3D"))
+				if (ImGui::MenuItem("IK Fabrik 3D"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_FABRIK_3D;
 				}
-				if (ImGui::MenuItem("IK ON SKELETON"))
+				if (ImGui::MenuItem("IK On Skeleton"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_ON_SKELETON;
+				}
+				if (ImGui::MenuItem("CLOTH SIMULATION"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::CLOTH_SIMULATION;
 				}
 				
 
@@ -250,6 +256,8 @@ namespace cs460
 			load_ik_fabrik_3d_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::IK_ON_SKELETON)
 			load_ik_on_skeleton_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::CLOTH_SIMULATION)
+			load_cloth_simulation_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -1097,5 +1105,40 @@ namespace cs460
 		// Make the target the selected node in the editor
 		EditorState& editorState = EditorState::get_main_editor_state();
 		editorState.m_selectedNode = target;
+	}
+
+
+	void MainMenuBarGUI::load_cloth_simulation_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		Renderer::get_instance().get_skybox()->set_active(false);
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		DebugRenderer::s_enableSkeletonDrawing = true;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+
+		// Place the camera
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		editorCam->set_position(glm::vec3(0.0f, 0.0f, 10.0f));
+		editorCam->set_target(glm::vec3(0.0f, 0.0f, -15.0f));
+
+
+		// Place the object with the cloth
+		SceneNode* clothNode = root->create_child("CLOTH");
+		Cloth* clothComp = clothNode->add_component<Cloth>();
+		clothComp->initialize();
+
+
+		// Make the cloth node the selected one in the editor
+		EditorState& editorState = EditorState::get_main_editor_state();
+		editorState.m_selectedNode = clothNode;
 	}
 }

@@ -200,4 +200,10 @@ namespace cs460
 	{
 		return m_cube;
 	}
+
+	// Get the plane geometry
+	Plane& ResourceManager::get_plane()
+	{
+		return m_plane;
+	}
 }

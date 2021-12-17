@@ -21,6 +21,7 @@
 #include "Composition/Factory.h"
 #include "Gameplay/Systems/ScriptMgr.h"
 #include "Cameras/ICamera.h"
+#include "Animation/ParticleSimulations/ClothMgr.h"
 
 
 namespace cs460
@@ -78,6 +79,7 @@ namespace cs460
 		PiecewiseCurveMgr& curveMgr = PiecewiseCurveMgr::get_instance();
 		InputMgr& inputMgr = InputMgr::get_instance();
 		ScriptMgr& scriptMgr = ScriptMgr::get_instance();
+		ClothMgr& clothMgr = ClothMgr::get_instance();
 
 		
 		// Loop until the user closes the window
@@ -97,6 +99,9 @@ namespace cs460
 
 			// Update all the piecewise curves
 			curveMgr.update();
+
+			// Update all the cloths
+			clothMgr.update();
 
 			// Update the animations and joint matrices
 			animator.update();

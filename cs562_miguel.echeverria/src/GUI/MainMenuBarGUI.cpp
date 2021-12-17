@@ -114,6 +114,10 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::CLOTH_SIMULATION;
 				}
+				if (ImGui::MenuItem("CLOTH COLLISION"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::CLOTH_COLLISION;
+				}
 				
 
 				ImGui::EndMenu();
@@ -196,7 +200,7 @@ namespace cs460
 					ImGui::EndMenu();
 				}
 
-				if (ImGui::BeginMenu("IK CHAIN"))
+				if (ImGui::BeginMenu("IK Chain"))
 				{
 					ImGui::Checkbox("Enable Drawing", &DebugRenderer::s_enableIKChainDrawing);
 					ImGui::ColorEdit4("Bone Success Color", glm::value_ptr(DebugRenderer::s_ikBoneColorSuccess));
@@ -204,6 +208,15 @@ namespace cs460
 					ImGui::ColorEdit4("Bone Idle Color", glm::value_ptr(DebugRenderer::s_ikBoneColorIdle));
 					ImGui::ColorEdit4("Bone Processing Color", glm::value_ptr(DebugRenderer::s_ikBoneColorProcessing));
 					ImGui::ColorEdit4("Bone Highlight Color", glm::value_ptr(DebugRenderer::s_ikBoneHighlightColor));
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("CLOTH"))
+				{
+					ImGui::Text("Cloth Draw Mode");
+					ImGui::RadioButton("Debug Drawing", &DebugRenderer::s_clothDrawingMode, 0);
+					ImGui::SameLine();
+					ImGui::RadioButton("Normal Mapped Texture", &DebugRenderer::s_clothDrawingMode, 1);
 					ImGui::EndMenu();
 				}
 
@@ -258,6 +271,8 @@ namespace cs460
 			load_ik_on_skeleton_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::CLOTH_SIMULATION)
 			load_cloth_simulation_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::CLOTH_COLLISION)
+			load_cloth_collision_scene();
 
 		m_sceneToLoad = SCENE_TO_LOAD::NONE;
 	}
@@ -1143,5 +1158,49 @@ namespace cs460
 		// Make the cloth node the selected one in the editor
 		//EditorState& editorState = EditorState::get_main_editor_state();
 		//editorState.m_selectedNode = clothNode;
+	}
+
+
+	void MainMenuBarGUI::load_cloth_collision_scene()
+	{
+		// Clear the scene
+		load_empty_scene();
+
+		Renderer::get_instance().get_skybox()->set_active(false);
+
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+		Scene& scene = Scene::get_instance();
+		scene.m_lightProperties.m_direction = glm::vec3(0.0f, 0.0f, -1.0f);
+		SceneNode* root = scene.get_root();
+
+		DebugRenderer::s_enableGridDrawing = false;
+		DebugRenderer::s_enableSkeletonDrawing = true;
+		scene.change_camera(true);
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+
+		// Place the camera
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		editorCam->set_position(glm::vec3(0.0f, 0.0f, 10.0f));
+		editorCam->set_target(glm::vec3(0.0f, 0.0f, -15.0f));
+
+
+		// Place the sphere to check collision against
+		SceneNode* sphereNode = root->create_child("Sphere");
+		ModelInstance* modelComp = sphereNode->add_component<ModelInstance>();
+		modelComp->change_model("data/Models/Sphere/Sphere.gltf");
+		sphereNode->m_localTr.m_position = glm::vec3(1.6f, -2.5f, 0.0f);
+		sphereNode->m_localTr.m_scale = glm::vec3(0.7f, 0.7f, 0.7f);
+
+		// Place the object with the cloth
+		SceneNode* clothNode = root->create_child("CLOTH");
+		Cloth* clothComp = clothNode->add_component<Cloth>();
+		clothComp->initialize(sphereNode->get_children().front());
+		clothComp->get_system().m_constraintIterations = 20;
+
+
+		// Make the cloth node the selected one in the editor
+		EditorState& editorState = EditorState::get_main_editor_state();
+		editorState.m_selectedNode = sphereNode;
 	}
 }

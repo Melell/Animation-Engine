@@ -71,6 +71,9 @@ namespace cs460
 	glm::vec4 DebugRenderer::s_ikTargetColor{ 0.0f, 0.9f, 0.3f, 1.0f };
 
 
+	int DebugRenderer::s_clothDrawingMode = 1;
+
+
 	// TODO: Make this more efficient by saving the meshes
 
 	void DebugRenderer::draw_point(const glm::vec3& position, const glm::vec4& color, float pointSize)

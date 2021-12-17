@@ -93,5 +93,8 @@ namespace cs460
 		static glm::vec4 s_ikBoneHighlightColor;	// IKChain
 		static glm::vec4 s_ikJointColor;			// IKChain
 		static glm::vec4 s_ikTargetColor;			// IKChain
+
+
+		static int s_clothDrawingMode;				// Cloth
 	};
 }

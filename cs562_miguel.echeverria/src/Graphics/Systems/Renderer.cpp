@@ -94,8 +94,10 @@ namespace cs460
 		glDisable(GL_CULL_FACE);
 		debug_draw_bvs();
 		DebugRenderer::draw_grid(DebugRenderer::s_xGridSize, DebugRenderer::s_zGridSize, DebugRenderer::s_xSubdivisions, DebugRenderer::s_zSubdivisions);
-		//ClothMgr::get_instance().debug_draw();
-		ClothMgr::get_instance().draw_textured();
+		if (DebugRenderer::s_clothDrawingMode == 0)
+			ClothMgr::get_instance().debug_draw();
+		else if (DebugRenderer::s_clothDrawingMode == 1)
+			ClothMgr::get_instance().draw_textured();
 		glEnable(GL_CULL_FACE);
 	}
 

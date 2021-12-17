@@ -13,7 +13,7 @@
 
 namespace cs460
 {
-	const unsigned MAX_PARTICLES = 288;
+	const unsigned MAX_PARTICLES = 1024;
 
 	struct IConstraint;
 
@@ -23,7 +23,8 @@ namespace cs460
 		glm::vec3 m_pos{0.0f, 0.0f, 0.0f};
 		glm::vec3 m_oldPos{0.0f, 0.0f, 0.0f};
 		glm::vec3 m_acceleration{0.0f, 0.0f, 0.0f};
-		glm::vec2 m_uv{ 0.0f, 0.0f };				// Optional: Used by cloth
+		glm::vec2 m_uv{ 0.0f, 0.0f };					// Optional: Used by cloth
+		glm::vec3 m_normal{0.0f, 1.0f, 0.0f};			// Useful to store it here as it will be used by the wind
 		bool m_canMove = true;
 
 
@@ -38,6 +39,7 @@ namespace cs460
 		glm::vec3 m_wind{ 0.0f, 0.0f, 1.0f };
 		float m_drag = 0.997f;
 		unsigned m_particlesInUse = 5 * 10;
+
 		unsigned m_constraintIterations = 1;
 		const float m_fixedDt = 1.0f / 60.0f;
 		std::vector<IConstraint*> m_constraints;

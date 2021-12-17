@@ -15,6 +15,7 @@
 namespace cs460
 {
 	struct VerletParticleSystem;
+	class SceneNode;
 
 
 	struct RestLengthConstraint : public IConstraint
@@ -23,6 +24,16 @@ namespace cs460
 		unsigned m_part0 = 0;
 		unsigned m_part1 = 1;
 		float m_restLength = 1.0f;
+
+		void solve(VerletParticleSystem* system) override;
+	};
+
+
+	struct SphereCollisionConstraint : public IConstraint
+	{
+		// The particle and sphere that will check collision against each other
+		unsigned m_part = 0;
+		SceneNode* m_sphere;
 
 		void solve(VerletParticleSystem* system) override;
 	};

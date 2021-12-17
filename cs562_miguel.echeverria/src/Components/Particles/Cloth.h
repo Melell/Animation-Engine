@@ -23,10 +23,10 @@ namespace cs460
 		Cloth();
 		virtual ~Cloth();
 
-		void initialize();		// Initialize the particles as well as the constraints
-		void update();			// Update the particle system (verlet integration, constraints satisfaction etc)
-		void debug_draw();		// Debug draws this cloth
-		void draw_textured();	// Draw with a texture (currently hardcoded)
+		void initialize(SceneNode* sphere = nullptr);		// Initialize the particles as well as the constraints
+		void update();										// Update the particle system (verlet integration, constraints satisfaction etc)
+		void debug_draw();									// Debug draws this cloth
+		void draw_textured();								// Draw with a texture (currently hardcoded)
 
 		// Getters for number of particles in width and height
 		unsigned get_width() const;
@@ -47,11 +47,19 @@ namespace cs460
 		Texture2D m_diffuse;
 		Texture2D m_normalMap;
 
+		glm::vec3 m_windDir{0.0f, 0.0f, 1.0f};
+		float m_windScale = 1.0f;
+
 		void initialize_particle_grid();
 		void initialize_uvs();
 		void initialize_render_data();
 		void initialize_texture_data();
+		void initialize_all_constraints(SceneNode* sphere);
+		void initialize_sphere_collision_constraints(SceneNode* sphere);
 		void initialize_stretch_constraints();
+
+		// Update the average normals of each particle
+		void update_normals();
 
 		glm::vec3 get_averaged_normal(int row, int col);
 		glm::vec3 get_averaged_tangent(int row, int col);

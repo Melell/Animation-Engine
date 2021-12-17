@@ -44,7 +44,7 @@ namespace cs460
 
 
 	// Initialize the particles as well as the constraints
-	void Cloth::initialize()
+	void Cloth::initialize(SceneNode* sphere)
 	{
 		// Initialize the positions of the particles (as well as the dimensions)
 		initialize_particle_grid();
@@ -59,13 +59,14 @@ namespace cs460
 		initialize_texture_data();
 
 		// Add the constraints
-		initialize_stretch_constraints();
+		initialize_all_constraints(sphere);
 	}
 
 	// Update the particle system (verlet integration, constraints satisfaction etc)
 	void Cloth::update()
 	{
 		m_system.update();
+		update_normals();
 	}
 
 	// Debug draws this cloth
@@ -131,13 +132,16 @@ namespace cs460
 				unsigned currIdx = idx(r, c);
 				unsigned nextIdx = idx(r + 1, c);
 
+				VerletParticle& currPart = m_system.m_particles[currIdx];
+				VerletParticle& nextPart = m_system.m_particles[nextIdx];
+
 				// Gather the position data from the particles
-				pos.push_back(m_system.m_particles[currIdx].m_pos);
-				pos.push_back(m_system.m_particles[nextIdx].m_pos);
+				pos.push_back(currPart.m_pos);
+				pos.push_back(nextPart.m_pos);
 
 				// Gather the averaged normals from the particles
-				normals.push_back(get_averaged_normal(r, c));
-				normals.push_back(get_averaged_normal(r + 1, c));
+				normals.push_back(currPart.m_normal);//get_averaged_normal(r, c));
+				normals.push_back(nextPart.m_normal);//get_averaged_normal(r + 1, c));
 
 				// Gather the averaged tangents from the particles
 				tangents.push_back(get_averaged_tangent(r, c));
@@ -188,8 +192,8 @@ namespace cs460
 	void Cloth::initialize_particle_grid()
 	{
 		// Initialize the dimensions of the grid
-		m_width = 18;
-		m_height = 16;
+		m_width = 16;
+		m_height = 18;
 		m_system.m_particlesInUse = m_width * m_height;
 
 		float restLength = 0.2f;
@@ -262,17 +266,22 @@ namespace cs460
 				unsigned currIdx = idx(r, c);
 				unsigned nextIdx = idx(r + 1, c);
 
+				VerletParticle& currPart = m_system.m_particles[currIdx];
+				VerletParticle& nextPart = m_system.m_particles[nextIdx];
+
 				// Gather the position data from the particles
-				pos.push_back(m_system.m_particles[currIdx].m_pos);
-				pos.push_back(m_system.m_particles[nextIdx].m_pos);
+				pos.push_back(currPart.m_pos);
+				pos.push_back(nextPart.m_pos);
 
 				// Gather the averaged normals from the particles
-				normals.push_back(get_averaged_normal(r, c));
-				normals.push_back(get_averaged_normal(r + 1, c));
+				currPart.m_normal = get_averaged_normal(r, c);
+				nextPart.m_normal = get_averaged_normal(r + 1, c);
+				normals.push_back(currPart.m_normal);
+				normals.push_back(nextPart.m_normal);
 
 				// Gather the uv data from the particles
-				uvs.push_back(m_system.m_particles[currIdx].m_uv);
-				uvs.push_back(m_system.m_particles[nextIdx].m_uv);
+				uvs.push_back(currPart.m_uv);
+				uvs.push_back(nextPart.m_uv);
 
 				// Gather the averaged tangents from the particles
 				tangents.push_back(get_averaged_tangent(r, c));
@@ -343,6 +352,29 @@ namespace cs460
 	}
 
 
+	void Cloth::initialize_all_constraints(SceneNode* sphere)
+	{
+		initialize_sphere_collision_constraints(sphere);
+		initialize_stretch_constraints();
+	}
+
+	void Cloth::initialize_sphere_collision_constraints(SceneNode* sphere)
+	{
+		if (sphere == nullptr)
+			return;
+
+		// For each particle in use
+		for (unsigned i = 0; i < m_system.m_particlesInUse; ++i)
+		{
+			// Create the constraint, set its parameters, and add it
+			SphereCollisionConstraint* constraint = new SphereCollisionConstraint;
+			constraint->m_part = i;
+			constraint->m_sphere = sphere;
+			m_system.m_constraints.push_back(constraint);
+		}
+	}
+
+
 	// Add all the strech constraints (horizontal and vertical links)
 	void Cloth::initialize_stretch_constraints()
 	{
@@ -385,6 +417,19 @@ namespace cs460
 				constraint->m_part1 = nextIdx;
 				constraint->m_restLength = glm::length(part1.m_pos - part0.m_pos);
 				m_system.m_constraints.push_back(constraint);
+			}
+		}
+	}
+
+
+	// Update the average normals of each particle
+	void Cloth::update_normals()
+	{
+		for (int r = 0; r < m_height; ++r)
+		{
+			for (int c = 0; c < m_width; ++c)
+			{
+				m_system.m_particles[idx(r, c)].m_normal = get_averaged_normal(r, c);
 			}
 		}
 	}
@@ -514,6 +559,14 @@ namespace cs460
 
 	void Cloth::on_gui()
 	{
+		// Wind parameters
+		if (ImGui::InputFloat3("Wind Direction", glm::value_ptr(m_windDir), "%.2f"))
+		{
+			if (glm::epsilonNotEqual(glm::length(m_windDir), 0.0f, FLT_EPSILON))
+				m_windDir = glm::normalize(m_windDir);
+		}
+		ImGui::SliderFloat("Wind Scale", &m_windScale, 0.0f, 20.0f, "%.2f");
+		m_system.m_wind = m_windDir * m_windScale;
 	}
 
 

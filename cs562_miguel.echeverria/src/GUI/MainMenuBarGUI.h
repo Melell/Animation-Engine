@@ -33,7 +33,8 @@ namespace cs460
 		IK_CCD_3D,
 		IK_FABRIK_3D,
 		IK_ON_SKELETON,
-		CLOTH_SIMULATION
+		CLOTH_SIMULATION,
+		CLOTH_COLLISION
 	};
 
 
@@ -70,6 +71,7 @@ namespace cs460
 		void load_ik_fabrik_3d_scene();
 		void load_ik_on_skeleton_scene();
 		void load_cloth_simulation_scene();
+		void load_cloth_collision_scene();
 
 
 		MainMenuBarGUI();

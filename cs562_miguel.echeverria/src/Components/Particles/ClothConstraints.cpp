@@ -10,6 +10,7 @@
 #include "pch.h"
 #include "ClothConstraints.h"
 #include "Animation/ParticleSimulations/VerletParticleSystem.h"
+#include "Composition/SceneNode.h"
 
 
 namespace cs460
@@ -40,6 +41,23 @@ namespace cs460
 		else if (part1.m_canMove)
 		{
 			part1.m_pos -= delta * diff;
+		}
+	}
+
+
+	void SphereCollisionConstraint::solve(VerletParticleSystem* system)
+	{
+		if (system == nullptr)
+			return;
+
+		VerletParticle& particle = system->m_particles[m_part];
+
+		// "Clamp" the particle against the sphere
+		glm::vec3 dir = particle.m_pos - m_sphere->m_worldTr.m_position;
+		if (glm::length2(dir) <= m_sphere->m_worldTr.m_scale.x * m_sphere->m_worldTr.m_scale.x)
+		{
+			float offset = 0.0f;
+			particle.m_pos = m_sphere->m_worldTr.m_position + glm::normalize(dir) * (m_sphere->m_worldTr.m_scale.x + offset);
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace cs460
 	void VerletParticleSystem::update()
 	{
 		add_gravity();
-		//add_wind();
+		add_wind();
 		verlet_integration();
 		solve_constraints();
 		clear_forces();
@@ -42,8 +42,17 @@ namespace cs460
 	// Add the wind force to each particle in use
 	void VerletParticleSystem::add_wind()
 	{
+		if (glm::epsilonEqual(glm::length(m_wind), 0.0f, FLT_EPSILON))
+			return;
+
 		for (unsigned i = 0; i < m_particlesInUse; ++i)
-			m_particles[i].add_force(m_wind);
+		{
+			float windScale = glm::length(m_wind);
+			const glm::vec3& windDir = glm::normalize(m_wind);
+			float windFactor = glm::dot(m_particles[i].m_normal, windDir);
+			const glm::vec3 finalWind = m_particles[i].m_normal * windScale * windFactor;
+			m_particles[i].add_force(finalWind);
+		}
 	}
 
 

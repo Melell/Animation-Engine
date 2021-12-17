@@ -202,8 +202,8 @@ namespace cs460
 	}
 
 	// Get the plane geometry
-	Plane& ResourceManager::get_plane()
-	{
-		return m_plane;
-	}
+	//Plane& ResourceManager::get_plane()
+	//{
+	//	return m_plane;
+	//}
 }

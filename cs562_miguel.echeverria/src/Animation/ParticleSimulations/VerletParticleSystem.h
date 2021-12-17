@@ -13,7 +13,7 @@
 
 namespace cs460
 {
-	const unsigned MAX_PARTICLES = 2048;
+	const unsigned MAX_PARTICLES = 288;
 
 	struct IConstraint;
 
@@ -40,7 +40,7 @@ namespace cs460
 		unsigned m_particlesInUse = 5 * 10;
 		unsigned m_constraintIterations = 1;
 		const float m_fixedDt = 1.0f / 60.0f;
-		std::vector<RestLengthConstraint*> m_constraints;
+		std::vector<IConstraint*> m_constraints;
 
 		void update();
 

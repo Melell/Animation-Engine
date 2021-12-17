@@ -267,12 +267,14 @@ namespace cs460
 	{
 		Scene& scene = Scene::get_instance();
 		scene.clear();
+		scene.m_lightProperties.m_direction = glm::vec3(-1.0f, -1.0f, -1.0f);
 		Editor::get_instance().get_state().m_selectedNode = nullptr;
 
 		DebugRenderer::s_enableGridDrawing = false;
 		DebugRenderer::s_enableSkeletonDrawing = false;
 		scene.change_camera(true);
 		scene.get_active_camera()->set_is_active(true);
+		Renderer::get_instance().get_skybox()->set_active(true);
 	}
 
 	void MainMenuBarGUI::load_linear_curve_scene()
@@ -1117,6 +1119,7 @@ namespace cs460
 
 		ResourceManager& resourceMgr = ResourceManager::get_instance();
 		Scene& scene = Scene::get_instance();
+		scene.m_lightProperties.m_direction = glm::vec3(0.0f, 0.0f, -1.0f);
 		SceneNode* root = scene.get_root();
 
 		DebugRenderer::s_enableGridDrawing = false;
@@ -1138,7 +1141,7 @@ namespace cs460
 
 
 		// Make the cloth node the selected one in the editor
-		EditorState& editorState = EditorState::get_main_editor_state();
-		editorState.m_selectedNode = clothNode;
+		//EditorState& editorState = EditorState::get_main_editor_state();
+		//editorState.m_selectedNode = clothNode;
 	}
 }

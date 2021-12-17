@@ -43,6 +43,13 @@ namespace cs460
 			cloth->debug_draw();
 	}
 
+	// Draws all the cloths with a texture
+	void ClothMgr::draw_textured()
+	{
+		for (Cloth* cloth : m_cloths)
+			cloth->draw_textured();
+	}
+
 
 	void ClothMgr::add_cloth(Cloth* cloth)
 	{

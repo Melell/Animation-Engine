@@ -14,6 +14,11 @@
 #include "Graphics/Systems/DebugRenderer.h"
 #include "Math/Geometry/Geometry.h"
 #include "Resources/ResourceManager.h"
+#include "Graphics/Rendering/Shader.h"
+#include "Composition/Scene.h"
+#include "Cameras/ICamera.h"
+#include "Utilities/ImageProcessing.h"
+#include <GL/glew.h>
 
 
 namespace cs460
@@ -32,6 +37,8 @@ namespace cs460
 			m_system.m_constraints[i] = nullptr;
 		}
 
+		delete_gl_buffers();
+
 		ClothMgr::get_instance().remove_cloth(this);
 	}
 
@@ -44,6 +51,12 @@ namespace cs460
 
 		// Initialize the uv coordinates of each particle
 		initialize_uvs();
+
+		// Initialize all the buffers for rendering
+		initialize_render_data();
+
+		// Initialize the diffuse texture
+		initialize_texture_data();
 
 		// Add the constraints
 		initialize_stretch_constraints();
@@ -102,12 +115,76 @@ namespace cs460
 	// Draw with a texture (currently hardcoded)
 	void Cloth::draw_textured()
 	{
-		ResourceManager& resourceMgr = ResourceManager::get_instance();
-		Plane& plane = resourceMgr.get_plane();
+		setup_uniforms();
 
-		plane.bind_diffuse();
-		plane.bind_normal();
-		plane.bind_geometry();
+		std::vector<glm::vec3> pos;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec3> tangents;
+
+		// Update the render data (positions and normals)
+		for (unsigned r = 0; r < m_height - 1; ++r)
+		{
+			glBindVertexArray(m_vaos[r]);
+
+			for (unsigned c = 0; c < m_width; ++c)
+			{
+				unsigned currIdx = idx(r, c);
+				unsigned nextIdx = idx(r + 1, c);
+
+				// Gather the position data from the particles
+				pos.push_back(m_system.m_particles[currIdx].m_pos);
+				pos.push_back(m_system.m_particles[nextIdx].m_pos);
+
+				// Gather the averaged normals from the particles
+				normals.push_back(get_averaged_normal(r, c));
+				normals.push_back(get_averaged_normal(r + 1, c));
+
+				// Compute the current tangent vectors
+				bool negateTangent = false;
+				unsigned nextC = c + 1;
+				if (c + 1 >= m_width)
+				{
+					nextC = c - 1;
+					negateTangent = true;
+				}
+
+				unsigned nextXIdxBot = idx(r, nextC);
+				unsigned nextXIdxTop = idx(r + 1, nextC);
+
+				glm::vec3 currTangent = glm::normalize(m_system.m_particles[nextXIdxBot].m_pos - m_system.m_particles[currIdx].m_pos);
+				glm::vec3 nextTangent = glm::normalize(m_system.m_particles[nextXIdxTop].m_pos - m_system.m_particles[nextIdx].m_pos);
+				if (negateTangent)
+				{
+					currTangent *= -1.0f;
+					nextTangent *= -1.0f;
+				}
+
+				// Gather the tangents data from the particles
+				tangents.push_back(currTangent);
+				tangents.push_back(nextTangent);
+			}
+
+			// Update the position data
+			glBindBuffer(GL_ARRAY_BUFFER, m_posVbos[r]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, pos.size() * sizeof(glm::vec3), pos.data());
+
+			// Update the normals data
+			glBindBuffer(GL_ARRAY_BUFFER, m_normalVbos[r]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, normals.size() * sizeof(glm::vec3), normals.data());
+
+			// Update the tangents data
+			glBindBuffer(GL_ARRAY_BUFFER, m_tangentVbos[r]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, tangents.size() * sizeof(glm::vec3), tangents.data());
+
+			// Draw the current triangle strip
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, pos.size());
+
+			pos.clear();
+			normals.clear();
+			tangents.clear();
+
+			glBindVertexArray(0);
+		}
 	}
 
 
@@ -131,8 +208,8 @@ namespace cs460
 	void Cloth::initialize_particle_grid()
 	{
 		// Initialize the dimensions of the grid
-		m_width = 15;
-		m_height = 24;
+		m_width = 18;
+		m_height = 16;
 		m_system.m_particlesInUse = m_width * m_height;
 
 		float restLength = 0.2f;
@@ -148,16 +225,21 @@ namespace cs460
 		}
 
 		// Set the particles of the top row as not movable
-		for (unsigned c = 0; c < m_width; ++c)
-			m_system.m_particles[c].m_canMove = false; //.m_invMass = 0.0f;
+		//for (unsigned c = 0; c < m_width; ++c)
+		//	m_system.m_particles[c].m_canMove = false; //.m_invMass = 0.0f;
+		m_system.m_particles[0].m_canMove = false;
+		m_system.m_particles[m_width - 1].m_canMove = false;
 	}
 
 
 	void Cloth::initialize_uvs()
 	{
-		float xUVOffset = 1.0f / (float)m_width;
-		float yUVOffset = 1.0f / (float)m_height;
+		float xTiling = 1.0f;
+		float yTiling = 1.0f;
 
+		float xUVOffset = 1.0f / ((float)m_width * xTiling);
+		float yUVOffset = 1.0f / ((float)m_height * yTiling);
+		
 		for (unsigned r = 0; r < m_height; ++r)
 		{
 			for (unsigned c = 0; c < m_width; ++c)
@@ -166,6 +248,139 @@ namespace cs460
 				part.m_uv = glm::vec2((float)c * xUVOffset, (float)r * yUVOffset);
 			}
 		}
+	}
+
+
+	void Cloth::initialize_render_data()
+	{
+		m_vaos.resize(m_height - 1);
+		m_posVbos.resize(m_height - 1);
+		m_normalVbos.resize(m_height - 1);
+		m_texCoordsVbos.resize(m_height - 1);
+		m_tangentVbos.resize(m_height - 1);
+
+		// Generate the buffers for each triangle strip
+		glGenVertexArrays(m_height - 1, m_vaos.data());
+		glGenBuffers(m_height - 1, m_posVbos.data());
+		glGenBuffers(m_height - 1, m_normalVbos.data());
+		glGenBuffers(m_height - 1, m_texCoordsVbos.data());
+		glGenBuffers(m_height - 1, m_tangentVbos.data());
+
+		std::vector<glm::vec3> pos;
+		std::vector<glm::vec3> normals;
+		std::vector<glm::vec2> uvs;
+		std::vector<glm::vec3> tangents;
+		
+
+		// Upload the position, normals and uvs' data
+		for (unsigned r = 0; r < m_height - 1; ++r)
+		{
+			glBindVertexArray(m_vaos[r]);
+
+			for (unsigned c = 0; c < m_width; ++c)
+			{
+				unsigned currIdx = idx(r, c);
+				unsigned nextIdx = idx(r + 1, c);
+
+				// Gather the position data from the particles
+				pos.push_back(m_system.m_particles[currIdx].m_pos);
+				pos.push_back(m_system.m_particles[nextIdx].m_pos);
+
+				// Gather the averaged normals from the particles
+				normals.push_back(get_averaged_normal(r, c));
+				normals.push_back(get_averaged_normal(r + 1, c));
+
+				// Gather the uv data from the particles
+				uvs.push_back(m_system.m_particles[currIdx].m_uv);
+				uvs.push_back(m_system.m_particles[nextIdx].m_uv);
+
+
+				// Compute the current tangent vectors
+				bool negateTangent = false;
+				unsigned nextC = c + 1;
+				if (c + 1 >= m_width)
+				{
+					nextC = c - 1;
+					negateTangent = true;
+				}
+
+				unsigned nextXIdxBot = idx(r, nextC);
+				unsigned nextXIdxTop = idx(r + 1, nextC);
+
+				glm::vec3 currTangent = glm::normalize(m_system.m_particles[nextXIdxBot].m_pos - m_system.m_particles[currIdx].m_pos);
+				glm::vec3 nextTangent = glm::normalize(m_system.m_particles[nextXIdxTop].m_pos - m_system.m_particles[nextIdx].m_pos);
+				if (negateTangent)
+				{
+					currTangent *= -1.0f;
+					nextTangent *= -1.0f;
+				}
+
+				// Gather the tangents data from the particles
+				tangents.push_back(currTangent);
+				tangents.push_back(nextTangent);
+			}
+
+			// Upload the position data
+			glBindBuffer(GL_ARRAY_BUFFER, m_posVbos[r]);
+			glBufferData(GL_ARRAY_BUFFER, pos.size() * sizeof(glm::vec3), pos.data(), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+			// Upload the normals data
+			glBindBuffer(GL_ARRAY_BUFFER, m_normalVbos[r]);
+			glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), normals.data(), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+			// Upload the texture coordinates' data
+			glBindBuffer(GL_ARRAY_BUFFER, m_texCoordsVbos[r]);
+			glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), uvs.data(), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+
+			// Upload the tangents data
+			glBindBuffer(GL_ARRAY_BUFFER, m_tangentVbos[r]);
+			glBufferData(GL_ARRAY_BUFFER, tangents.size() * sizeof(glm::vec3), tangents.data(), GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(3);
+			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+			pos.clear();
+			normals.clear();
+			uvs.clear();
+			tangents.clear();
+
+			glBindVertexArray(0);
+		}
+	}
+
+
+	void Cloth::initialize_texture_data()
+	{
+		// Set the texture units for diffuse and normal
+		m_diffuse.set_texture_unit(0);
+		m_normalMap.set_texture_unit(1);
+
+		TextureInformation diffuseInfo;
+		TextureInformation normalInfo;
+
+		// Load both textures
+		int channelsInFile = 1;
+		unsigned char* diffuseData = load_image("data/Textures/Cloth/RippedCloth/RippedCloth_Albedo.png", diffuseInfo.m_width, diffuseInfo.m_height, channelsInFile, 4);
+		unsigned char* normalData = load_image("data/Textures/Cloth/RippedCloth/RippedCloth_Normal.png", normalInfo.m_width, normalInfo.m_height, channelsInFile, 4);
+
+
+		// Bind the diffuse texture
+		m_diffuse.bind();
+
+		// Upload the diffuse texture data
+		m_diffuse.upload_data(diffuseData, diffuseInfo);
+
+
+		// Bind the normal texture
+		m_normalMap.bind();
+
+		// Upload the normal texture data
+		m_normalMap.upload_data(normalData, normalInfo);
 	}
 
 
@@ -213,6 +428,97 @@ namespace cs460
 				m_system.m_constraints.push_back(constraint);
 			}
 		}
+	}
+
+
+	glm::vec3 Cloth::get_averaged_normal(int row, int col)
+	{
+		unsigned normalCount = 0;
+		glm::vec3 average(0.0f, 0.0f, 0.0f);
+
+		// First quadrant
+		if (col - 1 >= 0 && row - 1 >= 0)
+		{
+			VerletParticle& left = m_system.m_particles[idx(row, col - 1)];
+			VerletParticle& top = m_system.m_particles[idx(row - 1, col)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+
+			average += glm::cross(top.m_pos - curr.m_pos, left.m_pos - curr.m_pos);
+			++normalCount;
+		}
+
+		// Second quadrant
+		if (col + 1 < (int)m_width && row - 1 >= 0)
+		{
+			VerletParticle& right = m_system.m_particles[idx(row, col + 1)];
+			VerletParticle& top = m_system.m_particles[idx(row - 1, col)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+
+			average += glm::cross(right.m_pos - curr.m_pos, top.m_pos - curr.m_pos);
+			++normalCount;
+		}
+
+		// Third quadrant
+		if (col - 1 >= 0 && row + 1 < (int)m_height)
+		{
+			VerletParticle& left = m_system.m_particles[idx(row, col - 1)];
+			VerletParticle& bottom = m_system.m_particles[idx(row + 1, col)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+
+			average += glm::cross(left.m_pos - curr.m_pos, bottom.m_pos - curr.m_pos);
+			++normalCount;
+		}
+
+		// Fourth quadrant
+		if (col + 1 < (int)m_width && row + 1 < (int)m_height)
+		{
+			VerletParticle& right = m_system.m_particles[idx(row, col + 1)];
+			VerletParticle& bottom = m_system.m_particles[idx(row + 1, col)];
+			VerletParticle& curr = m_system.m_particles[idx(row, col)];
+
+			average += glm::cross(bottom.m_pos - curr.m_pos, right.m_pos - curr.m_pos);
+			++normalCount;
+		}
+
+		return glm::normalize(average / (float)normalCount);
+	}
+
+
+	void Cloth::setup_uniforms()
+	{
+		ResourceManager& resourceMgr = ResourceManager::get_instance();
+
+		// Shader and uniform setup
+		Shader* shader = resourceMgr.get_shader("phong_normal_map");
+		shader->use();
+		shader->set_uniform("mat.m_diffuse", m_diffuse.get_texture_unit());
+		shader->set_uniform("mat.m_normalMap", m_normalMap.get_texture_unit());
+		shader->set_uniform("mat.m_shininess", 8.0f);
+		shader->set_uniform("normalColorScale", 1.0f);
+		shader->set_uniform("useSkinning", false);
+		
+		Scene& scene = Scene::get_instance();
+		ICamera* cam = scene.get_active_camera();
+		shader->set_uniform("camPosWorldSpace", cam->get_position());
+		shader->set_uniform("worldToView", cam->get_view_mtx());
+		shader->set_uniform("perspectiveProj", cam->get_projection_mtx());
+		shader->set_uniform("modelToWorld", glm::mat4(1.0f));
+		shader->set_uniform("normalViewMtx", glm::transpose(glm::inverse(glm::mat3(cam->get_view_mtx() * glm::mat4(1.0f)))));
+		
+		// Set the light properties
+		shader->set_uniform("light.m_direction", scene.m_lightProperties.m_direction);
+		shader->set_uniform("light.m_ambient", scene.m_lightProperties.m_ambient);
+		shader->set_uniform("light.m_diffuse", scene.m_lightProperties.m_diffuse);
+		shader->set_uniform("light.m_specular", scene.m_lightProperties.m_specular);
+	}
+
+
+	void Cloth::delete_gl_buffers()
+	{
+		glDeleteVertexArrays(m_vaos.size(), m_vaos.data());
+		glDeleteBuffers(m_posVbos.size(), m_posVbos.data());
+		glDeleteBuffers(m_normalVbos.size(), m_normalVbos.data());
+		glDeleteBuffers(m_texCoordsVbos.size(), m_texCoordsVbos.data());
 	}
 
 

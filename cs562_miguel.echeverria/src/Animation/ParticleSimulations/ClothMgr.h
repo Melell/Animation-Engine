@@ -24,6 +24,7 @@ namespace cs460
 
 		void update();			// Updates all the cloth components in order
 		void debug_draw();		// Uses debug drawing to render each cloth
+		void draw_textured();	// Draws all the cloths with a texture
 
 		void add_cloth(Cloth* cloth);
 		void remove_cloth(Cloth* cloth);

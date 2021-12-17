@@ -2,7 +2,8 @@
 * @file Plane.h
 * @author Miguel Echeverria , 540000918 , miguel.echeverria@digipen.edu
 * @date 2020/15/12
-* @brief Basic plane that can be rendered.
+* @brief Basic plane that can be rendered. Uses totally harcoded textures
+*		 for the cloth simulation demo.
 *
 * @copyright Copyright (C) 2020 DigiPen Institute of Technology .
 */
@@ -22,6 +23,8 @@ namespace cs460
 
 		~Plane();
 
+		void upload_tex_coords(float* texCoords, unsigned sizeOfTexCoords);
+
 		void bind_geometry() const;
 		void unbind_geometry() const;
 
@@ -31,9 +34,15 @@ namespace cs460
 		void bind_normal() const;
 		void unbind_normal() const;
 
+		int get_diffuse_texture_unit() const;
+		int get_normal_texture_unit() const;
+
 	private:
-		unsigned m_vao = -1;
-		unsigned m_vbo = -1;
+		unsigned m_vao = 0;
+		unsigned m_posVbo = 0;
+		unsigned m_normalsVbo = 0;
+		unsigned m_texCoordsVbo = 0;
+		unsigned m_tangentsVbo = 0;
 		Texture2D m_diffuse;
 		Texture2D m_normal;
 

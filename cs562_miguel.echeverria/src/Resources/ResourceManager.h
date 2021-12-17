@@ -10,7 +10,7 @@
 #pragma once
 
 #include "Graphics/BasicShapes/Cube.h"
-#include "Graphics/BasicShapes/Plane.h"
+//#include "Graphics/BasicShapes/Plane.h"
 
 
 namespace cs460
@@ -62,7 +62,7 @@ namespace cs460
 		Cube& get_cube();
 
 		// Get the plane geometry
-		Plane& get_plane();
+		//Plane& get_plane();
 
 	private:
 
@@ -70,7 +70,7 @@ namespace cs460
 		std::unordered_map<std::string, Shader*> m_shaders;
 		std::unordered_map<std::string, Skybox*> m_skyboxes;
 		Cube m_cube;
-		Plane m_plane;
+		//Plane m_plane;
 
 		ResourceManager();
 		ResourceManager(const ResourceManager&) = delete;

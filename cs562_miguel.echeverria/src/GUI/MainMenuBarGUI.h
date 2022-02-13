@@ -24,6 +24,7 @@ namespace cs460
 		CATMULL_ROM,
 		BEZIER,
 		SKINNED_ANIMATION,
+		NESTED_MODELS,
 		PATH_FOLLOWING,
 		BLENDING_1D,
 		BLENDING_2D,
@@ -61,6 +62,7 @@ namespace cs460
 		void load_catmull_rom_curve_scene();
 		void load_bezier_curve_scene();
 		void load_skinned_animation_scene();
+		void load_nested_models_scene();
 		void load_path_following_scene();
 		void load_blending_1d_scene();
 		void load_blending_2d_scene();

@@ -74,7 +74,11 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::SKINNED_ANIMATION;
 				}
-				if (ImGui::MenuItem("Path Following"))
+				if (ImGui::MenuItem("NESTED MODELS"))
+				{
+					m_sceneToLoad = SCENE_TO_LOAD::NESTED_MODELS;
+				}
+				if (ImGui::MenuItem("PATH FOLLOWING"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::PATH_FOLLOWING;
 				}
@@ -110,11 +114,11 @@ namespace cs460
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::IK_ON_SKELETON;
 				}
-				if (ImGui::MenuItem("CLOTH SIMULATION"))
+				if (ImGui::MenuItem("Cloth Simulation"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::CLOTH_SIMULATION;
 				}
-				if (ImGui::MenuItem("CLOTH COLLISION"))
+				if (ImGui::MenuItem("Cloth Collision"))
 				{
 					m_sceneToLoad = SCENE_TO_LOAD::CLOTH_COLLISION;
 				}
@@ -251,6 +255,8 @@ namespace cs460
 			load_bezier_curve_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::SKINNED_ANIMATION)
 			load_skinned_animation_scene();
+		else if (m_sceneToLoad == SCENE_TO_LOAD::NESTED_MODELS)
+			load_nested_models_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::PATH_FOLLOWING)
 			load_path_following_scene();
 		else if (m_sceneToLoad == SCENE_TO_LOAD::BLENDING_1D)
@@ -620,6 +626,58 @@ namespace cs460
 		{
 			editorCam->set_position(glm::vec3(2.206f, 1.0f, 7.0f));
 			editorCam->set_target(editorCam->get_position() + glm::vec3(0.0f, 0.0f, -1.0f) * 25.0f);
+		}
+		else
+			std::cout << "ERROR: Editor camera not being used on skinned animations demo\n";
+	}
+
+	void MainMenuBarGUI::load_nested_models_scene()
+	{
+		load_empty_scene();
+
+		Scene& scene = Scene::get_instance();
+		SceneNode* root = scene.get_root();
+
+		// Create the xbot node
+		SceneNode* xbot = root->create_child("XBOT");
+
+		// Add the xbot model
+		ModelInstance* xbotInstance = xbot->add_component<ModelInstance>();
+		xbotInstance->change_model("data/Models/xbot/xbot.gltf");
+
+
+		// Get the right hand joint node to place the axe
+		SceneNode* rightShoulder = xbot->get_children().at(0)->get_children().at(2)->get_children().at(0)->get_children().at(0)->get_children().at(0)->get_children().at(2);
+		SceneNode* rightHand = rightShoulder->get_children().at(0)->get_children().at(0)->get_children().at(0);
+
+		// Create the actual axe as child of the right hand
+		SceneNode* axe = rightHand->create_child("AXE");
+
+		// Add the axe model
+		ModelInstance* axeInstance = axe->add_component<ModelInstance>();
+		axeInstance->change_model("data/Models/axe/scene.gltf");
+
+
+		// Set the local transform of the axe
+		axe->m_localTr.m_position = glm::vec3(-27.708f, -3.855f, 58.506f);
+		axe->m_localTr.m_orientation = glm::quat(-0.483f, 0.318f, 0.666f, 0.471f);
+		axe->m_localTr.m_scale = glm::vec3(0.34f, 0.34f, 0.34f);
+
+
+		// Set the animation
+		AnimationReference* xbotAnim = xbot->get_component<AnimationReference>();
+		xbotAnim->change_animation(8, "KICK");
+		xbotAnim->set_anim_time_scale(1.0f);
+
+
+		// Place the camera
+		ICamera* cam = scene.get_active_camera();
+		cam->set_is_active(true);
+		EditorCamera* editorCam = dynamic_cast<EditorCamera*>(cam);
+		if (editorCam)
+		{
+			editorCam->set_position(glm::vec3(1.0f, 1.0f, 5.0f));
+			editorCam->set_target(editorCam->get_position() + glm::normalize(glm::vec3(-0.3f, 0.0f, -1.0f)) * 25.0f);
 		}
 		else
 			std::cout << "ERROR: Editor camera not being used on skinned animations demo\n";

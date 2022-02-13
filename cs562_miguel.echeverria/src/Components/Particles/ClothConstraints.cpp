@@ -50,14 +50,15 @@ namespace cs460
 		if (system == nullptr)
 			return;
 
+		// Get the true radius of the spere
+		float epsilon = 0.05f;
+		float sphereRadius = m_sphere->m_worldTr.m_scale.x + epsilon;
+
 		VerletParticle& particle = system->m_particles[m_part];
 
 		// "Clamp" the particle against the sphere
 		glm::vec3 dir = particle.m_pos - m_sphere->m_worldTr.m_position;
-		if (glm::length2(dir) <= m_sphere->m_worldTr.m_scale.x * m_sphere->m_worldTr.m_scale.x)
-		{
-			float offset = 0.0f;
-			particle.m_pos = m_sphere->m_worldTr.m_position + glm::normalize(dir) * (m_sphere->m_worldTr.m_scale.x + offset);
-		}
+		if (glm::length2(dir) <= sphereRadius * sphereRadius)
+			particle.m_pos = m_sphere->m_worldTr.m_position + glm::normalize(dir) * sphereRadius;
 	}
 }

@@ -6,6 +6,7 @@
   - Inverse Kinematics
   - Cloth Simulation
 <img src="readme_data/ClothSim.gif" alt="GIF showing the cloth simulation" width="368" height="235" />
+<img src="readme_data/2DAnimBlending.gif" alt="GIF showing the cloth simulation" width="360" height="235" />
 
 # How To Build
 This project has been developed and tested only with MSVC and using Visual Studio 2019, for the x64 platform. It hasn't been tested with other compilers such as GCC or Clang.

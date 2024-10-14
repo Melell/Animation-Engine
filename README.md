@@ -5,3 +5,7 @@
   - 1D and 2D blending of animations (with blend tree editor)
   - Inverse Kinematics
   - Cloth Simulation
+
+# How To Build
+This project has been developed and tested only with MSVC and using Visual Studio 2019, for the x64 platform. It hasn't been tested with other compilers such as GCC or Clang.
+To build, simply open the solution file with Visual Studio, and run in Release mode.

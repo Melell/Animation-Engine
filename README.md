@@ -5,6 +5,7 @@
   - 1D and 2D blending of animations (with blend tree editor)
   - Inverse Kinematics
   - Cloth Simulation
+<img src="readme_data/ClothSim.gif" alt="GIF showing the cloth simulation" width="368" height="235" />
 
 # How To Build
 This project has been developed and tested only with MSVC and using Visual Studio 2019, for the x64 platform. It hasn't been tested with other compilers such as GCC or Clang.
